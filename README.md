@@ -48,6 +48,9 @@ result = index.get_scores(
 result[alpha].save(Path("/path/to/interpolated/run.tsv"))
 ```
 
+## Documentation
+A more detailed documentation is available [here](https://mrjleo.github.io/fast-forward/latest/fast_forward.html).
+
 ## Examples
 * [Creating a Fast-Forward index from a prebuilt Pyserini index](fast_forward/examples/create_index_from_pyserini.py)
 * [Computing dense scores for a sparse run and interpolating](fast_forward/examples/interpolate.py)
