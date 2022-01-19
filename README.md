@@ -1,5 +1,5 @@
-# FastForward Indexes
-This is the reference implementation of [FastForward indexes](https://arxiv.org/abs/2110.06051).
+# Fast-Forward Indexes
+This is the reference implementation of [Fast-Forward indexes](https://arxiv.org/abs/2110.06051).
 
 ⚠ **Important**: As this library is still in its early stages, the API is subject to change! ⚠
 
@@ -10,12 +10,12 @@ python -m pip install .
 ```
 
 ## Getting Started
-Using a FastForward index is as simple as providing a TREC run with sparse scores:
+Using a Fast-Forward index is as simple as providing a TREC run with sparse scores:
 ```python
 from pathlib import Path
-from fastforward.encoder import TCTColBERTQueryEncoder
-from fastforward.index import InMemoryIndex, Mode
-from fastforward.ranking import Ranking
+from fast_forward.encoder import TCTColBERTQueryEncoder
+from fast_forward.index import InMemoryIndex, Mode
+from fast_forward.ranking import Ranking
 
 # choose a pre-trained query encoder
 encoder = TCTColBERTQueryEncoder("castorini/tct_colbert-msmarco")
@@ -49,5 +49,5 @@ result[alpha].save(Path("/path/to/interpolated/run.tsv"))
 ```
 
 ## Examples
-* [Creating a FastForward index from a prebuilt Pyserini index](src/fastforward/examples/create_index_from_pyserini.py)
-* [Computing dense scores for a sparse run and interpolating](src/fastforward/examples/interpolate.py)
+* [Creating a Fast-Forward index from a prebuilt Pyserini index](fast_forward/examples/create_index_from_pyserini.py)
+* [Computing dense scores for a sparse run and interpolating](fast_forward/examples/interpolate.py)
