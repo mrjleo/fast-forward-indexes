@@ -49,7 +49,7 @@ result[alpha].save(Path("/path/to/interpolated/run.tsv"))
 ```
 
 ## Documentation
-A more detailed documentation is available [here](https://mrjleo.github.io/fast-forward/latest/fast_forward.html).
+A more detailed documentation is available [here](https://mrjleo.github.io/fast-forward-indexes/latest/fast_forward.html).
 
 ## Examples
 * [Creating a Fast-Forward index from a prebuilt Pyserini index](fast_forward/examples/create_index_from_pyserini.py)
