@@ -20,7 +20,7 @@ pip install fast-forward-indexes
 Alternatively, the package can be installed from source:
 ```bash
 git clone https://github.com/mrjleo/fast-forward-indexes.git
-cd fast-forward
+cd fast-forward-indexes
 python -m pip install .
 ```
 
