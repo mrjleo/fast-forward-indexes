@@ -12,9 +12,14 @@ This is the reference implementation of [Fast-Forward indexes](https://arxiv.org
 * Index compression via *sequential coalescing*.
 
 # Installation
-For now, the only way to install the package is from source:
+Install the package via `pip`:
 ```bash
-git clone https://github.com/mrjleo/fast-forward.git
+pip install fast-forward-indexes
+```
+
+Alternatively, the package can be installed from source:
+```bash
+git clone https://github.com/mrjleo/fast-forward-indexes.git
 cd fast-forward
 python -m pip install .
 ```

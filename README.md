@@ -4,9 +4,9 @@ This is the reference implementation of [Fast-Forward indexes](https://arxiv.org
 ⚠ **Important**: As this library is still in its early stages, the API is subject to change! ⚠
 
 ## Installation
-Clone this repository and run:
+Install the package via `pip`:
 ```bash
-python -m pip install .
+pip install fast-forward-indexes
 ```
 
 ## Getting Started
