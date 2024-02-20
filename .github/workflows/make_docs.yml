@@ -40,6 +40,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: gh-pages
+      - name: Remove old directory listing
+        run: |
+          rm -f docs/index.html
       - name: Generate directory listing
         uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
