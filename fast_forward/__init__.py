@@ -206,3 +206,5 @@ python -m fast_forward.examples.interpolate \\
     --alpha 0.2
 ```
 """
+
+__version__ = "0.1.0"
