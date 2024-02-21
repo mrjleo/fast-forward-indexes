@@ -46,7 +46,7 @@ jobs:
       - name: Generate directory listing
         uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
-          FOLDER: docs
+          FOLDER: .
       - name: Push to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
