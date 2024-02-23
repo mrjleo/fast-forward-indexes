@@ -190,7 +190,7 @@ class TestInMemoryIndex(unittest.TestCase):
         create_coalesced_index(self.doc_index, coalesced_index, 0.3)
         self.assertEqual(self.doc_index.doc_ids, coalesced_index.doc_ids)
         d0_vector_expected = np.average([DUMMY_VECTORS[0], DUMMY_VECTORS[1]], axis=0)
-        d0_vectors, _ = coalesced_index._get_vectors(["d0"], Mode.MAXP)
+        d0_vectors, _ = coalesced_index._get_vectors(["d0"])
         self.assertEqual(1, len(d0_vectors))
         self.assertTrue(np.array_equal(d0_vector_expected, d0_vectors[0]))
 
@@ -199,8 +199,8 @@ class TestInMemoryIndex(unittest.TestCase):
         create_coalesced_index(self.doc_index, coalesced_index, 0.2, buffer_size=2)
         self.assertEqual(self.doc_index.doc_ids, coalesced_index.doc_ids)
         for doc_id in self.doc_index.doc_ids:
-            vectors_1, _ = self.doc_index._get_vectors([doc_id], Mode.MAXP)
-            vectors_2, _ = coalesced_index._get_vectors([doc_id], Mode.MAXP)
+            vectors_1, _ = self.doc_index._get_vectors([doc_id])
+            vectors_2, _ = coalesced_index._get_vectors([doc_id])
             self.assertEqual(len(vectors_1), len(vectors_2))
             for v1, v2 in zip(vectors_1, vectors_2):
                 print(v1, v2)

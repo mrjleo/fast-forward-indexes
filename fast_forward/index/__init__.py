@@ -190,9 +190,7 @@ class Index(abc.ABC):
         self._add(vectors, doc_ids, psg_ids)
 
     @abc.abstractmethod
-    def _get_vectors(
-        self, ids: Iterable[str], mode: Mode
-    ) -> Tuple[np.ndarray, List[List[int]]]:
+    def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
         """Return:
             * A single array containing all vectors necessary to compute the scores for each document/passage.
             * For each document/passage (in the same order as the IDs), a list of integers (depending on the mode).
@@ -202,7 +200,6 @@ class Index(abc.ABC):
 
         Args:
             ids (Iterable[str]): The document/passage IDs to get the representations for.
-            mode (Mode): The index mode.
 
         Returns:
             Tuple[np.ndarray, List[List[int]]]: The vectors and corresponding indices.
@@ -219,7 +216,7 @@ class Index(abc.ABC):
         Yields:
             float: The scores, preserving the order of the IDs.
         """
-        vectors, id_indices = self._get_vectors(ids, self.mode)
+        vectors, id_indices = self._get_vectors(ids)
         all_scores = np.dot(q_rep, vectors.T)
 
         for ind in id_indices:
@@ -328,6 +325,7 @@ def create_coalesced_index(
     """
     assert len(target_index.doc_ids) == 0
     buffer_size = buffer_size or len(source_index.doc_ids)
+    source_index.mode = Mode.MAXP
 
     def _coalesce(P):
         P_new = []
@@ -353,7 +351,7 @@ def create_coalesced_index(
             target_index.add(np.array(vectors), doc_ids=doc_ids)
             vectors, doc_ids = [], []
 
-        v_old, _ = source_index._get_vectors([doc_id], Mode.MAXP)
+        v_old, _ = source_index._get_vectors([doc_id])
         v_new = _coalesce(v_old)
         vectors.extend(v_new)
         doc_ids.extend([doc_id] * len(v_new))

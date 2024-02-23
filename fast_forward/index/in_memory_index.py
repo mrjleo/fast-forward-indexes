@@ -92,20 +92,18 @@ class InMemoryIndex(Index):
     def _get_psg_ids(self) -> Set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _get_vectors(
-        self, ids: Iterable[str], mode: Mode
-    ) -> Tuple[np.ndarray, List[List[int]]]:
+    def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
 
         items_by_chunk = defaultdict(list)
         for id in ids:
-            if mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
+            if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
                 idxs = self._doc_id_to_idx[id]
-            elif mode == Mode.FIRSTP and id in self._doc_id_to_idx:
+            elif self.mode == Mode.FIRSTP and id in self._doc_id_to_idx:
                 idxs = [self._doc_id_to_idx[id][0]]
-            elif mode == Mode.PASSAGE and id in self._psg_id_to_idx:
+            elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
                 idxs = [self._psg_id_to_idx[id]]
             else:
-                LOGGER.error(f"invalid mode: {mode}")
+                LOGGER.error(f"invalid mode: {self.mode}")
                 idxs = []
 
             for idx in idxs:
