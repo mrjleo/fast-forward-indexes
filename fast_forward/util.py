@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
-from fast_forward.ranking import Ranking
 
+from fast_forward.ranking import Ranking
 
 LOGGER = logging.getLogger(__name__)
 

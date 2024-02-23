@@ -1,15 +1,14 @@
-import shutil
 import logging
-import unittest
+import shutil
 import tempfile
+import unittest
 from pathlib import Path
 
 import numpy as np
 
-from fast_forward.ranking import Ranking
+from fast_forward import InMemoryIndex, Mode, Ranking
 from fast_forward.encoder import LambdaQueryEncoder
-from fast_forward.index import Mode, InMemoryIndex, create_coalesced_index
-
+from fast_forward.index import create_coalesced_index
 
 DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
 DUMMY_DOC_IDS = ["d0", "d0", "d1", "d2", "d3"]
