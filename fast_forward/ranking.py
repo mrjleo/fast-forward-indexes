@@ -1,9 +1,8 @@
 import csv
-from pathlib import Path
-from copy import deepcopy
-from typing import Dict, Iterator
 from collections import OrderedDict, defaultdict
-
+from copy import deepcopy
+from pathlib import Path
+from typing import Dict, Iterator
 
 Run = Dict[str, Dict[str, float]]
 
@@ -118,7 +117,10 @@ class Ranking(object):
         """
         return self.run.__repr__()
 
-    def save(self, target: Path,) -> None:
+    def save(
+        self,
+        target: Path,
+    ) -> None:
         """Save the ranking in a TREC runfile.
 
         Args:
@@ -149,3 +151,30 @@ class Ranking(object):
                 q_id, _, id, _, score, name = line.split()
                 run[q_id][id] = float(score)
         return cls(run, name, sort=True, copy=False)
+
+
+def interpolate(
+    r1: Ranking, r2: Ranking, alpha: float, name: str = None, sort: bool = True
+) -> Ranking:
+    """Interpolate scores. For each query-doc pair:
+        * If the pair has only one score, ignore it.
+        * If the pair has two scores, interpolate: r1 * alpha + r2 * (1 - alpha).
+
+    Args:
+        r1 (Ranking): Scores from the first retriever.
+        r2 (Ranking): Scores from the second retriever.
+        alpha (float): Interpolation weight.
+        name (str, optional): Ranking name. Defaults to None.
+        sort (bool, optional): Whether to sort the documents by score. Defaults to True.
+
+    Returns:
+        Ranking: Interpolated ranking.
+    """
+    assert r1.q_ids == r2.q_ids
+    results = defaultdict(dict)
+    for q_id in r1:
+        for doc_id in r1[q_id].keys() & r2[q_id].keys():
+            results[q_id][doc_id] = (
+                alpha * r1[q_id][doc_id] + (1 - alpha) * r2[q_id][doc_id]
+            )
+    return Ranking(results, name=name, sort=sort, copy=False)
