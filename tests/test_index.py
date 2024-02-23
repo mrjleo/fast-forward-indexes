@@ -42,6 +42,12 @@ class TestInMemoryIndex(unittest.TestCase):
         )
         self.doc_psg_index.mode = Mode.MAXP
 
+        self.doc_psg_index_chunked = InMemoryIndex(self.dummy_encoder, chunk_size=3)
+        self.doc_psg_index_chunked.add(
+            vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
+        )
+        self.doc_psg_index_chunked.mode = Mode.MAXP
+
         self.doc_index = InMemoryIndex(self.dummy_encoder)
         self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
         self.doc_psg_index.mode = Mode.MAXP
@@ -65,13 +71,22 @@ class TestInMemoryIndex(unittest.TestCase):
 
     def test_interpolation(self):
         self.doc_psg_index.mode = Mode.MAXP
-        result = self.doc_psg_index.get_scores(
-            self.doc_ranking,
-            DUMMY_QUERIES,
-            alpha=[0.0, 0.5, 1.0],
-            cutoff=None,
-            early_stopping=False,
-        )
+        results = [
+            self.doc_psg_index.get_scores(
+                self.doc_ranking,
+                DUMMY_QUERIES,
+                alpha=[0.0, 0.5, 1.0],
+                cutoff=None,
+                early_stopping=False,
+            ),
+            self.doc_psg_index_chunked.get_scores(
+                self.doc_ranking,
+                DUMMY_QUERIES,
+                alpha=[0.0, 0.5, 1.0],
+                cutoff=None,
+                early_stopping=False,
+            ),
+        ]
 
         r00 = Ranking(
             {
@@ -79,23 +94,23 @@ class TestInMemoryIndex(unittest.TestCase):
                 "q2": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
             }
         )
-        self.assertEqual(result[0.0], r00)
-
         r05 = Ranking(
             {
                 "q1": {"d0": 51, "d1": 2.5, "d2": 3.5, "d3": 102.5},
                 "q2": {"d0": 201, "d1": 4, "d2": 5, "d3": 402.5},
             }
         )
-        self.assertEqual(result[0.5], r05)
-
         r10 = Ranking(
             {
                 "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
                 "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800},
             }
         )
-        self.assertEqual(result[1.0], r10)
+
+        for result in results:
+            self.assertEqual(result[1.0], r10)
+            self.assertEqual(result[0.5], r05)
+            self.assertEqual(result[0.0], r00)
 
     def test_early_stopping(self):
         self.doc_psg_index.mode = Mode.MAXP

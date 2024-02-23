@@ -40,13 +40,9 @@ class InMemoryIndex(Index):
 
         super().__init__(encoder, mode, encoder_batch_size)
 
-    def _add_chunk(self, dim: int = None) -> None:
-        """Add a chunk to the index.
-
-        Args:
-            dim (int, optional): Vector dimension. Only needs to be provided for the first chunk. Defaults to None.
-        """
-        self._chunks.append(np.zeros((self._chunk_size, dim or self._dim)))
+    def _add_chunk(self) -> None:
+        """Add a chunk to the index."""
+        self._chunks.append(np.zeros((self._chunk_size, self._dim)))
 
     def _add(
         self,
@@ -56,7 +52,8 @@ class InMemoryIndex(Index):
     ) -> None:
         # if this is the first call to _add, no chunks exist
         if len(self._chunks) == 0:
-            self._add_chunk(vectors.shape[1])
+            self._dim = vectors.shape[1]
+            self._add_chunk()
 
         # assign passage and document IDs
         j = (len(self._chunks) - 1) * self._chunk_size + self._cur_chunk_idx
@@ -85,7 +82,7 @@ class InMemoryIndex(Index):
             i += to_add
             self._cur_chunk_idx += to_add
 
-            if self._cur_chunk_idx == self._chunk_size - 1:
+            if self._cur_chunk_idx == self._chunk_size:
                 self._add_chunk()
                 self._cur_chunk_idx = 0
 
