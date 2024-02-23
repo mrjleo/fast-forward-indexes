@@ -98,33 +98,33 @@ class InMemoryIndex(Index):
     def _get_vectors(
         self, ids: Iterable[str], mode: Mode
     ) -> Tuple[np.ndarray, List[List[int]]]:
-        # create tuples of (id, idx) without accounting for chunks
-        id_idxs = []
+
+        items_by_chunk = defaultdict(list)
         for id in ids:
             if mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
-                id_idxs.extend([(id, idx) for idx in self._doc_id_to_idx[id]])
+                idxs = self._doc_id_to_idx[id]
             elif mode == Mode.FIRSTP and id in self._doc_id_to_idx:
-                id_idxs.append((id, self._doc_id_to_idx[id][0]))
+                idxs = [self._doc_id_to_idx[id][0]]
             elif mode == Mode.PASSAGE and id in self._psg_id_to_idx:
-                id_idxs.append((id, self._psg_id_to_idx[id]))
+                idxs = [self._psg_id_to_idx[id]]
             else:
-                pass
-                # warn?
+                LOGGER.error(f"invalid mode: {mode}")
+                idxs = []
 
-        chunk_idxs = defaultdict(list)
-        for id, idx in id_idxs:
-            chunk_idx = int(idx / self._chunk_size)
-            idx_in_chunk = idx % self._chunk_size
-            chunk_idxs[chunk_idx].append((idx_in_chunk, id))
+            for idx in idxs:
+                chunk_idx = int(idx / self._chunk_size)
+                idx_in_chunk = idx % self._chunk_size
+                items_by_chunk[chunk_idx].append((idx_in_chunk, id))
 
         result_vectors = []
         result_ids = defaultdict(list)
         items_so_far = 0
-        for chunk_idx, items in chunk_idxs.items():
-            idxs_in_chunk, ids_in_chunk = zip(*items)
-            result_vectors.append(self._chunks[chunk_idx][list(idxs_in_chunk)])
 
-            for i, id_in_chunk in enumerate(ids_in_chunk):
+        for chunk_idx, items in items_by_chunk.items():
+            idxs, ids_ = zip(*items)
+            result_vectors.append(self._chunks[chunk_idx][list(idxs)])
+
+            for i, id_in_chunk in enumerate(ids_):
                 result_ids[id_in_chunk].append(i + items_so_far)
 
             items_so_far += len(items)
