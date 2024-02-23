@@ -1,8 +1,5 @@
 import logging
-import shutil
-import tempfile
 import unittest
-from pathlib import Path
 
 import numpy as np
 
@@ -169,55 +166,8 @@ class TestInMemoryIndex(unittest.TestCase):
             InMemoryIndex(self.dummy_encoder).add(
                 DUMMY_VECTORS, doc_ids=None, psg_ids=None
             )
-
         with self.assertRaises(RuntimeError):
             InMemoryIndex(encoder=None).encode(["test"])
-
-    def test_save_load(self):
-        dtemp = Path(tempfile.mkdtemp())
-
-        self.doc_psg_index.save(dtemp / "doc_psg_index.pkl")
-        doc_psg_index_from_disk = InMemoryIndex.from_disk(
-            dtemp / "doc_psg_index.pkl", self.dummy_encoder, mode=Mode.MAXP
-        )
-
-        # check if all vectors match
-        for doc_id in self.doc_psg_index._doc_id_to_idx:
-            l1 = self.doc_psg_index._doc_id_to_idx[doc_id]
-            l2 = doc_psg_index_from_disk._doc_id_to_idx[doc_id]
-            for i1, i2 in zip(l1, l2):
-                self.assertTrue(
-                    np.array_equal(
-                        self.doc_psg_index._vectors[i1],
-                        doc_psg_index_from_disk._vectors[i2],
-                    )
-                )
-
-        for psg_id in self.doc_psg_index._psg_id_to_idx:
-            i1 = self.doc_psg_index._psg_id_to_idx[psg_id]
-            i2 = doc_psg_index_from_disk._psg_id_to_idx[psg_id]
-            self.assertTrue(
-                np.array_equal(
-                    self.doc_psg_index._vectors[i1],
-                    doc_psg_index_from_disk._vectors[i2],
-                )
-            )
-
-        self.assertEqual(Mode.MAXP, doc_psg_index_from_disk.mode)
-
-        self.doc_index.save(dtemp / "doc_index.pkl")
-        doc_index_from_disk = InMemoryIndex.from_disk(
-            dtemp / "doc_index.pkl", self.dummy_encoder, mode=Mode.MAXP
-        )
-        self.assertEqual(0, len(doc_index_from_disk._psg_id_to_idx))
-
-        self.psg_index.save(dtemp / "psg_index.pkl")
-        psg_index_from_disk = InMemoryIndex.from_disk(
-            dtemp / "psg_index.pkl", self.dummy_encoder, mode=Mode.PASSAGE
-        )
-        self.assertEqual(0, len(psg_index_from_disk._doc_id_to_idx))
-
-        shutil.rmtree(dtemp)
 
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged
@@ -238,6 +188,7 @@ class TestInMemoryIndex(unittest.TestCase):
             vectors_2, _ = coalesced_index._get_vectors([doc_id], Mode.MAXP)
             self.assertEqual(len(vectors_1), len(vectors_2))
             for v1, v2 in zip(vectors_1, vectors_2):
+                print(v1, v2)
                 self.assertTrue(np.array_equal(v1, v2))
 
 

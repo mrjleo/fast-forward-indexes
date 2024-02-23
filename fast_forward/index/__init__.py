@@ -165,7 +165,7 @@ class Index(abc.ABC):
         psg_ids: Sequence[str] = None,
     ) -> None:
         """Add vector representations and corresponding IDs to the index. Only one of "doc_ids" and "psg_ids"
-        may be None. For performance reasons, this function should not be called frequently with few items.
+        may be None.
 
         Args:
             vectors (np.ndarray): The representations, shape (num_vectors, dim).
@@ -181,10 +181,6 @@ class Index(abc.ABC):
             )
 
         num_vectors = vectors.shape[0]
-        if num_vectors < 100:
-            LOGGER.warning(
-                'calling "Index.add()" repeatedly with few vectors may be slow'
-            )
         if doc_ids is None:
             doc_ids = [None] * num_vectors
         if psg_ids is None:
@@ -196,13 +192,10 @@ class Index(abc.ABC):
     @abc.abstractmethod
     def _get_vectors(
         self, ids: Iterable[str], mode: Mode
-    ) -> Tuple[np.ndarray, List[Union[List[int], int, None]]]:
+    ) -> Tuple[np.ndarray, List[List[int]]]:
         """Return:
             * A single array containing all vectors necessary to compute the scores for each document/passage.
-            * For each document/passage (in the same order as the IDs), either
-                * a list of integers (MAXP, AVEP),
-                * a single integer (FIRSTP, PASSAGE),
-                * None (the document/passage is not indexed and has no vector)
+            * For each document/passage (in the same order as the IDs), a list of integers (depending on the mode).
 
         The integers will be used to get the corresponding representations from the array.
         The output of this function depends on the current mode.
@@ -212,7 +205,7 @@ class Index(abc.ABC):
             mode (Mode): The index mode.
 
         Returns:
-            Tuple[np.ndarray, List[Union[List[int], int, None]]]: The vectors and corresponding indices.
+            Tuple[np.ndarray, List[List[int]]]: The vectors and corresponding indices.
         """
         pass
 
@@ -230,7 +223,7 @@ class Index(abc.ABC):
         all_scores = np.dot(q_rep, vectors.T)
 
         for ind in id_indices:
-            if ind is None:
+            if len(ind) == 0:
                 yield None
             else:
                 if self.mode == Mode.MAXP:
@@ -238,7 +231,7 @@ class Index(abc.ABC):
                 elif self.mode == Mode.AVEP:
                     yield np.average(all_scores[ind])
                 elif self.mode in (Mode.FIRSTP, Mode.PASSAGE):
-                    yield all_scores[ind]
+                    yield all_scores[ind][0]
 
     def get_scores(
         self,

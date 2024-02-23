@@ -1,7 +1,5 @@
 import logging
-import pickle
 from collections import defaultdict
-from pathlib import Path
 from typing import Iterable, List, Sequence, Set, Tuple, Union
 
 import numpy as np
@@ -20,6 +18,7 @@ class InMemoryIndex(Index):
         encoder: QueryEncoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
+        chunk_size: int = 2**14,
     ) -> None:
         """Constructor.
 
@@ -27,13 +26,27 @@ class InMemoryIndex(Index):
             encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
+            chunk_size (int, optional): Index chunk size (i.e., size of allocated arrays). Defaults to 2**14.
         """
-        self._vectors = None
+        self._chunks = []
+        self._chunk_size = chunk_size
+        self._cur_chunk_idx = 0
+        self._dim = None
+
         self._doc_ids = []
         self._psg_ids = []
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
+
         super().__init__(encoder, mode, encoder_batch_size)
+
+    def _add_chunk(self, dim: int = None) -> None:
+        """Add a chunk to the index.
+
+        Args:
+            dim (int, optional): Vector dimension. Only needs to be provided for the first chunk. Defaults to None.
+        """
+        self._chunks.append(np.zeros((self._chunk_size, dim or self._dim)))
 
     def _add(
         self,
@@ -41,23 +54,40 @@ class InMemoryIndex(Index):
         doc_ids: Sequence[Union[str, None]],
         psg_ids: Sequence[Union[str, None]],
     ) -> None:
-        if self._vectors is None:
-            idx = 0
-            self._vectors = vectors.copy()
-        else:
-            idx = self._vectors.shape[0]
-            self._vectors = np.append(self._vectors, vectors, axis=0)
+        # if this is the first call to _add, no chunks exist
+        if len(self._chunks) == 0:
+            self._add_chunk(vectors.shape[1])
 
+        # assign passage and document IDs
+        j = (len(self._chunks) - 1) * self._chunk_size + self._cur_chunk_idx
         for doc_id, psg_id in zip(doc_ids, psg_ids):
             if doc_id is not None:
-                self._doc_id_to_idx[doc_id].append(idx)
+                self._doc_id_to_idx[doc_id].append(j)
             if psg_id is not None:
                 assert psg_id not in self._psg_id_to_idx
-                self._psg_id_to_idx[psg_id] = idx
-            idx += 1
+                self._psg_id_to_idx[psg_id] = j
+            j += 1
 
         self._doc_ids.extend(doc_ids)
         self._psg_ids.extend(psg_ids)
+
+        # add vectors to chunks
+        i = 0
+        num_vectors = vectors.shape[0]
+        while i < num_vectors:
+            remaining = num_vectors - i
+            to_add = min(
+                remaining, self._chunk_size, self._chunk_size - self._cur_chunk_idx
+            )
+            self._chunks[-1][self._cur_chunk_idx : self._cur_chunk_idx + to_add] = (
+                vectors[i : i + to_add]
+            )
+            i += to_add
+            self._cur_chunk_idx += to_add
+
+            if self._cur_chunk_idx == self._chunk_size - 1:
+                self._add_chunk()
+                self._cur_chunk_idx = 0
 
     def _get_doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
@@ -67,79 +97,35 @@ class InMemoryIndex(Index):
 
     def _get_vectors(
         self, ids: Iterable[str], mode: Mode
-    ) -> Tuple[np.ndarray, List[Union[List[int], int, None]]]:
-        # a list of all vectors to take from the main vector array
-        vector_indices = []
+    ) -> Tuple[np.ndarray, List[List[int]]]:
+        # create tuples of (id, idx) without accounting for chunks
+        id_idxs = []
+        for id in ids:
+            if mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
+                id_idxs.extend([(id, idx) for idx in self._doc_id_to_idx[id]])
+            elif mode == Mode.FIRSTP and id in self._doc_id_to_idx:
+                id_idxs.append((id, self._doc_id_to_idx[id][0]))
+            elif mode == Mode.PASSAGE and id in self._psg_id_to_idx:
+                id_idxs.append((id, self._psg_id_to_idx[id]))
+            else:
+                pass
+                # warn?
 
-        # for each ID, keep a list of indices to get the corresponding vectors from "vector_indices"
-        id_indices = []
-        i = 0
+        chunk_idxs = defaultdict(list)
+        for id, idx in id_idxs:
+            chunk_idx = int(idx / self._chunk_size)
+            idx_in_chunk = idx % self._chunk_size
+            chunk_idxs[chunk_idx].append((idx_in_chunk, id))
 
-        if mode in (Mode.MAXP, Mode.AVEP):
-            for id in ids:
-                if id in self._doc_id_to_idx:
-                    doc_indices = self._doc_id_to_idx[id]
-                    vector_indices.extend(doc_indices)
-                    id_indices.append(list(range(i, i + len(doc_indices))))
-                    i += len(doc_indices)
-                else:
-                    id_indices.append(None)
-        elif mode == Mode.FIRSTP:
-            for id in ids:
-                if id in self._doc_id_to_idx:
-                    vector_indices.append(self._doc_id_to_idx[id][0])
-                    id_indices.append(i)
-                    i += 1
-                else:
-                    id_indices.append(None)
-        elif mode == Mode.PASSAGE:
-            for id in ids:
-                if id in self._psg_id_to_idx:
-                    vector_indices.append(self._psg_id_to_idx[id])
-                    id_indices.append(i)
-                    i += 1
-                else:
-                    id_indices.append(None)
-        else:
-            LOGGER.error(f"invalid mode: {mode}")
-        return self._vectors[vector_indices], id_indices
+        result_vectors = []
+        result_ids = defaultdict(list)
+        items_so_far = 0
+        for chunk_idx, items in chunk_idxs.items():
+            idxs_in_chunk, ids_in_chunk = zip(*items)
+            result_vectors.append(self._chunks[chunk_idx][list(idxs_in_chunk)])
 
-    def save(self, target: Path) -> None:
-        """Save the index in a file on disk.
+            for i, id_in_chunk in enumerate(ids_in_chunk):
+                result_ids[id_in_chunk].append(i + items_so_far)
 
-        Args:
-            target (Path): Target file to create.
-        """
-        target.parent.mkdir(parents=True, exist_ok=True)
-        LOGGER.info(f"writing {target}")
-        with open(target, "wb") as fp:
-            pickle.dump((self._vectors, self._doc_ids, self._psg_ids), fp)
-
-    @classmethod
-    def from_disk(
-        cls,
-        index_file: Path,
-        encoder: QueryEncoder = None,
-        mode: Mode = Mode.PASSAGE,
-        encoder_batch_size: int = 32,
-    ) -> "InMemoryIndex":
-        """Read an index from disk.
-
-        Args:
-            index_file (Path): The index file.
-            encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
-            mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
-            encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
-
-        Returns:
-            InMemoryIndex: The index.
-        """
-        LOGGER.info(f"reading {index_file}")
-        with open(index_file, "rb") as fp:
-            vectors, doc_ids, psg_ids = pickle.load(fp)
-
-        index = cls(encoder, mode, encoder_batch_size)
-        if vectors is not None:
-            index.add(vectors, doc_ids, psg_ids)
-        index.mode = mode
-        return index
+            items_so_far += len(items)
+        return np.concatenate(result_vectors), [result_ids[id] for id in ids]
