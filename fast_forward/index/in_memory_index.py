@@ -93,7 +93,6 @@ class InMemoryIndex(Index):
         return set(self._psg_id_to_idx.keys())
 
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
-
         items_by_chunk = defaultdict(list)
         for id in ids:
             if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
@@ -103,7 +102,7 @@ class InMemoryIndex(Index):
             elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
                 idxs = [self._psg_id_to_idx[id]]
             else:
-                LOGGER.error(f"invalid mode: {self.mode}")
+                LOGGER.warning(f"no vectors for {id}")
                 idxs = []
 
             for idx in idxs:
