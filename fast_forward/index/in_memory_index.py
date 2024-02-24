@@ -32,12 +32,8 @@ class InMemoryIndex(Index):
         self._chunk_size = chunk_size
         self._cur_chunk_idx = 0
         self._dim = None
-
-        self._doc_ids = []
-        self._psg_ids = []
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
-
         super().__init__(encoder, mode, encoder_batch_size)
 
     def _add_chunk(self) -> None:
@@ -64,9 +60,6 @@ class InMemoryIndex(Index):
                 assert psg_id not in self._psg_id_to_idx
                 self._psg_id_to_idx[psg_id] = j
             j += 1
-
-        self._doc_ids.extend(doc_ids)
-        self._psg_ids.extend(psg_ids)
 
         # add vectors to chunks
         i = 0
