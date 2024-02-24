@@ -23,7 +23,8 @@ class OnDiskIndex(Index):
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
-        chunksize: int = None,
+        resize_min_val: int = 2**10,
+        hdf5_chunk_size: int = None,
         dtype: np.dtype = np.float32,
         overwrite: bool = False,
     ) -> None:
@@ -31,15 +32,16 @@ class OnDiskIndex(Index):
             raise ValueError(f"File {index_file} exists")
 
         super().__init__(encoder, mode, encoder_batch_size)
-
         self.index_file = index_file.absolute()
+        self.resize_min_val = resize_min_val
+
         with h5py.File(self.index_file, "w") as fp:
             fp.create_dataset(
                 "vectors",
                 (init_size, dim),
                 dtype,
                 maxshape=(None, dim),
-                chunks=True if chunksize is None else (chunksize, dim),
+                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size, dim),
             )
             fp["vectors"].attrs["num_vectors"] = 0
             fp.attrs["ff_version"] = fast_forward.__version__
@@ -50,12 +52,22 @@ class OnDiskIndex(Index):
         doc_ids: Sequence[Union[str, None]],
         psg_ids: Sequence[Union[str, None]],
     ) -> None:
-        n, d = vectors.shape
+        num_new_vecs, dim_new_vecs = vectors.shape
         with h5py.File(self.index_file, "a") as fp:
-            assert d == fp["vectors"].shape[1]
+            capacity, dim = fp["vectors"].shape
             cur_num_vectors = fp["vectors"].attrs["num_vectors"]
-            fp["vectors"][cur_num_vectors : cur_num_vectors + n] = vectors
-            fp["vectors"].attrs["num_vectors"] += n
+            assert dim_new_vecs == dim
+
+            space_left = capacity - cur_num_vectors
+            if num_new_vecs > space_left:
+                new_size = max(
+                    capacity + num_new_vecs - space_left, self.resize_min_val
+                )
+                LOGGER.debug(f"resizing index from {capacity} to {new_size}")
+                fp["vectors"].resize(new_size, axis=0)
+
+            fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors
+            fp["vectors"].attrs["num_vectors"] += num_new_vecs
 
             for i, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
                 if doc_id is not None:
