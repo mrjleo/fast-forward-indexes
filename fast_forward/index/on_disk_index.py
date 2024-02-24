@@ -49,10 +49,10 @@ class OnDiskIndex(Index):
             raise ValueError(f"File {index_file} exists")
 
         super().__init__(encoder, mode, encoder_batch_size)
-        self.index_file = index_file.absolute()
-        self.resize_min_val = resize_min_val
+        self._index_file = index_file.absolute()
+        self._resize_min_val = resize_min_val
 
-        with h5py.File(self.index_file, "w") as fp:
+        with h5py.File(self._index_file, "w") as fp:
             fp.create_dataset(
                 "vectors",
                 (init_size, dim),
@@ -69,7 +69,7 @@ class OnDiskIndex(Index):
         doc_ids: Sequence[Union[str, None]],
         psg_ids: Sequence[Union[str, None]],
     ) -> None:
-        with h5py.File(self.index_file, "a") as fp:
+        with h5py.File(self._index_file, "a") as fp:
             num_new_vecs, dim_new_vecs = vectors.shape
             capacity, dim = fp["vectors"].shape
             assert dim_new_vecs == dim
@@ -79,7 +79,7 @@ class OnDiskIndex(Index):
             space_left = capacity - cur_num_vectors
             if num_new_vecs > space_left:
                 new_size = max(
-                    capacity + num_new_vecs - space_left, self.resize_min_val
+                    capacity + num_new_vecs - space_left, self._resize_min_val
                 )
                 LOGGER.debug(f"resizing index from {capacity} to {new_size}")
                 fp["vectors"].resize(new_size, axis=0)
@@ -101,18 +101,18 @@ class OnDiskIndex(Index):
                     ds[0] = cur_num_vectors + i
 
     def _get_doc_ids(self) -> Set[str]:
-        with h5py.File(self.index_file, "r") as fp:
+        with h5py.File(self._index_file, "r") as fp:
             return set(fp["/ids/doc"].keys())
 
     def _get_psg_ids(self) -> Set[str]:
-        with h5py.File(self.index_file, "r") as fp:
+        with h5py.File(self._index_file, "r") as fp:
             return set(fp["/ids/psg"].keys())
 
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
         result_vectors = []
         id_idxs = []
         c = 0
-        with h5py.File(self.index_file, "r") as fp:
+        with h5py.File(self._index_file, "r") as fp:
             for id in ids:
                 if self.mode in (Mode.MAXP, Mode.AVEP) and id in fp["/ids/doc"]:
                     idxs = fp[f"/ids/doc/{id}"][0]
