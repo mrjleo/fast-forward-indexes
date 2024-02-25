@@ -38,6 +38,7 @@ class InMemoryIndex(Index):
 
     def _add_chunk(self) -> None:
         """Add a chunk to the index."""
+        LOGGER.debug("adding new chunk")
         self._chunks.append(np.zeros((self._chunk_size, self._dim)))
 
     def _add(
@@ -65,6 +66,11 @@ class InMemoryIndex(Index):
         i = 0
         num_vectors = vectors.shape[0]
         while i < num_vectors:
+            # if current chunk is full, add a new one
+            if self._cur_chunk_idx == self._chunk_size:
+                self._add_chunk()
+                self._cur_chunk_idx = 0
+
             remaining = num_vectors - i
             to_add = min(
                 remaining, self._chunk_size, self._chunk_size - self._cur_chunk_idx
@@ -74,10 +80,6 @@ class InMemoryIndex(Index):
             )
             i += to_add
             self._cur_chunk_idx += to_add
-
-            if self._cur_chunk_idx == self._chunk_size:
-                self._add_chunk()
-                self._cur_chunk_idx = 0
 
     def _get_doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
