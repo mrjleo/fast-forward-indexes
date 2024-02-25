@@ -58,8 +58,10 @@ class InMemoryIndex(Index):
             if doc_id is not None:
                 self._doc_id_to_idx[doc_id].append(j)
             if psg_id is not None:
-                assert psg_id not in self._psg_id_to_idx
-                self._psg_id_to_idx[psg_id] = j
+                if psg_id not in self._psg_id_to_idx:
+                    self._psg_id_to_idx[psg_id] = j
+                else:
+                    LOGGER.error(f"passage ID {psg_id} already exists")
             j += 1
 
         # add vectors to chunks
