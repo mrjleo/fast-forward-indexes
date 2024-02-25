@@ -42,7 +42,9 @@ class TestInMemoryIndex(unittest.TestCase):
         )
         self.doc_psg_index.mode = Mode.MAXP
 
-        self.doc_psg_index_chunked = InMemoryIndex(self.dummy_encoder, chunk_size=3)
+        self.doc_psg_index_chunked = InMemoryIndex(
+            self.dummy_encoder, init_size=2, alloc_size=2
+        )
         self.doc_psg_index_chunked.add(
             vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
         )

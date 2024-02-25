@@ -18,7 +18,8 @@ class InMemoryIndex(Index):
         encoder: QueryEncoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
-        chunk_size: int = 2**14,
+        init_size: int = 2**14,
+        alloc_size: int = 2**14,
     ) -> None:
         """Constructor.
 
@@ -26,20 +27,33 @@ class InMemoryIndex(Index):
             encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
-            chunk_size (int, optional): Index chunk size (i.e., size of allocated arrays). Defaults to 2**14.
+            init_size (int, optional): Initial index size. Defaults to 2**14.
+            alloc_size (int, optional): Size of array allocated when index is full. Defaults to 2**14.
         """
         self._chunks = []
-        self._chunk_size = chunk_size
+        self._init_size = init_size
+        self._alloc_size = alloc_size
         self._cur_chunk_idx = 0
         self._dim = None
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
         super().__init__(encoder, mode, encoder_batch_size)
 
-    def _add_chunk(self) -> None:
-        """Add a chunk to the index."""
-        LOGGER.debug("adding new chunk")
-        self._chunks.append(np.zeros((self._chunk_size, self._dim)))
+    def __len__(self) -> int:
+        """The number of vectors in the index.
+
+        Returns:
+            int: The number of vectors.
+        """
+        # account for the fact that the first chunk might be larger
+        if len(self._chunks) == 1:
+            return self._cur_chunk_idx
+        else:
+            return (
+                self._chunks[0].shape[0]
+                + (len(self._chunks) - 2) * self._alloc_size
+                + self._cur_chunk_idx
+            )
 
     def _add(
         self,
@@ -50,10 +64,10 @@ class InMemoryIndex(Index):
         # if this is the first call to _add, no chunks exist
         if len(self._chunks) == 0:
             self._dim = vectors.shape[1]
-            self._add_chunk()
+            self._chunks.append(np.zeros((self._init_size, self._dim)))
 
         # assign passage and document IDs
-        j = (len(self._chunks) - 1) * self._chunk_size + self._cur_chunk_idx
+        j = len(self)
         for doc_id, psg_id in zip(doc_ids, psg_ids):
             if doc_id is not None:
                 self._doc_id_to_idx[doc_id].append(j)
@@ -65,23 +79,34 @@ class InMemoryIndex(Index):
             j += 1
 
         # add vectors to chunks
-        i = 0
+        added = 0
         num_vectors = vectors.shape[0]
-        while i < num_vectors:
+        while added < num_vectors:
+            cur_chunk_size = self._chunks[-1].shape[0]
+
             # if current chunk is full, add a new one
-            if self._cur_chunk_idx == self._chunk_size:
-                self._add_chunk()
+            if self._cur_chunk_idx == cur_chunk_size:
+                LOGGER.debug("adding new chunk")
+                self._chunks.append(np.zeros((self._alloc_size, self._dim)))
                 self._cur_chunk_idx = 0
 
-            remaining = num_vectors - i
             to_add = min(
-                remaining, self._chunk_size, self._chunk_size - self._cur_chunk_idx
+                num_vectors - added,
+                cur_chunk_size,
+                cur_chunk_size - self._cur_chunk_idx,
             )
             self._chunks[-1][self._cur_chunk_idx : self._cur_chunk_idx + to_add] = (
-                vectors[i : i + to_add]
+                vectors[added : added + to_add]
             )
-            i += to_add
+            added += to_add
             self._cur_chunk_idx += to_add
+
+    def consolidate(self) -> None:
+        """Copy all chunks of the index to one contiguous section in the memory."""
+        if len(self._chunks) < 2:
+            return
+        self._cur_chunk_idx = len(self)
+        self._chunks = [np.stack(self._chunks)]
 
     def _get_doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
@@ -103,8 +128,16 @@ class InMemoryIndex(Index):
                 idxs = []
 
             for idx in idxs:
-                chunk_idx = int(idx / self._chunk_size)
-                idx_in_chunk = idx % self._chunk_size
+
+                # account for the fact that the first chunk might be larger
+                if idx < self._chunks[0].shape[0]:
+                    chunk_idx = 0
+                    idx_in_chunk = idx
+                else:
+                    idx -= self._chunks[0].shape[0]
+                    chunk_idx = int(idx / self._alloc_size) + 1
+                    idx_in_chunk = idx % self._alloc_size
+
                 items_by_chunk[chunk_idx].append((idx_in_chunk, id))
 
         result_vectors = []
