@@ -142,6 +142,15 @@ class Index(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def __len__(self) -> int:
+        """The number of vectors in the index.
+
+        Returns:
+            int: The number of vectors.
+        """
+        pass
+
+    @abc.abstractmethod
     def _add(
         self,
         vectors: np.ndarray,

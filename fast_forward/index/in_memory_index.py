@@ -40,11 +40,6 @@ class InMemoryIndex(Index):
         super().__init__(encoder, mode, encoder_batch_size)
 
     def __len__(self) -> int:
-        """The number of vectors in the index.
-
-        Returns:
-            int: The number of vectors.
-        """
         # account for the fact that the first chunk might be larger
         if len(self._chunks) == 1:
             return self._cur_chunk_idx

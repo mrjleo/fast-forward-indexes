@@ -63,6 +63,10 @@ class OnDiskIndex(Index):
             fp["vectors"].attrs["num_vectors"] = 0
             fp.attrs["ff_version"] = fast_forward.__version__
 
+    def __len__(self) -> int:
+        with h5py.File(self._index_file, "r") as fp:
+            return fp["vectors"].attrs["num_vectors"]
+
     def _add(
         self,
         vectors: np.ndarray,
