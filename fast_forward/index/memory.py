@@ -89,6 +89,7 @@ class InMemoryIndex(Index):
                 LOGGER.debug("adding new shard")
                 self._shards.append(np.zeros((self._alloc_size, self._dim)))
                 self._idx_in_cur_shard = 0
+                cur_shard_size = self._alloc_size
 
             to_add = min(
                 num_vectors - added,
