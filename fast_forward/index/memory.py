@@ -106,8 +106,14 @@ class InMemoryIndex(Index):
         """Copy all shards of the index to one contiguous section in the memory."""
         if len(self._shards) < 2:
             return
-        self._idx_in_cur_shard = len(self)
-        self._shards = [np.concatenate(self._shards)]
+
+        # combine all shards up to the last one entirely, and take only whats in use of the last one
+        self._shards = [
+            np.concatenate(
+                self._shards[:-1] + [self._shards[-1][: self._idx_in_cur_shard]]
+            )
+        ]
+        self._idx_in_cur_shard = self._shards[0].shape[0]
 
     def _get_doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
