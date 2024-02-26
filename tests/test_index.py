@@ -9,6 +9,8 @@ from fast_forward import InMemoryIndex, Mode, OnDiskIndex, Ranking
 from fast_forward.encoder import LambdaQueryEncoder
 from fast_forward.index import create_coalesced_index
 
+logging.basicConfig(level=logging.DEBUG)
+
 DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
 DUMMY_DOC_IDS = ["d0", "d0", "d1", "d2", "d3"]
 DUMMY_PSG_IDS = ["p0", "p1", "p2", "p3", "p4"]
@@ -35,47 +37,18 @@ DUMMY_PSG_RANKING = Ranking(DUMMY_PSG_RUN)
 DUMMY_ENCODER = LambdaQueryEncoder(lambda _: np.array([1, 1, 1, 1, 1]))
 
 
-class TestIndexCommon(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        logging.basicConfig(level=logging.DEBUG)
-        tempdir = Path(tempfile.gettempdir())
+class TestIndex(unittest.TestCase):
+    __test__ = False
 
-        self.doc_psg_indexes = [
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
-            OnDiskIndex(
-                tempdir / "doc_psg_index.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-                overwrite=True,
-            ),
-        ]
+    def setUp(self):
         for index in self.doc_psg_indexes:
             index.add(
                 vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
             )
 
-        self.doc_indexes = [
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
-            OnDiskIndex(
-                tempdir / "doc_index.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-                overwrite=True,
-            ),
-        ]
         for index in self.doc_indexes:
             index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
 
-        self.psg_indexes = [
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
-            OnDiskIndex(
-                tempdir / "psg_index.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-                overwrite=True,
-            ),
-        ]
         for index in self.psg_indexes:
             index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
@@ -215,39 +188,103 @@ class TestIndexCommon(unittest.TestCase):
 
     def test_errors(self):
         with self.assertRaises(ValueError):
-            InMemoryIndex(DUMMY_DIM, encoder=None).add(
-                DUMMY_VECTORS, doc_ids=None, psg_ids=None
-            )
-
+            self.index_no_enc.add(DUMMY_VECTORS, doc_ids=None, psg_ids=None)
+        with self.assertRaises(RuntimeError):
+            self.index_no_enc.encode(["test"])
         with self.assertRaises(ValueError):
-            InMemoryIndex(DUMMY_DIM + 1, encoder=None).add(
+            self.index_wrong_dim.add(
                 DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
             )
 
-        with self.assertRaises(RuntimeError):
-            InMemoryIndex(DUMMY_DIM, encoder=None).encode(["test"])
-
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged
-        coalesced_index = InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP)
-        create_coalesced_index(self.doc_indexes[0], coalesced_index, 0.3)
-        self.assertEqual(self.doc_indexes[0].doc_ids, coalesced_index.doc_ids)
+        create_coalesced_index(self.doc_indexes[0], self.coalesced_indexes[0], 0.3)
+        self.assertEqual(self.doc_indexes[0].doc_ids, self.coalesced_indexes[0].doc_ids)
         d0_vector_expected = np.average([DUMMY_VECTORS[0], DUMMY_VECTORS[1]], axis=0)
-        d0_vectors, _ = coalesced_index._get_vectors(["d0"])
+        d0_vectors, _ = self.coalesced_indexes[0]._get_vectors(["d0"])
         self.assertEqual(1, len(d0_vectors))
         self.assertTrue(np.array_equal(d0_vector_expected, d0_vectors[0]))
 
         # delta = 0.2: nothing should change
-        coalesced_index = InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP)
-        create_coalesced_index(self.doc_indexes[0], coalesced_index, 0.2, buffer_size=2)
-        self.assertEqual(self.doc_indexes[0].doc_ids, coalesced_index.doc_ids)
+        create_coalesced_index(
+            self.doc_indexes[0], self.coalesced_indexes[1], 0.2, buffer_size=2
+        )
+        self.assertEqual(self.doc_indexes[0].doc_ids, self.coalesced_indexes[1].doc_ids)
         for doc_id in self.doc_indexes[0].doc_ids:
             vectors_1, _ = self.doc_indexes[0]._get_vectors([doc_id])
-            vectors_2, _ = coalesced_index._get_vectors([doc_id])
+            vectors_2, _ = self.coalesced_indexes[1]._get_vectors([doc_id])
             self.assertEqual(len(vectors_1), len(vectors_2))
             for v1, v2 in zip(vectors_1, vectors_2):
                 print(v1, v2)
                 self.assertTrue(np.array_equal(v1, v2))
+
+
+class TestInMemoryIndex(TestIndex):
+    __test__ = True
+
+    def setUp(self):
+        self.doc_psg_indexes = [
+            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
+        ]
+        self.doc_indexes = [
+            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
+        ]
+        self.psg_indexes = [
+            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
+        ]
+        self.index_no_enc = InMemoryIndex(DUMMY_DIM, encoder=None)
+        self.index_wrong_dim = InMemoryIndex(DUMMY_DIM + 1, encoder=None)
+        self.coalesced_indexes = [
+            InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP),
+            InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP),
+        ]
+        super().setUp()
+
+
+class TestOnDiskIndex(TestIndex):
+    __test__ = True
+
+    def setUp(self):
+        self.tempdir = Path(tempfile.mkdtemp())
+        self.doc_psg_indexes = [
+            OnDiskIndex(
+                self.tempdir / "doc_psg_index.h5",
+                DUMMY_DIM,
+                DUMMY_ENCODER,
+                overwrite=True,
+            ),
+        ]
+        self.doc_indexes = [
+            OnDiskIndex(
+                self.tempdir / "doc_index.h5",
+                DUMMY_DIM,
+                DUMMY_ENCODER,
+                overwrite=True,
+            ),
+        ]
+        self.psg_indexes = [
+            OnDiskIndex(
+                self.tempdir / "psg_index.h5",
+                DUMMY_DIM,
+                DUMMY_ENCODER,
+                overwrite=True,
+            ),
+        ]
+        self.index_no_enc = OnDiskIndex(
+            self.tempdir / "index_no_enc.h5", DUMMY_DIM, encoder=None
+        )
+        self.index_wrong_dim = OnDiskIndex(
+            self.tempdir / "index_wrong_dim.h5", DUMMY_DIM + 1, encoder=None
+        )
+        self.coalesced_indexes = [
+            OnDiskIndex(
+                self.tempdir / "coalesced_index_1.h5", DUMMY_DIM, mode=Mode.MAXP
+            ),
+            OnDiskIndex(
+                self.tempdir / "coalesced_index_2.h5", DUMMY_DIM, mode=Mode.MAXP
+            ),
+        ]
+        super().setUp()
 
 
 if __name__ == "__main__":
