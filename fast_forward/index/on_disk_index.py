@@ -67,6 +67,11 @@ class OnDiskIndex(Index):
         with h5py.File(self._index_file, "r") as fp:
             return fp["vectors"].attrs["num_vectors"]
 
+    @property
+    def dim(self) -> int:
+        with h5py.File(self._index_file, "r") as fp:
+            return fp["vectors"].shape[1]
+
     def _add(
         self,
         vectors: np.ndarray,
@@ -74,9 +79,8 @@ class OnDiskIndex(Index):
         psg_ids: Sequence[Union[str, None]],
     ) -> None:
         with h5py.File(self._index_file, "a") as fp:
-            num_new_vecs, dim_new_vecs = vectors.shape
-            capacity, dim = fp["vectors"].shape
-            assert dim_new_vecs == dim
+            num_new_vecs = vectors.shape[0]
+            capacity = fp["vectors"].shape[0]
 
             # check if we have enough space, resize if necessary
             cur_num_vectors = fp["vectors"].attrs["num_vectors"]

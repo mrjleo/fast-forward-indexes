@@ -106,6 +106,16 @@ class Index(abc.ABC):
         self._mode = mode
 
     @property
+    @abc.abstractmethod
+    def dim(self) -> int:
+        """Return the dimensionality of the vectors in the index.
+
+        Returns:
+            int: The dimensionality.
+        """
+        pass
+
+    @property
     def doc_ids(self) -> Set[str]:
         """Return all unique document IDs.
 
@@ -173,7 +183,7 @@ class Index(abc.ABC):
         doc_ids: Sequence[str] = None,
         psg_ids: Sequence[str] = None,
     ) -> None:
-        """Add vector representations and corresponding IDs to the index. Only one of "doc_ids" and "psg_ids"
+        """Add vector representations and corresponding IDs to the index. Only one of `doc_ids` and `psg_ids`
         may be None.
 
         Args:
@@ -183,17 +193,23 @@ class Index(abc.ABC):
 
         Raises:
             ValueError: When there are no document IDs and no passage IDs.
+            ValueError: When vector and index dimensionalities don't match.
         """
         if doc_ids is None and psg_ids is None:
             raise ValueError(
-                'At least one of "doc_ids" and "psg_ids" must be provided.'
+                "At least one of `doc_ids` and `psg_ids` must be provided."
             )
 
-        num_vectors = vectors.shape[0]
+        num_vectors, dim = vectors.shape
         if doc_ids is None:
             doc_ids = [None] * num_vectors
         if psg_ids is None:
             psg_ids = [None] * num_vectors
+
+        if dim != self.dim:
+            raise ValueError(
+                f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})"
+            )
 
         assert num_vectors == len(doc_ids) == len(psg_ids)
         self._add(vectors, doc_ids, psg_ids)

@@ -15,6 +15,7 @@ class InMemoryIndex(Index):
 
     def __init__(
         self,
+        dim: int,
         encoder: QueryEncoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
@@ -24,6 +25,7 @@ class InMemoryIndex(Index):
         """Constructor.
 
         Args:
+            dim (int): Vector dimension.
             encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
@@ -34,14 +36,14 @@ class InMemoryIndex(Index):
         self._init_size = init_size
         self._alloc_size = alloc_size
         self._idx_in_cur_shard = 0
-        self._dim = None
+        self._dim = dim
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
         super().__init__(encoder, mode, encoder_batch_size)
 
     def __len__(self) -> int:
         # account for the fact that the first shard might be larger
-        if len(self._shards) == 1:
+        if len(self._shards) < 2:
             return self._idx_in_cur_shard
         else:
             return (
@@ -49,6 +51,10 @@ class InMemoryIndex(Index):
                 + (len(self._shards) - 2) * self._alloc_size
                 + self._idx_in_cur_shard
             )
+
+    @property
+    def dim(self) -> int:
+        return self._dim
 
     def _add(
         self,
@@ -58,7 +64,6 @@ class InMemoryIndex(Index):
     ) -> None:
         # if this is the first call to _add, no shards exist
         if len(self._shards) == 0:
-            self._dim = vectors.shape[1]
             self._shards.append(np.zeros((self._init_size, self._dim)))
 
         # assign passage and document IDs

@@ -19,6 +19,7 @@ DUMMY_VECTORS = np.array(
         [1, 1, 1, 1, 1],
     ]
 )
+DUMMY_DIM = DUMMY_VECTORS.shape[1]
 DUMMY_DOC_RUN = {
     "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
     "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800, "dx": 7},
@@ -36,25 +37,25 @@ class TestInMemoryIndex(unittest.TestCase):
 
         self.dummy_encoder = LambdaQueryEncoder(lambda q: np.array([1, 1, 1, 1, 1]))
 
-        self.doc_psg_index = InMemoryIndex(self.dummy_encoder)
+        self.doc_psg_index = InMemoryIndex(DUMMY_DIM, self.dummy_encoder)
         self.doc_psg_index.add(
             vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
         )
         self.doc_psg_index.mode = Mode.MAXP
 
         self.doc_psg_index_chunked = InMemoryIndex(
-            self.dummy_encoder, init_size=2, alloc_size=2
+            DUMMY_DIM, self.dummy_encoder, init_size=2, alloc_size=2
         )
         self.doc_psg_index_chunked.add(
             vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
         )
         self.doc_psg_index_chunked.mode = Mode.MAXP
 
-        self.doc_index = InMemoryIndex(self.dummy_encoder)
+        self.doc_index = InMemoryIndex(DUMMY_DIM, self.dummy_encoder)
         self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
         self.doc_psg_index.mode = Mode.MAXP
 
-        self.psg_index = InMemoryIndex(self.dummy_encoder)
+        self.psg_index = InMemoryIndex(DUMMY_DIM, self.dummy_encoder)
         self.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
         self.psg_index.mode = Mode.PASSAGE
 
@@ -180,15 +181,15 @@ class TestInMemoryIndex(unittest.TestCase):
 
     def test_errors(self):
         with self.assertRaises(ValueError):
-            InMemoryIndex(self.dummy_encoder).add(
+            InMemoryIndex(DUMMY_DIM, self.dummy_encoder).add(
                 DUMMY_VECTORS, doc_ids=None, psg_ids=None
             )
         with self.assertRaises(RuntimeError):
-            InMemoryIndex(encoder=None).encode(["test"])
+            InMemoryIndex(DUMMY_DIM, encoder=None).encode(["test"])
 
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged
-        coalesced_index = InMemoryIndex(mode=Mode.MAXP)
+        coalesced_index = InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP)
         create_coalesced_index(self.doc_index, coalesced_index, 0.3)
         self.assertEqual(self.doc_index.doc_ids, coalesced_index.doc_ids)
         d0_vector_expected = np.average([DUMMY_VECTORS[0], DUMMY_VECTORS[1]], axis=0)
@@ -197,7 +198,7 @@ class TestInMemoryIndex(unittest.TestCase):
         self.assertTrue(np.array_equal(d0_vector_expected, d0_vectors[0]))
 
         # delta = 0.2: nothing should change
-        coalesced_index = InMemoryIndex(mode=Mode.MAXP)
+        coalesced_index = InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP)
         create_coalesced_index(self.doc_index, coalesced_index, 0.2, buffer_size=2)
         self.assertEqual(self.doc_index.doc_ids, coalesced_index.doc_ids)
         for doc_id in self.doc_index.doc_ids:
