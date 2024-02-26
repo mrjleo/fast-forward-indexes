@@ -96,13 +96,13 @@ class OnDiskIndex(Index):
             for i, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
                 if doc_id is not None:
                     ds = fp.require_dataset(
-                        f"/ids/doc/{doc_id}", (1,), dtype=h5py.vlen_dtype(np.uint)
+                        f"/ids/doc/{doc_id}", (), dtype=h5py.vlen_dtype(np.uint)
                     )
-                    ds[0] = np.append(ds[0], [cur_num_vectors + i])
+                    ds[()] = np.append(ds[()], [cur_num_vectors + i])
 
                 if psg_id is not None:
-                    ds = fp.require_dataset(f"/ids/psg/{psg_id}", (1,), dtype=np.uint)
-                    ds[0] = cur_num_vectors + i
+                    ds = fp.require_dataset(f"/ids/psg/{psg_id}", (), dtype=np.uint)
+                    ds[()] = cur_num_vectors + i
 
     def _get_doc_ids(self) -> Set[str]:
         with h5py.File(self._index_file, "r") as fp:
@@ -119,11 +119,11 @@ class OnDiskIndex(Index):
         with h5py.File(self._index_file, "r") as fp:
             for id in ids:
                 if self.mode in (Mode.MAXP, Mode.AVEP) and id in fp["/ids/doc"]:
-                    idxs = fp[f"/ids/doc/{id}"][0]
+                    idxs = fp[f"/ids/doc/{id}"][()]
                 elif self.mode == Mode.FIRSTP and id in fp["/ids/doc"]:
-                    idxs = [fp[f"/ids/doc/{id}"][0][0]]
+                    idxs = [fp[f"/ids/doc/{id}"][()][0]]
                 elif self.mode == Mode.PASSAGE and id in fp["/ids/psg"]:
-                    idxs = [fp[f"/ids/psg/{id}"][0]]
+                    idxs = [fp[f"/ids/psg/{id}"][()]]
                 else:
                     LOGGER.warning(f"no vectors for {id}")
                     idxs = []
