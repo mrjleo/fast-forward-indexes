@@ -103,10 +103,7 @@ class InMemoryIndex(Index):
             self._idx_in_cur_shard += to_add
 
     def consolidate(self) -> None:
-        """Copy all shards of the index to one contiguous section in the memory."""
-        if len(self._shards) < 2:
-            return
-
+        """Combine all shards of the index in one contiguous section in the memory."""
         # combine all shards up to the last one entirely, and take only whats in use of the last one
         self._shards = [
             np.concatenate(
