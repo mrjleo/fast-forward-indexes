@@ -101,7 +101,7 @@ class InMemoryIndex(Index):
         if len(self._chunks) < 2:
             return
         self._cur_chunk_idx = len(self)
-        self._chunks = [np.stack(self._chunks)]
+        self._chunks = [np.concatenate(self._chunks)]
 
     def _get_doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
