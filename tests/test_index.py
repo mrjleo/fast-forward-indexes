@@ -226,12 +226,15 @@ class TestInMemoryIndex(TestIndex):
     def setUp(self):
         self.doc_psg_indexes = [
             InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
+            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER, init_size=2, alloc_size=2),
         ]
         self.doc_indexes = [
             InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
+            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER, init_size=2, alloc_size=2),
         ]
         self.psg_indexes = [
             InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
+            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER, init_size=2, alloc_size=2),
         ]
         self.index_no_enc = InMemoryIndex(DUMMY_DIM, encoder=None)
         self.index_wrong_dim = InMemoryIndex(DUMMY_DIM + 1, encoder=None)
@@ -252,7 +255,13 @@ class TestOnDiskIndex(TestIndex):
                 self.temp_dir / "doc_psg_index.h5",
                 DUMMY_DIM,
                 DUMMY_ENCODER,
-                overwrite=True,
+            ),
+            OnDiskIndex(
+                self.temp_dir / "doc_psg_index_2.h5",
+                DUMMY_DIM,
+                DUMMY_ENCODER,
+                init_size=2,
+                resize_min_val=2,
             ),
         ]
         self.doc_indexes = [
@@ -260,7 +269,13 @@ class TestOnDiskIndex(TestIndex):
                 self.temp_dir / "doc_index.h5",
                 DUMMY_DIM,
                 DUMMY_ENCODER,
-                overwrite=True,
+            ),
+            OnDiskIndex(
+                self.temp_dir / "doc_index_2.h5",
+                DUMMY_DIM,
+                DUMMY_ENCODER,
+                init_size=2,
+                resize_min_val=2,
             ),
         ]
         self.psg_indexes = [
@@ -268,7 +283,13 @@ class TestOnDiskIndex(TestIndex):
                 self.temp_dir / "psg_index.h5",
                 DUMMY_DIM,
                 DUMMY_ENCODER,
-                overwrite=True,
+            ),
+            OnDiskIndex(
+                self.temp_dir / "psg_index_2.h5",
+                DUMMY_DIM,
+                DUMMY_ENCODER,
+                init_size=2,
+                resize_min_val=2,
             ),
         ]
         self.index_no_enc = OnDiskIndex(
