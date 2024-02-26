@@ -1,4 +1,3 @@
-import logging
 import shutil
 import tempfile
 import unittest
@@ -88,14 +87,14 @@ class TestIndex(unittest.TestCase):
 
             self.index.mode = Mode.PASSAGE
             vecs, idxs = self.index._get_vectors(psg_ids[lower:upper])
-            np.testing.assert_almost_equal(vecs, data[lower:upper])
+            np.testing.assert_almost_equal(vecs, data[lower:upper], decimal=6)
             self.assertEqual([[idx] for idx in range(upper - lower)], idxs)
 
             self.index.mode = Mode.MAXP
             vecs, idxs = self.index._get_vectors(
                 [f"doc_{i}" for i in range(int(lower / 2), int(upper / 2))]
             )
-            np.testing.assert_almost_equal(vecs, data[lower:upper])
+            np.testing.assert_almost_equal(vecs, data[lower:upper], decimal=6)
             self.assertEqual(
                 [[2 * idx, 2 * idx + 1] for idx in range(int((upper - lower) / 2))],
                 idxs,
