@@ -1,4 +1,5 @@
 import logging
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -245,10 +246,10 @@ class TestOnDiskIndex(TestIndex):
     __test__ = True
 
     def setUp(self):
-        self.tempdir = Path(tempfile.mkdtemp())
+        self.temp_dir = Path(tempfile.mkdtemp())
         self.doc_psg_indexes = [
             OnDiskIndex(
-                self.tempdir / "doc_psg_index.h5",
+                self.temp_dir / "doc_psg_index.h5",
                 DUMMY_DIM,
                 DUMMY_ENCODER,
                 overwrite=True,
@@ -256,7 +257,7 @@ class TestOnDiskIndex(TestIndex):
         ]
         self.doc_indexes = [
             OnDiskIndex(
-                self.tempdir / "doc_index.h5",
+                self.temp_dir / "doc_index.h5",
                 DUMMY_DIM,
                 DUMMY_ENCODER,
                 overwrite=True,
@@ -264,27 +265,30 @@ class TestOnDiskIndex(TestIndex):
         ]
         self.psg_indexes = [
             OnDiskIndex(
-                self.tempdir / "psg_index.h5",
+                self.temp_dir / "psg_index.h5",
                 DUMMY_DIM,
                 DUMMY_ENCODER,
                 overwrite=True,
             ),
         ]
         self.index_no_enc = OnDiskIndex(
-            self.tempdir / "index_no_enc.h5", DUMMY_DIM, encoder=None
+            self.temp_dir / "index_no_enc.h5", DUMMY_DIM, encoder=None
         )
         self.index_wrong_dim = OnDiskIndex(
-            self.tempdir / "index_wrong_dim.h5", DUMMY_DIM + 1, encoder=None
+            self.temp_dir / "index_wrong_dim.h5", DUMMY_DIM + 1, encoder=None
         )
         self.coalesced_indexes = [
             OnDiskIndex(
-                self.tempdir / "coalesced_index_1.h5", DUMMY_DIM, mode=Mode.MAXP
+                self.temp_dir / "coalesced_index_1.h5", DUMMY_DIM, mode=Mode.MAXP
             ),
             OnDiskIndex(
-                self.tempdir / "coalesced_index_2.h5", DUMMY_DIM, mode=Mode.MAXP
+                self.temp_dir / "coalesced_index_2.h5", DUMMY_DIM, mode=Mode.MAXP
             ),
         ]
         super().setUp()
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_dir)
 
 
 if __name__ == "__main__":
