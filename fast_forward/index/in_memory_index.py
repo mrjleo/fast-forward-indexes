@@ -28,26 +28,26 @@ class InMemoryIndex(Index):
             mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
-            alloc_size (int, optional): Size of array allocated when index is full. Defaults to 2**14.
+            alloc_size (int, optional): Size of shard allocated when index is full. Defaults to 2**14.
         """
-        self._chunks = []
+        self._shards = []
         self._init_size = init_size
         self._alloc_size = alloc_size
-        self._cur_chunk_idx = 0
+        self._idx_in_cur_shard = 0
         self._dim = None
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
         super().__init__(encoder, mode, encoder_batch_size)
 
     def __len__(self) -> int:
-        # account for the fact that the first chunk might be larger
-        if len(self._chunks) == 1:
-            return self._cur_chunk_idx
+        # account for the fact that the first shard might be larger
+        if len(self._shards) == 1:
+            return self._idx_in_cur_shard
         else:
             return (
-                self._chunks[0].shape[0]
-                + (len(self._chunks) - 2) * self._alloc_size
-                + self._cur_chunk_idx
+                self._shards[0].shape[0]
+                + (len(self._shards) - 2) * self._alloc_size
+                + self._idx_in_cur_shard
             )
 
     def _add(
@@ -56,10 +56,10 @@ class InMemoryIndex(Index):
         doc_ids: Sequence[Union[str, None]],
         psg_ids: Sequence[Union[str, None]],
     ) -> None:
-        # if this is the first call to _add, no chunks exist
-        if len(self._chunks) == 0:
+        # if this is the first call to _add, no shards exist
+        if len(self._shards) == 0:
             self._dim = vectors.shape[1]
-            self._chunks.append(np.zeros((self._init_size, self._dim)))
+            self._shards.append(np.zeros((self._init_size, self._dim)))
 
         # assign passage and document IDs
         j = len(self)
@@ -73,35 +73,35 @@ class InMemoryIndex(Index):
                     LOGGER.error(f"passage ID {psg_id} already exists")
             j += 1
 
-        # add vectors to chunks
+        # add vectors to shards
         added = 0
         num_vectors = vectors.shape[0]
         while added < num_vectors:
-            cur_chunk_size = self._chunks[-1].shape[0]
+            cur_shard_size = self._shards[-1].shape[0]
 
-            # if current chunk is full, add a new one
-            if self._cur_chunk_idx == cur_chunk_size:
-                LOGGER.debug("adding new chunk")
-                self._chunks.append(np.zeros((self._alloc_size, self._dim)))
-                self._cur_chunk_idx = 0
+            # if current shard is full, add a new one
+            if self._idx_in_cur_shard == cur_shard_size:
+                LOGGER.debug("adding new shard")
+                self._shards.append(np.zeros((self._alloc_size, self._dim)))
+                self._idx_in_cur_shard = 0
 
             to_add = min(
                 num_vectors - added,
-                cur_chunk_size,
-                cur_chunk_size - self._cur_chunk_idx,
+                cur_shard_size,
+                cur_shard_size - self._idx_in_cur_shard,
             )
-            self._chunks[-1][self._cur_chunk_idx : self._cur_chunk_idx + to_add] = (
-                vectors[added : added + to_add]
-            )
+            self._shards[-1][
+                self._idx_in_cur_shard : self._idx_in_cur_shard + to_add
+            ] = vectors[added : added + to_add]
             added += to_add
-            self._cur_chunk_idx += to_add
+            self._idx_in_cur_shard += to_add
 
     def consolidate(self) -> None:
-        """Copy all chunks of the index to one contiguous section in the memory."""
-        if len(self._chunks) < 2:
+        """Copy all shards of the index to one contiguous section in the memory."""
+        if len(self._shards) < 2:
             return
-        self._cur_chunk_idx = len(self)
-        self._chunks = [np.concatenate(self._chunks)]
+        self._idx_in_cur_shard = len(self)
+        self._shards = [np.concatenate(self._shards)]
 
     def _get_doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
@@ -110,7 +110,7 @@ class InMemoryIndex(Index):
         return set(self._psg_id_to_idx.keys())
 
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
-        items_by_chunk = defaultdict(list)
+        items_by_shard = defaultdict(list)
         for id in ids:
             if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
                 idxs = self._doc_id_to_idx[id]
@@ -124,27 +124,27 @@ class InMemoryIndex(Index):
 
             for idx in idxs:
 
-                # account for the fact that the first chunk might be larger
-                if idx < self._chunks[0].shape[0]:
-                    chunk_idx = 0
-                    idx_in_chunk = idx
+                # account for the fact that the first shard might be larger
+                if idx < self._shards[0].shape[0]:
+                    shard_idx = 0
+                    idx_in_shard = idx
                 else:
-                    idx -= self._chunks[0].shape[0]
-                    chunk_idx = int(idx / self._alloc_size) + 1
-                    idx_in_chunk = idx % self._alloc_size
+                    idx -= self._shards[0].shape[0]
+                    shard_idx = int(idx / self._alloc_size) + 1
+                    idx_in_shard = idx % self._alloc_size
 
-                items_by_chunk[chunk_idx].append((idx_in_chunk, id))
+                items_by_shard[shard_idx].append((idx_in_shard, id))
 
         result_vectors = []
         result_ids = defaultdict(list)
         items_so_far = 0
 
-        for chunk_idx, items in items_by_chunk.items():
+        for shard_idx, items in items_by_shard.items():
             idxs, ids_ = zip(*items)
-            result_vectors.append(self._chunks[chunk_idx][list(idxs)])
+            result_vectors.append(self._shards[shard_idx][list(idxs)])
 
-            for i, id_in_chunk in enumerate(ids_):
-                result_ids[id_in_chunk].append(i + items_so_far)
+            for i, id_in_shard in enumerate(ids_):
+                result_ids[id_in_shard].append(i + items_so_far)
 
             items_so_far += len(items)
         return np.concatenate(result_vectors), [result_ids[id] for id in ids]
