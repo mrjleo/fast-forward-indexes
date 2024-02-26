@@ -10,8 +10,6 @@ from fast_forward import InMemoryIndex, Mode, OnDiskIndex, Ranking
 from fast_forward.encoder import LambdaQueryEncoder
 from fast_forward.index import create_coalesced_index
 
-logging.basicConfig(level=logging.DEBUG)
-
 DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
 DUMMY_DOC_IDS = ["d0", "d0", "d1", "d2", "d3"]
 DUMMY_PSG_IDS = ["p0", "p1", "p2", "p3", "p4"]
