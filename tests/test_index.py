@@ -21,7 +21,7 @@ DUMMY_VECTORS = np.array(
         [1, 1, 1, 1, 1],
     ]
 )
-DUMMY_DIM = DUMMY_VECTORS.shape[1]
+DUMMY_NUM, DUMMY_DIM = DUMMY_VECTORS.shape
 DUMMY_DOC_RUN = {
     "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
     "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800, "dx": 7},
@@ -79,18 +79,24 @@ class TestIndexCommon(unittest.TestCase):
         for index in self.psg_indexes:
             index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
-    def test_ids(self):
+    def test_properties(self):
         for index in self.doc_psg_indexes:
             self.assertEqual(set(DUMMY_DOC_IDS), index.doc_ids)
             self.assertEqual(set(DUMMY_PSG_IDS), index.psg_ids)
+            self.assertEqual(DUMMY_NUM, len(index))
+            self.assertEqual(DUMMY_DIM, index.dim)
 
         for index in self.doc_indexes:
             self.assertEqual(set(DUMMY_DOC_IDS), index.doc_ids)
             self.assertEqual(0, len(index.psg_ids))
+            self.assertEqual(DUMMY_NUM, len(index))
+            self.assertEqual(DUMMY_DIM, index.dim)
 
         for index in self.psg_indexes:
             self.assertEqual(set(DUMMY_PSG_IDS), index.psg_ids)
             self.assertEqual(0, len(index.doc_ids))
+            self.assertEqual(DUMMY_NUM, len(index))
+            self.assertEqual(DUMMY_DIM, index.dim)
 
     def test_interpolation(self):
         for index in self.doc_psg_indexes:
@@ -208,9 +214,15 @@ class TestIndexCommon(unittest.TestCase):
             )
 
     def test_errors(self):
-        for index in self.doc_psg_indexes:
-            with self.assertRaises(ValueError):
-                index.add(DUMMY_VECTORS, doc_ids=None, psg_ids=None)
+        with self.assertRaises(ValueError):
+            InMemoryIndex(DUMMY_DIM, encoder=None).add(
+                DUMMY_VECTORS, doc_ids=None, psg_ids=None
+            )
+
+        with self.assertRaises(ValueError):
+            InMemoryIndex(DUMMY_DIM + 1, encoder=None).add(
+                DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
+            )
 
         with self.assertRaises(RuntimeError):
             InMemoryIndex(DUMMY_DIM, encoder=None).encode(["test"])
