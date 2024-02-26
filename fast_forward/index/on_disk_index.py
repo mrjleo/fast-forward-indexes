@@ -110,10 +110,14 @@ class OnDiskIndex(Index):
 
     def _get_doc_ids(self) -> Set[str]:
         with h5py.File(self._index_file, "r") as fp:
+            if "/ids/doc" not in fp:
+                return set()
             return set(fp["/ids/doc"].keys())
 
     def _get_psg_ids(self) -> Set[str]:
         with h5py.File(self._index_file, "r") as fp:
+            if "/ids/psg" not in fp:
+                return set()
             return set(fp["/ids/psg"].keys())
 
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
