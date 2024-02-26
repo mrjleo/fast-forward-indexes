@@ -72,6 +72,37 @@ class TestIndex(unittest.TestCase):
             self.assertEqual(DUMMY_NUM, len(index))
             self.assertEqual(DUMMY_DIM, index.dim)
 
+    def test_add_retrieve(self):
+        self.assertEqual(0, len(self.index))
+
+        data = np.random.normal(size=(80, 16))
+        doc_ids = [f"doc_{int(i/2)}" for i in range(data.shape[0])]
+        psg_ids = [f"psg_{i}" for i in range(data.shape[0])]
+
+        # successively add parts of the data and make sure we still get the correct vectors back
+        for lower, upper in [(0, 8), (8, 24), (24, 80)]:
+            self.index.add(
+                data[lower:upper],
+                doc_ids=doc_ids[lower:upper],
+                psg_ids=psg_ids[lower:upper],
+            )
+            self.assertEqual(upper, len(self.index))
+
+            self.index.mode = Mode.PASSAGE
+            vecs, idxs = self.index._get_vectors(psg_ids[lower:upper])
+            np.testing.assert_almost_equal(vecs, data[lower:upper])
+            self.assertEqual([[idx] for idx in range(upper - lower)], idxs)
+
+            self.index.mode = Mode.MAXP
+            vecs, idxs = self.index._get_vectors(
+                [f"doc_{i}" for i in range(int(lower / 2), int(upper / 2))]
+            )
+            np.testing.assert_almost_equal(vecs, data[lower:upper])
+            self.assertEqual(
+                [[2 * idx, 2 * idx + 1] for idx in range(int((upper - lower) / 2))],
+                idxs,
+            )
+
     def test_interpolation(self):
         for index in self.doc_psg_indexes:
             index.mode = Mode.MAXP
@@ -224,6 +255,7 @@ class TestInMemoryIndex(TestIndex):
     __test__ = True
 
     def setUp(self):
+        self.index = InMemoryIndex(16, init_size=32, alloc_size=32)
         self.doc_psg_indexes = [
             InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
             InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER, init_size=2, alloc_size=2),
@@ -250,6 +282,9 @@ class TestOnDiskIndex(TestIndex):
 
     def setUp(self):
         self.temp_dir = Path(tempfile.mkdtemp())
+        self.index = OnDiskIndex(
+            self.temp_dir / "index.h5", 16, init_size=32, resize_min_val=32
+        )
         self.doc_psg_indexes = [
             OnDiskIndex(
                 self.temp_dir / "doc_psg_index.h5",
