@@ -76,7 +76,7 @@ class TestIndex(unittest.TestCase):
         doc_ids = [f"doc_{int(i/2)}" for i in range(data.shape[0])]
         psg_ids = [f"psg_{i}" for i in range(data.shape[0])]
 
-        # successively add parts of the data and make sure we still get the correct vectors back
+        # successively add parts of the data and make sure we still get the correct vectors and indices back as the index grows
         for lower, upper in [(0, 8), (8, 24), (24, 80)]:
             self.index.add(
                 data[lower:upper],
@@ -272,6 +272,23 @@ class TestInMemoryIndex(TestIndex):
             InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP),
         ]
         super().setUp()
+
+    def test_consolidate(self):
+        index = InMemoryIndex(16, init_size=8, alloc_size=4)
+        data = data = np.random.normal(size=(32, 16))
+        psg_ids = [f"psg_{i}" for i in range(32)]
+
+        index.add(data[:14], psg_ids=psg_ids[:14])
+        index.consolidate()
+        vecs, idxs = index._get_vectors(psg_ids[:14])
+        np.testing.assert_almost_equal(vecs, data[:14], decimal=6)
+        self.assertEqual([[idx] for idx in range(14)], idxs)
+
+        index.add(data[14:32], psg_ids=psg_ids[14:32])
+        index.consolidate()
+        vecs, idxs = index._get_vectors(psg_ids)
+        np.testing.assert_almost_equal(vecs, data, decimal=6)
+        self.assertEqual([[idx] for idx in range(32)], idxs)
 
 
 class TestOnDiskIndex(TestIndex):
