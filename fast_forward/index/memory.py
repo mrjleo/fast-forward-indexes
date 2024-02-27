@@ -21,6 +21,7 @@ class InMemoryIndex(Index):
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
         alloc_size: int = 2**14,
+        dtype: np.dtype = np.float32,
     ) -> None:
         """Constructor.
 
@@ -31,10 +32,12 @@ class InMemoryIndex(Index):
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
             alloc_size (int, optional): Size of shard allocated when index is full. Defaults to 2**14.
+            dtype (np.dtype, optional): Vector dtype. Defaults to np.float32.
         """
         self._shards = []
         self._init_size = init_size
         self._alloc_size = alloc_size
+        self._dtype = dtype
         self._idx_in_cur_shard = 0
         self._dim = dim
         self._doc_id_to_idx = defaultdict(list)
@@ -64,7 +67,9 @@ class InMemoryIndex(Index):
     ) -> None:
         # if this is the first call to _add, no shards exist
         if len(self._shards) == 0:
-            self._shards.append(np.zeros((self._init_size, self._dim)))
+            self._shards.append(
+                np.zeros((self._init_size, self._dim), dtype=self._dtype)
+            )
 
         # assign passage and document IDs
         j = len(self)
@@ -153,5 +158,5 @@ class InMemoryIndex(Index):
             items_so_far += len(items)
 
         if len(result_vectors) == 0:
-            return np.array([], dtype=self._shards[0].dtype), []
+            return np.array([], dtype=self._dtype), []
         return np.concatenate(result_vectors), [result_ids[id] for id in ids]
