@@ -141,5 +141,29 @@ class OnDiskIndex(Index):
                 c += len(idxs)
             return np.concatenate(result_vectors), id_idxs
 
-    def from_file(cls) -> "OnDiskIndex":
-        pass
+    @classmethod
+    def load(
+        cls,
+        index_file: Path,
+        encoder: QueryEncoder = None,
+        mode: Mode = Mode.PASSAGE,
+        encoder_batch_size: int = 32,
+        resize_min_val: int = 2**10,
+    ) -> "OnDiskIndex":
+        """Open an existing index on disk.
+
+        Args:
+            index_file (Path): Index file to open.
+            encoder (QueryEncoder, optional): Query encoder. Defaults to None.
+            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
+            encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
+            resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
+
+        Returns:
+            OnDiskIndex: The index.
+        """
+        index = cls.__new__(cls)
+        super(OnDiskIndex, index).__init__(encoder, mode, encoder_batch_size)
+        index._index_file = index_file.absolute()
+        index._resize_min_val = resize_min_val
+        return index
