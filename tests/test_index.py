@@ -39,35 +39,27 @@ class TestIndex(unittest.TestCase):
     __test__ = False
 
     def setUp(self):
-        for index in self.doc_psg_indexes:
-            index.add(
-                vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
-            )
-
-        for index in self.doc_indexes:
-            index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
-
-        for index in self.psg_indexes:
-            index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
+        self.doc_psg_index.add(
+            vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
+        )
+        self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
+        self.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
     def test_properties(self):
-        for index in self.doc_psg_indexes:
-            self.assertEqual(set(DUMMY_DOC_IDS), index.doc_ids)
-            self.assertEqual(set(DUMMY_PSG_IDS), index.psg_ids)
-            self.assertEqual(DUMMY_NUM, len(index))
-            self.assertEqual(DUMMY_DIM, index.dim)
+        self.assertEqual(set(DUMMY_DOC_IDS), self.doc_psg_index.doc_ids)
+        self.assertEqual(set(DUMMY_PSG_IDS), self.doc_psg_index.psg_ids)
+        self.assertEqual(DUMMY_NUM, len(self.doc_psg_index))
+        self.assertEqual(DUMMY_DIM, self.doc_psg_index.dim)
 
-        for index in self.doc_indexes:
-            self.assertEqual(set(DUMMY_DOC_IDS), index.doc_ids)
-            self.assertEqual(0, len(index.psg_ids))
-            self.assertEqual(DUMMY_NUM, len(index))
-            self.assertEqual(DUMMY_DIM, index.dim)
+        self.assertEqual(set(DUMMY_DOC_IDS), self.doc_index.doc_ids)
+        self.assertEqual(0, len(self.doc_index.psg_ids))
+        self.assertEqual(DUMMY_NUM, len(self.doc_index))
+        self.assertEqual(DUMMY_DIM, self.doc_index.dim)
 
-        for index in self.psg_indexes:
-            self.assertEqual(set(DUMMY_PSG_IDS), index.psg_ids)
-            self.assertEqual(0, len(index.doc_ids))
-            self.assertEqual(DUMMY_NUM, len(index))
-            self.assertEqual(DUMMY_DIM, index.dim)
+        self.assertEqual(set(DUMMY_PSG_IDS), self.psg_index.psg_ids)
+        self.assertEqual(0, len(self.psg_index.doc_ids))
+        self.assertEqual(DUMMY_NUM, len(self.psg_index))
+        self.assertEqual(DUMMY_DIM, self.psg_index.dim)
 
     def test_add_retrieve(self):
         self.assertEqual(0, len(self.index))
@@ -101,119 +93,112 @@ class TestIndex(unittest.TestCase):
             )
 
     def test_interpolation(self):
-        for index in self.doc_psg_indexes:
-            index.mode = Mode.MAXP
-            result = index.get_scores(
-                DUMMY_DOC_RANKING,
-                DUMMY_QUERIES,
-                alpha=[0.0, 0.5, 1.0],
-                cutoff=None,
-                early_stopping=False,
-            )
-            self.assertEqual(
-                result[0.0],
-                Ranking(
-                    {
-                        "q1": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
-                        "q2": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
-                    }
-                ),
-            )
-            self.assertEqual(
-                result[0.5],
-                Ranking(
-                    {
-                        "q1": {"d0": 51, "d1": 2.5, "d2": 3.5, "d3": 102.5},
-                        "q2": {"d0": 201, "d1": 4, "d2": 5, "d3": 402.5},
-                    }
-                ),
-            )
-            self.assertEqual(
-                result[1.0],
-                Ranking(
-                    {
-                        "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
-                        "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800},
-                    }
-                ),
-            )
+        self.doc_psg_index.mode = Mode.MAXP
+        result = self.doc_psg_index.get_scores(
+            DUMMY_DOC_RANKING,
+            DUMMY_QUERIES,
+            alpha=[0.0, 0.5, 1.0],
+            cutoff=None,
+            early_stopping=False,
+        )
+        self.assertEqual(
+            result[0.0],
+            Ranking(
+                {
+                    "q1": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
+                    "q2": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
+                }
+            ),
+        )
+        self.assertEqual(
+            result[0.5],
+            Ranking(
+                {
+                    "q1": {"d0": 51, "d1": 2.5, "d2": 3.5, "d3": 102.5},
+                    "q2": {"d0": 201, "d1": 4, "d2": 5, "d3": 402.5},
+                }
+            ),
+        )
+        self.assertEqual(
+            result[1.0],
+            Ranking(
+                {
+                    "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
+                    "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800},
+                }
+            ),
+        )
 
     def test_early_stopping(self):
-        for index in self.doc_psg_indexes:
-            index.mode = Mode.MAXP
+        self.doc_psg_index.mode = Mode.MAXP
 
-            scores_1 = index.get_scores(
+        scores_1 = self.doc_psg_index.get_scores(
+            DUMMY_DOC_RANKING,
+            DUMMY_QUERIES,
+            alpha=0.5,
+            cutoff=2,
+            early_stopping=True,
+        )
+
+        # test unsorted ranking
+        scores_2 = self.doc_psg_index.get_scores(
+            Ranking(DUMMY_DOC_RUN, sort=False),
+            DUMMY_QUERIES,
+            alpha=0.5,
+            cutoff=2,
+            early_stopping=True,
+        )
+
+        self.assertEqual(
+            scores_1[0.5],
+            Ranking({"q1": {"d3": 102.5, "d0": 51}, "q2": {"d3": 402.5, "d0": 201}}),
+        )
+        self.assertEqual(scores_1[0.5], scores_2[0.5])
+
+        with self.assertRaises(ValueError):
+            self.doc_psg_index.get_scores(
                 DUMMY_DOC_RANKING,
                 DUMMY_QUERIES,
                 alpha=0.5,
-                cutoff=2,
+                cutoff=None,
                 early_stopping=True,
             )
-
-            # test unsorted ranking
-            scores_2 = index.get_scores(
-                Ranking(DUMMY_DOC_RUN, sort=False),
-                DUMMY_QUERIES,
-                alpha=0.5,
-                cutoff=2,
-                early_stopping=True,
-            )
-
-            self.assertEqual(
-                scores_1[0.5],
-                Ranking(
-                    {"q1": {"d3": 102.5, "d0": 51}, "q2": {"d3": 402.5, "d0": 201}}
-                ),
-            )
-            self.assertEqual(scores_1[0.5], scores_2[0.5])
-
-            with self.assertRaises(ValueError):
-                index.get_scores(
-                    DUMMY_DOC_RANKING,
-                    DUMMY_QUERIES,
-                    alpha=0.5,
-                    cutoff=None,
-                    early_stopping=True,
-                )
 
     def test_firstp(self):
-        for index in self.doc_psg_indexes:
-            index.mode = Mode.FIRSTP
-            self.assertEqual(
-                index.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
-                Ranking(
-                    {
-                        "q1": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
-                        "q2": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
-                    }
-                ),
-            )
+        self.doc_psg_index.mode = Mode.FIRSTP
+        self.assertEqual(
+            self.doc_psg_index.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
+            Ranking(
+                {
+                    "q1": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
+                    "q2": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
+                }
+            ),
+        )
 
     def test_avep(self):
-        for index in self.doc_psg_indexes:
-            index.mode = Mode.AVEP
-            self.assertEqual(
-                index.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
-                Ranking(
-                    {
-                        "q1": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
-                        "q2": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
-                    }
-                ),
-            )
+        self.doc_psg_index.mode = Mode.AVEP
+        self.assertEqual(
+            self.doc_psg_index.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
+            Ranking(
+                {
+                    "q1": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
+                    "q2": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
+                }
+            ),
+        )
 
     def test_passage(self):
-        for index in self.doc_psg_indexes:
-            index.mode = Mode.PASSAGE
-            self.assertEqual(
-                index.get_scores(DUMMY_PSG_RANKING, DUMMY_QUERIES)[0.0],
-                Ranking(
-                    {
-                        "q1": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
-                        "q2": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
-                    }
-                ),
-            )
+        self.doc_psg_index.mode = Mode.PASSAGE
+        self.assertEqual(
+            self.doc_psg_index.get_scores(DUMMY_PSG_RANKING, DUMMY_QUERIES)[0.0],
+            Ranking(
+                {
+                    "q1": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
+                    "q2": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
+                }
+            ),
+        )
 
     def test_errors(self):
         with self.assertRaises(ValueError):
@@ -227,8 +212,8 @@ class TestIndex(unittest.TestCase):
 
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged
-        create_coalesced_index(self.doc_indexes[0], self.coalesced_indexes[0], 0.3)
-        self.assertEqual(self.doc_indexes[0].doc_ids, self.coalesced_indexes[0].doc_ids)
+        create_coalesced_index(self.doc_index, self.coalesced_indexes[0], 0.3)
+        self.assertEqual(self.doc_index.doc_ids, self.coalesced_indexes[0].doc_ids)
         d0_vector_expected = np.average([DUMMY_VECTORS[0], DUMMY_VECTORS[1]], axis=0)
         d0_vectors, _ = self.coalesced_indexes[0]._get_vectors(["d0"])
         self.assertEqual(1, len(d0_vectors))
@@ -236,11 +221,11 @@ class TestIndex(unittest.TestCase):
 
         # delta = 0.2: nothing should change
         create_coalesced_index(
-            self.doc_indexes[0], self.coalesced_indexes[1], 0.2, buffer_size=2
+            self.doc_index, self.coalesced_indexes[1], 0.2, buffer_size=2
         )
-        self.assertEqual(self.doc_indexes[0].doc_ids, self.coalesced_indexes[1].doc_ids)
-        for doc_id in self.doc_indexes[0].doc_ids:
-            vectors_1, _ = self.doc_indexes[0]._get_vectors([doc_id])
+        self.assertEqual(self.doc_index.doc_ids, self.coalesced_indexes[1].doc_ids)
+        for doc_id in self.doc_index.doc_ids:
+            vectors_1, _ = self.doc_index._get_vectors([doc_id])
             vectors_2, _ = self.coalesced_indexes[1]._get_vectors([doc_id])
             self.assertEqual(len(vectors_1), len(vectors_2))
             for v1, v2 in zip(vectors_1, vectors_2):
@@ -253,18 +238,9 @@ class TestInMemoryIndex(TestIndex):
 
     def setUp(self):
         self.index = InMemoryIndex(16, init_size=32, alloc_size=32)
-        self.doc_psg_indexes = [
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER, init_size=2, alloc_size=2),
-        ]
-        self.doc_indexes = [
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER, init_size=2, alloc_size=2),
-        ]
-        self.psg_indexes = [
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER),
-            InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER, init_size=2, alloc_size=2),
-        ]
+        self.doc_psg_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
+        self.doc_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
+        self.psg_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
         self.index_no_enc = InMemoryIndex(DUMMY_DIM, encoder=None)
         self.index_wrong_dim = InMemoryIndex(DUMMY_DIM + 1, encoder=None)
         self.coalesced_indexes = [
@@ -299,48 +275,21 @@ class TestOnDiskIndex(TestIndex):
         self.index = OnDiskIndex(
             self.temp_dir / "index.h5", 16, init_size=32, resize_min_val=32
         )
-        self.doc_psg_indexes = [
-            OnDiskIndex(
-                self.temp_dir / "doc_psg_index.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-            ),
-            OnDiskIndex(
-                self.temp_dir / "doc_psg_index_2.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-                init_size=2,
-                resize_min_val=2,
-            ),
-        ]
-        self.doc_indexes = [
-            OnDiskIndex(
-                self.temp_dir / "doc_index.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-            ),
-            OnDiskIndex(
-                self.temp_dir / "doc_index_2.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-                init_size=2,
-                resize_min_val=2,
-            ),
-        ]
-        self.psg_indexes = [
-            OnDiskIndex(
-                self.temp_dir / "psg_index.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-            ),
-            OnDiskIndex(
-                self.temp_dir / "psg_index_2.h5",
-                DUMMY_DIM,
-                DUMMY_ENCODER,
-                init_size=2,
-                resize_min_val=2,
-            ),
-        ]
+        self.doc_psg_index = OnDiskIndex(
+            self.temp_dir / "doc_psg_index.h5",
+            DUMMY_DIM,
+            DUMMY_ENCODER,
+        )
+        self.doc_index = OnDiskIndex(
+            self.temp_dir / "doc_index.h5",
+            DUMMY_DIM,
+            DUMMY_ENCODER,
+        )
+        self.psg_index = OnDiskIndex(
+            self.temp_dir / "psg_index.h5",
+            DUMMY_DIM,
+            DUMMY_ENCODER,
+        )
         self.index_no_enc = OnDiskIndex(
             self.temp_dir / "index_no_enc.h5", DUMMY_DIM, encoder=None
         )

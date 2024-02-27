@@ -132,7 +132,6 @@ class InMemoryIndex(Index):
                 idxs = []
 
             for idx in idxs:
-
                 # account for the fact that the first shard might be larger
                 if idx < self._shards[0].shape[0]:
                     shard_idx = 0
@@ -141,13 +140,11 @@ class InMemoryIndex(Index):
                     idx -= self._shards[0].shape[0]
                     shard_idx = int(idx / self._alloc_size) + 1
                     idx_in_shard = idx % self._alloc_size
-
                 items_by_shard[shard_idx].append((idx_in_shard, id))
 
         result_vectors = []
         result_ids = defaultdict(list)
         items_so_far = 0
-
         for shard_idx, items in items_by_shard.items():
             idxs, ids_ = zip(*items)
             result_vectors.append(self._shards[shard_idx][list(idxs)])
