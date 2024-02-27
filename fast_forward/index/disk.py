@@ -1,9 +1,11 @@
 import logging
+from collections import defaultdict
 from pathlib import Path
 from typing import Iterable, List, Sequence, Set, Tuple, Union
 
 import h5py
 import numpy as np
+from tqdm import tqdm
 
 import fast_forward
 from fast_forward.encoder import QueryEncoder
@@ -51,8 +53,12 @@ class OnDiskIndex(Index):
         super().__init__(encoder, mode, encoder_batch_size)
         self._index_file = index_file.absolute()
         self._resize_min_val = resize_min_val
+        self._doc_id_to_idx = defaultdict(list)
+        self._psg_id_to_idx = {}
 
         with h5py.File(self._index_file, "w") as fp:
+            fp.attrs["num_vectors"] = 0
+            fp.attrs["ff_version"] = fast_forward.__version__
             fp.create_dataset(
                 "vectors",
                 (init_size, dim),
@@ -60,12 +66,24 @@ class OnDiskIndex(Index):
                 maxshape=(None, dim),
                 chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size, dim),
             )
-            fp["vectors"].attrs["num_vectors"] = 0
-            fp.attrs["ff_version"] = fast_forward.__version__
+            fp.create_dataset(
+                "doc_ids",
+                (init_size,),
+                "S8",  # TODO
+                maxshape=(None,),
+                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
+            )
+            fp.create_dataset(
+                "psg_ids",
+                (init_size,),
+                "S8",  # TODO
+                maxshape=(None,),
+                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
+            )
 
     def __len__(self) -> int:
         with h5py.File(self._index_file, "r") as fp:
-            return fp["vectors"].attrs["num_vectors"]
+            return fp.attrs["num_vectors"]
 
     @property
     def dim(self) -> int:
@@ -83,7 +101,7 @@ class OnDiskIndex(Index):
             capacity = fp["vectors"].shape[0]
 
             # check if we have enough space, resize if necessary
-            cur_num_vectors = fp["vectors"].attrs["num_vectors"]
+            cur_num_vectors = fp.attrs["num_vectors"]
             space_left = capacity - cur_num_vectors
             if num_new_vecs > space_left:
                 new_size = max(
@@ -91,55 +109,53 @@ class OnDiskIndex(Index):
                 )
                 LOGGER.debug(f"resizing index from {capacity} to {new_size}")
                 fp["vectors"].resize(new_size, axis=0)
+                fp["doc_ids"].resize(new_size, axis=0)
+                fp["psg_ids"].resize(new_size, axis=0)
 
-            # add new vectors
+            # add new items
             fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors
-            fp["vectors"].attrs["num_vectors"] += num_new_vecs
+            fp["doc_ids"][cur_num_vectors : cur_num_vectors + num_new_vecs] = doc_ids
+            fp["psg_ids"][cur_num_vectors : cur_num_vectors + num_new_vecs] = psg_ids
+            fp.attrs["num_vectors"] += num_new_vecs
 
-            # add IDs
-            for i, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
-                if doc_id is not None:
-                    ds = fp.require_dataset(
-                        f"/ids/doc/{doc_id}", (), dtype=h5py.vlen_dtype(np.uint)
-                    )
-                    ds[()] = np.append(ds[()], [cur_num_vectors + i])
-
-                if psg_id is not None:
-                    ds = fp.require_dataset(f"/ids/psg/{psg_id}", (), dtype=np.uint)
-                    ds[()] = cur_num_vectors + i
+        # update mappings in memory
+        for i, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
+            if doc_id is not None:
+                self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
+            if psg_id is not None:
+                self._psg_id_to_idx[psg_id] = cur_num_vectors + i
 
     def _get_doc_ids(self) -> Set[str]:
-        with h5py.File(self._index_file, "r") as fp:
-            if "/ids/doc" not in fp:
-                return set()
-            return set(fp["/ids/doc"].keys())
+        return set(self._doc_id_to_idx.keys())
 
     def _get_psg_ids(self) -> Set[str]:
-        with h5py.File(self._index_file, "r") as fp:
-            if "/ids/psg" not in fp:
-                return set()
-            return set(fp["/ids/psg"].keys())
+        return set(self._psg_id_to_idx.keys())
 
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
-        result_vectors = []
-        id_idxs = []
-        c = 0
+        idx_pairs = []
         with h5py.File(self._index_file, "r") as fp:
             for id in ids:
-                if self.mode in (Mode.MAXP, Mode.AVEP) and id in fp["/ids/doc"]:
-                    idxs = fp[f"/ids/doc/{id}"][()]
-                elif self.mode == Mode.FIRSTP and id in fp["/ids/doc"]:
-                    idxs = [fp[f"/ids/doc/{id}"][()][0]]
-                elif self.mode == Mode.PASSAGE and id in fp["/ids/psg"]:
-                    idxs = [fp[f"/ids/psg/{id}"][()]]
+                if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
+                    idxs = self._doc_id_to_idx[id]
+                elif self.mode == Mode.FIRSTP and id in self._doc_id_to_idx:
+                    idxs = [self._doc_id_to_idx[id][0]]
+                elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
+                    idxs = [self._psg_id_to_idx[id]]
                 else:
                     LOGGER.warning(f"no vectors for {id}")
                     idxs = []
 
-                result_vectors.append(fp["vectors"][idxs])
-                id_idxs.append(list(range(c, c + len(idxs))))
-                c += len(idxs)
-            return np.concatenate(result_vectors), id_idxs
+                for idx in idxs:
+                    idx_pairs.append((id, idx))
+
+            # h5py requires accessing the dataset with sorted indices
+            idx_pairs.sort(key=lambda x: x[1])
+            id_to_idxs = defaultdict(list)
+            vec_idxs = []
+            for id_idx, (id, vec_idx) in enumerate(idx_pairs):
+                vec_idxs.append(vec_idx)
+                id_to_idxs[id].append(id_idx)
+            return fp["vectors"][vec_idxs], [id_to_idxs[id] for id in ids]
 
     @classmethod
     def load(
@@ -166,4 +182,19 @@ class OnDiskIndex(Index):
         super(OnDiskIndex, index).__init__(encoder, mode, encoder_batch_size)
         index._index_file = index_file.absolute()
         index._resize_min_val = resize_min_val
+
+        # read ID mappings
+        index._doc_id_to_idx = defaultdict(list)
+        index._psg_id_to_idx = {}
+        with h5py.File(index._index_file, "r") as fp:
+            for i, (doc_id, psg_id) in tqdm(
+                enumerate(
+                    zip(fp["doc_ids"][:], fp["psg_ids"][:]),
+                ),
+                total=fp.attrs["num_vectors"],
+            ):
+                if len(doc_id) > 0:
+                    index._doc_id_to_idx[doc_id.decode()].append(i)
+                if len(psg_id) > 0:
+                    index._psg_id_to_idx[psg_id.decode()] = i
         return index
