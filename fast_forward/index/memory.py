@@ -148,9 +148,10 @@ class InMemoryIndex(Index):
         for shard_idx, items in items_by_shard.items():
             idxs, ids_ = zip(*items)
             result_vectors.append(self._shards[shard_idx][list(idxs)])
-
             for i, id_in_shard in enumerate(ids_):
                 result_ids[id_in_shard].append(i + items_so_far)
-
             items_so_far += len(items)
+
+        if len(result_vectors) == 0:
+            return np.array([], dtype=self._shards[0].dtype), []
         return np.concatenate(result_vectors), [result_ids[id] for id in ids]
