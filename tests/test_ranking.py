@@ -1,10 +1,9 @@
 import os
-import unittest
 import tempfile
+import unittest
 from pathlib import Path
 
-from fast_forward.ranking import Ranking
-
+from fast_forward import Ranking
 
 RUN = {
     "q1": {"d0": 1, "d1": 2, "d2": 300},
