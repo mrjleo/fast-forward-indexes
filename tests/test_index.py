@@ -311,16 +311,24 @@ class TestOnDiskIndex(TestIndex):
             self.temp_dir / "doc_psg_index.h5", self.temp_dir / "doc_psg_index_copy.h5"
         )
         index_copied = OnDiskIndex.load(self.temp_dir / "doc_psg_index_copy.h5")
-
         self.assertEqual(index_copied._get_doc_ids(), self.doc_psg_index._get_doc_ids())
         self.assertEqual(index_copied._get_psg_ids(), self.doc_psg_index._get_psg_ids())
-
         self.doc_psg_index.mode = Mode.PASSAGE
         index_copied.mode = Mode.PASSAGE
         vecs_1, idxs_1 = self.doc_psg_index._get_vectors(DUMMY_PSG_IDS)
         vecs_2, idxs_2 = index_copied._get_vectors(DUMMY_PSG_IDS)
         np.testing.assert_almost_equal(vecs_1, vecs_2, decimal=6)
         self.assertEqual(idxs_1, idxs_2)
+
+        shutil.copy(self.temp_dir / "doc_index.h5", self.temp_dir / "doc_index_copy.h5")
+        index_copied = OnDiskIndex.load(self.temp_dir / "doc_index_copy.h5")
+        self.assertEqual(index_copied._get_doc_ids(), self.doc_index._get_doc_ids())
+        self.assertEqual(index_copied._get_psg_ids(), self.doc_index._get_psg_ids())
+
+        shutil.copy(self.temp_dir / "psg_index.h5", self.temp_dir / "psg_index_copy.h5")
+        index_copied = OnDiskIndex.load(self.temp_dir / "psg_index_copy.h5")
+        self.assertEqual(index_copied._get_doc_ids(), self.psg_index._get_doc_ids())
+        self.assertEqual(index_copied._get_psg_ids(), self.psg_index._get_psg_ids())
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)

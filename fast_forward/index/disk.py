@@ -93,8 +93,8 @@ class OnDiskIndex(Index):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[Union[str, None]],
-        psg_ids: Sequence[Union[str, None]],
+        doc_ids: Union[Sequence[str], None],
+        psg_ids: Union[Sequence[str], None],
     ) -> None:
         with h5py.File(self._index_file, "a") as fp:
             num_new_vecs = vectors.shape[0]
@@ -114,16 +114,24 @@ class OnDiskIndex(Index):
 
             # add new items
             fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors
-            fp["doc_ids"][cur_num_vectors : cur_num_vectors + num_new_vecs] = doc_ids
-            fp["psg_ids"][cur_num_vectors : cur_num_vectors + num_new_vecs] = psg_ids
-            fp.attrs["num_vectors"] += num_new_vecs
 
-        # update mappings in memory
-        for i, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
-            if doc_id is not None:
-                self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
-            if psg_id is not None:
-                self._psg_id_to_idx[psg_id] = cur_num_vectors + i
+            if doc_ids is not None:
+                fp["doc_ids"][
+                    cur_num_vectors : cur_num_vectors + num_new_vecs
+                ] = doc_ids
+
+                for i, doc_id in enumerate(doc_ids):
+                    self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
+
+            if psg_ids is not None:
+                fp["psg_ids"][
+                    cur_num_vectors : cur_num_vectors + num_new_vecs
+                ] = psg_ids
+
+                for i, psg_id in enumerate(psg_ids):
+                    self._psg_id_to_idx[psg_id] = cur_num_vectors + i
+
+            fp.attrs["num_vectors"] += num_new_vecs
 
     def _get_doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
@@ -189,12 +197,12 @@ class OnDiskIndex(Index):
         with h5py.File(index._index_file, "r") as fp:
             for i, (doc_id, psg_id) in tqdm(
                 enumerate(
-                    zip(fp["doc_ids"][:], fp["psg_ids"][:]),
+                    zip(fp["doc_ids"].asstr()[:], fp["psg_ids"].asstr()[:]),
                 ),
                 total=fp.attrs["num_vectors"],
             ):
                 if len(doc_id) > 0:
-                    index._doc_id_to_idx[doc_id.decode()].append(i)
+                    index._doc_id_to_idx[doc_id].append(i)
                 if len(psg_id) > 0:
-                    index._psg_id_to_idx[psg_id.decode()] = i
+                    index._psg_id_to_idx[psg_id] = i
         return index

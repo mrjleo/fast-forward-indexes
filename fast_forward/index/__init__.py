@@ -164,16 +164,16 @@ class Index(abc.ABC):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[Union[str, None]],
-        psg_ids: Sequence[Union[str, None]],
+        doc_ids: Union[Sequence[str], None],
+        psg_ids: Union[Sequence[str], None],
     ) -> None:
         """Add vector representations and corresponding IDs to the index. Each vector is guaranteed to
         have either a document or passage ID associated.
 
         Args:
             vectors (np.ndarray): The representations, shape (num_vectors, dim).
-            doc_ids (Sequence[Union[str, None]]): The corresponding document IDs (may be duplicate).
-            psg_ids (Sequence[Union[str, None]]): The corresponding passage IDs (must be unique).
+            doc_ids (Union[Sequence[str], None]): The corresponding document IDs (may be duplicate).
+            psg_ids (Union[Sequence[str], None]): The corresponding passage IDs (must be unique).
         """
         pass
 
@@ -201,17 +201,16 @@ class Index(abc.ABC):
             )
 
         num_vectors, dim = vectors.shape
-        if doc_ids is None:
-            doc_ids = [None] * num_vectors
-        if psg_ids is None:
-            psg_ids = [None] * num_vectors
+        if doc_ids is not None:
+            assert num_vectors == len(doc_ids)
+        if psg_ids is not None:
+            assert num_vectors == len(psg_ids)
 
         if dim != self.dim:
             raise ValueError(
                 f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})"
             )
 
-        assert num_vectors == len(doc_ids) == len(psg_ids)
         self._add(vectors, doc_ids, psg_ids)
 
     @abc.abstractmethod

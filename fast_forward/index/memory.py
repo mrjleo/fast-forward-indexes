@@ -62,8 +62,8 @@ class InMemoryIndex(Index):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[Union[str, None]],
-        psg_ids: Sequence[Union[str, None]],
+        doc_ids: Union[Sequence[str], None],
+        psg_ids: Union[Sequence[str], None],
     ) -> None:
         # if this is the first call to _add, no shards exist
         if len(self._shards) == 0:
@@ -72,16 +72,15 @@ class InMemoryIndex(Index):
             )
 
         # assign passage and document IDs
-        j = len(self)
-        for doc_id, psg_id in zip(doc_ids, psg_ids):
-            if doc_id is not None:
+        if doc_ids is not None:
+            for j, doc_id in enumerate(doc_ids, len(self)):
                 self._doc_id_to_idx[doc_id].append(j)
-            if psg_id is not None:
+        if psg_ids is not None:
+            for j, psg_id in enumerate(psg_ids, len(self)):
                 if psg_id not in self._psg_id_to_idx:
                     self._psg_id_to_idx[psg_id] = j
                 else:
                     LOGGER.error(f"passage ID {psg_id} already exists")
-            j += 1
 
         # add vectors to shards
         added = 0
