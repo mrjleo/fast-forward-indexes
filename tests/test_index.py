@@ -11,6 +11,7 @@ from fast_forward.index import create_coalesced_index
 
 DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
 DUMMY_DOC_IDS = ["d0", "d0", "d1", "d2", "d3"]
+UNIQUE_DUMMY_DOC_IDS = list(set(DUMMY_DOC_IDS))
 DUMMY_PSG_IDS = ["p0", "p1", "p2", "p3", "p4"]
 DUMMY_VECTORS = np.array(
     [
@@ -79,8 +80,9 @@ class TestIndex(unittest.TestCase):
 
             self.index.mode = Mode.PASSAGE
             vecs, idxs = self.index._get_vectors(psg_ids[lower:upper])
-            np.testing.assert_almost_equal(vecs, data[lower:upper], decimal=6)
-            self.assertEqual([[idx] for idx in range(upper - lower)], idxs)
+            _test_vectors(
+                vecs, idxs, data[lower:upper], [[idx] for idx in range(upper - lower)]
+            )
 
             self.index.mode = Mode.MAXP
             vecs, idxs = self.index._get_vectors(
@@ -257,14 +259,12 @@ class TestInMemoryIndex(TestIndex):
         index.add(data[:14], psg_ids=psg_ids[:14])
         index.consolidate()
         vecs, idxs = index._get_vectors(psg_ids[:14])
-        np.testing.assert_almost_equal(vecs, data[:14], decimal=6)
-        self.assertEqual([[idx] for idx in range(14)], idxs)
+        _test_vectors(vecs, idxs, data[:14], [[idx] for idx in range(14)])
 
         index.add(data[14:32], psg_ids=psg_ids[14:32])
         index.consolidate()
         vecs, idxs = index._get_vectors(psg_ids)
-        np.testing.assert_almost_equal(vecs, data, decimal=6)
-        self.assertEqual([[idx] for idx in range(32)], idxs)
+        _test_vectors(vecs, idxs, data, [[idx] for idx in range(32)])
 
 
 class TestOnDiskIndex(TestIndex):
@@ -315,10 +315,7 @@ class TestOnDiskIndex(TestIndex):
         self.assertEqual(index_copied._get_psg_ids(), self.doc_psg_index._get_psg_ids())
         self.doc_psg_index.mode = Mode.PASSAGE
         index_copied.mode = Mode.PASSAGE
-        vecs_1, idxs_1 = self.doc_psg_index._get_vectors(DUMMY_PSG_IDS)
-        vecs_2, idxs_2 = index_copied._get_vectors(DUMMY_PSG_IDS)
-        np.testing.assert_almost_equal(vecs_1, vecs_2, decimal=6)
-        self.assertEqual(idxs_1, idxs_2)
+        _test_get_vectors(index_copied, self.doc_psg_index, DUMMY_PSG_IDS)
 
         shutil.copy(self.temp_dir / "doc_index.h5", self.temp_dir / "doc_index_copy.h5")
         index_copied = OnDiskIndex.load(self.temp_dir / "doc_index_copy.h5")
@@ -331,13 +328,12 @@ class TestOnDiskIndex(TestIndex):
         self.assertEqual(index_copied._get_psg_ids(), self.psg_index._get_psg_ids())
 
     def test_to_memory(self):
-        unique_dummy_doc_ids = list(set(DUMMY_DOC_IDS))
         for index, params in [
-            (self.doc_index, [(Mode.MAXP, unique_dummy_doc_ids)]),
+            (self.doc_index, [(Mode.MAXP, UNIQUE_DUMMY_DOC_IDS)]),
             (self.psg_index, [(Mode.PASSAGE, DUMMY_PSG_IDS)]),
             (
                 self.doc_psg_index,
-                [(Mode.MAXP, unique_dummy_doc_ids), (Mode.PASSAGE, DUMMY_PSG_IDS)],
+                [(Mode.MAXP, UNIQUE_DUMMY_DOC_IDS), (Mode.PASSAGE, DUMMY_PSG_IDS)],
             ),
         ]:
             mem_index = index.to_memory()
@@ -367,8 +363,13 @@ class TestOnDiskIndex(TestIndex):
 def _test_get_vectors(index_1, index_2, ids):
     vecs_1, idxs_1 = index_1._get_vectors(ids)
     vecs_2, idxs_2 = index_2._get_vectors(ids)
+    _test_vectors(vecs_1, idxs_1, vecs_2, idxs_2)
+
+
+def _test_vectors(vecs_1, idxs_1, vecs_2, idxs_2):
+    # this accounts for the fact that the indices returned by _get_vectors may be different,
+    # but the overall result is still the same
     for i, j in zip(idxs_1, idxs_2):
-        print(i, j)
         np.testing.assert_almost_equal(vecs_1[i], vecs_2[j], decimal=6)
 
 
