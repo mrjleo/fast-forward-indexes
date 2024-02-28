@@ -43,6 +43,8 @@ class TestIndex(unittest.TestCase):
         self.doc_psg_index.add(
             vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
         )
+        self.index_partial_ids.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
+        self.index_partial_ids.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
         self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
         self.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
@@ -51,6 +53,11 @@ class TestIndex(unittest.TestCase):
         self.assertEqual(set(DUMMY_PSG_IDS), self.doc_psg_index.psg_ids)
         self.assertEqual(DUMMY_NUM, len(self.doc_psg_index))
         self.assertEqual(DUMMY_DIM, self.doc_psg_index.dim)
+
+        self.assertEqual(set(DUMMY_DOC_IDS), self.index_partial_ids.doc_ids)
+        self.assertEqual(set(DUMMY_PSG_IDS), self.index_partial_ids.psg_ids)
+        self.assertEqual(DUMMY_NUM * 2, len(self.index_partial_ids))
+        self.assertEqual(DUMMY_DIM, self.index_partial_ids.dim)
 
         self.assertEqual(set(DUMMY_DOC_IDS), self.doc_index.doc_ids)
         self.assertEqual(0, len(self.doc_index.psg_ids))
@@ -167,39 +174,57 @@ class TestIndex(unittest.TestCase):
             )
 
     def test_firstp(self):
+        expected = Ranking(
+            {
+                "q1": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
+                "q2": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
+            }
+        )
         self.doc_psg_index.mode = Mode.FIRSTP
         self.assertEqual(
             self.doc_psg_index.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
-            Ranking(
-                {
-                    "q1": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
-                    "q2": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
-                }
-            ),
+            expected,
+        )
+        self.index_partial_ids.mode = Mode.FIRSTP
+        self.assertEqual(
+            self.doc_psg_index.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
+            expected,
         )
 
     def test_avep(self):
+        expected = Ranking(
+            {
+                "q1": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
+                "q2": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
+            }
+        )
         self.doc_psg_index.mode = Mode.AVEP
         self.assertEqual(
             self.doc_psg_index.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
-            Ranking(
-                {
-                    "q1": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
-                    "q2": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
-                }
-            ),
+            expected,
+        )
+        self.index_partial_ids.mode = Mode.AVEP
+        self.assertEqual(
+            self.index_partial_ids.get_scores(DUMMY_DOC_RANKING, DUMMY_QUERIES)[0.0],
+            expected,
         )
 
     def test_passage(self):
+        expected = Ranking(
+            {
+                "q1": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
+                "q2": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
+            }
+        )
         self.doc_psg_index.mode = Mode.PASSAGE
         self.assertEqual(
             self.doc_psg_index.get_scores(DUMMY_PSG_RANKING, DUMMY_QUERIES)[0.0],
-            Ranking(
-                {
-                    "q1": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
-                    "q2": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
-                }
-            ),
+            expected,
+        )
+        self.index_partial_ids.mode = Mode.PASSAGE
+        self.assertEqual(
+            self.index_partial_ids.get_scores(DUMMY_PSG_RANKING, DUMMY_QUERIES)[0.0],
+            expected,
         )
 
     def test_errors(self):
@@ -241,6 +266,7 @@ class TestInMemoryIndex(TestIndex):
     def setUp(self):
         self.index = InMemoryIndex(16, init_size=32, alloc_size=32)
         self.doc_psg_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
+        self.index_partial_ids = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
         self.doc_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
         self.psg_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
         self.index_no_enc = InMemoryIndex(DUMMY_DIM, encoder=None)
@@ -277,6 +303,11 @@ class TestOnDiskIndex(TestIndex):
         )
         self.doc_psg_index = OnDiskIndex(
             self.temp_dir / "doc_psg_index.h5",
+            DUMMY_DIM,
+            DUMMY_ENCODER,
+        )
+        self.index_partial_ids = OnDiskIndex(
+            self.temp_dir / "index_partial_ids.h5",
             DUMMY_DIM,
             DUMMY_ENCODER,
         )
