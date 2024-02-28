@@ -10,6 +10,7 @@ from tqdm import tqdm
 import fast_forward
 from fast_forward.encoder import QueryEncoder
 from fast_forward.index import Index, Mode
+from fast_forward.index.memory import InMemoryIndex
 
 LOGGER = logging.getLogger(__name__)
 
@@ -89,6 +90,60 @@ class OnDiskIndex(Index):
     def dim(self) -> int:
         with h5py.File(self._index_file, "r") as fp:
             return fp["vectors"].shape[1]
+
+    def to_memory(self, buffer_size=None) -> InMemoryIndex:
+        """Load the index entirely into memory.
+
+        Args:
+            buffer_size (int, optional): Use a buffer instead of adding all vectors at once. Defaults to None.
+
+        Returns:
+            InMemoryIndex: The loaded index.
+        """
+        with h5py.File(self._index_file, "r") as fp:
+            index = InMemoryIndex(
+                dim=self.dim,
+                encoder=self._encoder,
+                mode=self.mode,
+                encoder_batch_size=self._encoder_batch_size,
+                init_size=len(self),
+                dtype=fp["vectors"].dtype,
+            )
+
+            buffer_size = buffer_size or fp.attrs["num_vectors"]
+            for i_low in range(0, fp.attrs["num_vectors"], buffer_size):
+                i_up = min(i_low + buffer_size, fp.attrs["num_vectors"])
+
+                # we can only add vectors of the same type (doc IDs, passage IDs, or both) in one batch
+                has_doc_id, has_psg_id, has_both_ids = [], [], []
+                vecs = fp["vectors"][i_low:i_up]
+                doc_ids = fp["doc_ids"].asstr()[i_low:i_up]
+                psg_ids = fp["psg_ids"].asstr()[i_low:i_up]
+                for j, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
+                    if len(doc_id) == 0:
+                        has_psg_id.append(j)
+                    elif len(psg_id) == 0:
+                        has_doc_id.append(j)
+                    else:
+                        has_both_ids.append(j)
+
+                if len(has_doc_id) > 0:
+                    index.add(
+                        vecs[has_doc_id],
+                        doc_ids=doc_ids[has_doc_id],
+                    )
+                if len(has_psg_id) > 0:
+                    index.add(
+                        vecs[has_psg_id],
+                        psg_ids=psg_ids[has_psg_id],
+                    )
+                if len(has_both_ids) > 0:
+                    index.add(
+                        vecs[has_both_ids],
+                        doc_ids=doc_ids[has_both_ids],
+                        psg_ids=psg_ids[has_both_ids],
+                    )
+        return index
 
     def _add(
         self,

@@ -330,8 +330,46 @@ class TestOnDiskIndex(TestIndex):
         self.assertEqual(index_copied._get_doc_ids(), self.psg_index._get_doc_ids())
         self.assertEqual(index_copied._get_psg_ids(), self.psg_index._get_psg_ids())
 
+    def test_to_memory(self):
+        unique_dummy_doc_ids = list(set(DUMMY_DOC_IDS))
+        for index, params in [
+            (self.doc_index, [(Mode.MAXP, unique_dummy_doc_ids)]),
+            (self.psg_index, [(Mode.PASSAGE, DUMMY_PSG_IDS)]),
+            (
+                self.doc_psg_index,
+                [(Mode.MAXP, unique_dummy_doc_ids), (Mode.PASSAGE, DUMMY_PSG_IDS)],
+            ),
+        ]:
+            mem_index = index.to_memory()
+            mem_index_buffered = index.to_memory(buffer_size=2)
+
+            for mode, ids in params:
+                index.mode = mode
+                mem_index.mode = mode
+                mem_index_buffered.mode = mode
+
+                self.assertEqual(mem_index._get_doc_ids(), index._get_doc_ids())
+                self.assertEqual(mem_index._get_psg_ids(), index._get_psg_ids())
+                self.assertEqual(
+                    mem_index_buffered._get_doc_ids(), index._get_doc_ids()
+                )
+                self.assertEqual(
+                    mem_index_buffered._get_psg_ids(), index._get_psg_ids()
+                )
+
+                _test_get_vectors(mem_index, index, ids)
+                _test_get_vectors(mem_index_buffered, index, ids)
+
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
+
+
+def _test_get_vectors(index_1, index_2, ids):
+    vecs_1, idxs_1 = index_1._get_vectors(ids)
+    vecs_2, idxs_2 = index_2._get_vectors(ids)
+    for i, j in zip(idxs_1, idxs_2):
+        print(i, j)
+        np.testing.assert_almost_equal(vecs_1[i], vecs_2[j], decimal=6)
 
 
 if __name__ == "__main__":
