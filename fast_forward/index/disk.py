@@ -29,6 +29,7 @@ class OnDiskIndex(Index):
         resize_min_val: int = 2**10,
         hdf5_chunk_size: int = None,
         dtype: np.dtype = np.float32,
+        max_id_length: int = 8,
         overwrite: bool = False,
     ) -> None:
         """Constructor.
@@ -43,6 +44,7 @@ class OnDiskIndex(Index):
             resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
             hdf5_chunk_size (int, optional): Override chunk size used by HDF5. Defaults to None.
             dtype (np.dtype, optional): Vector dtype. Defaults to np.float32.
+            max_id_length (int, optional): Maximum length of document and passage IDs (number of characters). Defaults to 8.
             overwrite (bool, optional): Overwrite index file if it exists. Defaults to False.
 
         Raises:
@@ -70,14 +72,14 @@ class OnDiskIndex(Index):
             fp.create_dataset(
                 "doc_ids",
                 (init_size,),
-                "S8",  # TODO
+                f"S{max_id_length}",
                 maxshape=(None,),
                 chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
             )
             fp.create_dataset(
                 "psg_ids",
                 (init_size,),
-                "S8",  # TODO
+                f"S{max_id_length}",
                 maxshape=(None,),
                 chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
             )
@@ -167,25 +169,41 @@ class OnDiskIndex(Index):
                 fp["doc_ids"].resize(new_size, axis=0)
                 fp["psg_ids"].resize(new_size, axis=0)
 
-            # add new items
-            fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors
-
+            # check all IDs first before adding anything
+            doc_id_size = fp["doc_ids"].dtype.itemsize
+            psg_id_size = fp["psg_ids"].dtype.itemsize
+            add_doc_ids, add_psg_ids = [], []
             if doc_ids is not None:
+                for i, doc_id in enumerate(doc_ids):
+                    if len(doc_id) > doc_id_size:
+                        raise RuntimeError(
+                            f"document ID {doc_id} is longer than the maximum ({doc_id_size} characters)"
+                        )
+                    add_doc_ids.append((doc_id, cur_num_vectors + i))
+            if psg_ids is not None:
+                for i, psg_id in enumerate(psg_ids):
+                    if len(psg_id) > psg_id_size:
+                        raise RuntimeError(
+                            f"passage ID {psg_id} is longer than the maximum ({psg_id_size} characters)"
+                        )
+                    add_psg_ids.append((psg_id, cur_num_vectors + i))
+
+            # add new IDs to index and in-memory mappings
+            if doc_ids is not None:
+                for doc_id, idx in add_doc_ids:
+                    self._doc_id_to_idx[doc_id].append(idx)
                 fp["doc_ids"][
                     cur_num_vectors : cur_num_vectors + num_new_vecs
                 ] = doc_ids
-
-                for i, doc_id in enumerate(doc_ids):
-                    self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
-
             if psg_ids is not None:
+                for psg_id, idx in add_psg_ids:
+                    self._psg_id_to_idx[psg_id] = idx
                 fp["psg_ids"][
                     cur_num_vectors : cur_num_vectors + num_new_vecs
                 ] = psg_ids
 
-                for i, psg_id in enumerate(psg_ids):
-                    self._psg_id_to_idx[psg_id] = cur_num_vectors + i
-
+            # add new vectors
+            fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors
             fp.attrs["num_vectors"] += num_new_vecs
 
     def _get_doc_ids(self) -> Set[str]:

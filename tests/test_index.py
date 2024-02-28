@@ -365,6 +365,28 @@ class TestOnDiskIndex(TestIndex):
                 _test_get_vectors(mem_index, index, ids)
                 _test_get_vectors(mem_index_buffered, index, ids)
 
+    def test_max_id_length(self):
+        index = OnDiskIndex(
+            self.temp_dir / "max_id_length_index.h5", 16, max_id_length=3
+        )
+        vectors = np.zeros(shape=(16, 16))
+        doc_ids_ok = ["d1"] * 16
+        psg_ids_ok = [f"p{i}" for i in range(16)]
+        index.add(vectors, doc_ids=doc_ids_ok, psg_ids=psg_ids_ok)
+
+        doc_ids_long = [doc_id + "-long" for doc_id in doc_ids_ok]
+        psg_ids_long = [psg_id + "-long" for psg_id in psg_ids_ok]
+
+        with self.assertRaises(RuntimeError):
+            index.add(vectors, doc_ids=doc_ids_long)
+        with self.assertRaises(RuntimeError):
+            index.add(vectors, psg_ids=psg_ids_long)
+
+        # make sure the index remains unchanged in case of the error
+        self.assertEqual(index._get_doc_ids(), set(doc_ids_ok))
+        self.assertEqual(index._get_psg_ids(), set(psg_ids_ok))
+        self.assertEqual(16, len(index))
+
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
 

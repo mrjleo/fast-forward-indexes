@@ -194,6 +194,7 @@ class Index(abc.ABC):
         Raises:
             ValueError: When there are no document IDs and no passage IDs.
             ValueError: When vector and index dimensionalities don't match.
+            RuntimeError: When items can't be added to the index for any reason.
         """
         if doc_ids is None and psg_ids is None:
             raise ValueError(
