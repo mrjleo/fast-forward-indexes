@@ -19,7 +19,8 @@ jobs:
           python-version: "3.11"
       - name: Install packages
         run: |
-          python -m pip install . pdoc
+          python -m pip install pdoc
+          python -m pip install -e .
       - name: Run pdoc
         run: |
           pdoc fast_forward !fast_forward.examples -d google -o ./out
