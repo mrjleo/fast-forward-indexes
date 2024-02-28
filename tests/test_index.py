@@ -316,16 +316,25 @@ class TestOnDiskIndex(TestIndex):
         self.doc_psg_index.mode = Mode.PASSAGE
         index_copied.mode = Mode.PASSAGE
         _test_get_vectors(index_copied, self.doc_psg_index, DUMMY_PSG_IDS)
+        self.doc_psg_index.mode = Mode.MAXP
+        index_copied.mode = Mode.MAXP
+        _test_get_vectors(index_copied, self.doc_psg_index, UNIQUE_DUMMY_DOC_IDS)
 
         shutil.copy(self.temp_dir / "doc_index.h5", self.temp_dir / "doc_index_copy.h5")
         index_copied = OnDiskIndex.load(self.temp_dir / "doc_index_copy.h5")
         self.assertEqual(index_copied._get_doc_ids(), self.doc_index._get_doc_ids())
         self.assertEqual(index_copied._get_psg_ids(), self.doc_index._get_psg_ids())
+        self.doc_index.mode = Mode.MAXP
+        index_copied.mode = Mode.MAXP
+        _test_get_vectors(index_copied, self.doc_index, UNIQUE_DUMMY_DOC_IDS)
 
         shutil.copy(self.temp_dir / "psg_index.h5", self.temp_dir / "psg_index_copy.h5")
         index_copied = OnDiskIndex.load(self.temp_dir / "psg_index_copy.h5")
         self.assertEqual(index_copied._get_doc_ids(), self.psg_index._get_doc_ids())
         self.assertEqual(index_copied._get_psg_ids(), self.psg_index._get_psg_ids())
+        self.psg_index.mode = Mode.PASSAGE
+        index_copied.mode = Mode.PASSAGE
+        _test_get_vectors(index_copied, self.psg_index, DUMMY_PSG_IDS)
 
     def test_to_memory(self):
         for index, params in [
