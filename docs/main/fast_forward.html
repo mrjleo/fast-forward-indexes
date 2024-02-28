@@ -21,6 +21,26 @@
             <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
                    pattern=".+" required>
 
+            <h2>Contents</h2>
+            <ul>
+  <li><a href="#features">Features</a></li>
+  <li><a href="#installation">Installation</a></li>
+  <li><a href="#getting-started">Getting started</a></li>
+  <li><a href="#guides">Guides</a>
+  <ul>
+    <li><a href="#creating-an-index">Creating an index</a></li>
+    <li><a href="#using-an-index">Using an index</a></li>
+    <li><a href="#retrieval-modes">Retrieval modes</a></li>
+    <li><a href="#custom-query-encoders">Custom query encoders</a></li>
+    <li><a href="#sequential-coalescing">Sequential coalescing</a></li>
+  </ul></li>
+  <li><a href="#examples">Examples</a>
+  <ul>
+    <li><a href="#creating-a-fast-forward-index-from-pyserini">Creating a Fast-Forward index from Pyserini</a></li>
+    <li><a href="#computing-and-interpolating-scores">Computing and interpolating scores</a></li>
+  </ul></li>
+</ul>
+
 
             <h2>Submodules</h2>
             <ul>
@@ -47,7 +67,252 @@
                     <h1 class="modulename">
 fast_forward    </h1>
 
-                        <div class="docstring"><p></p>
+                        <div class="docstring"><p>This is the reference implementation of <a href="https://arxiv.org/abs/2110.06051">Fast-Forward indexes</a>.</p>
+
+<p>⚠ <strong>Important</strong>: As this library is still in its early stages, the API is subject to change!</p>
+
+<h1 id="features">Features</h1>
+
+<ul>
+<li>Efficient look-up-based computation of semantic ranking scores</li>
+<li>Interpolation of lexical (sparse) and semantic (dense) scores</li>
+<li>Passage- and document-level ranking, including MaxP, FirstP, and AverageP</li>
+<li>_Early stopping_ of interpolation based on approximated scores</li>
+<li>Index compression via _sequential coalescing_</li>
+</ul>
+
+<h1 id="installation">Installation</h1>
+
+<p>Install the package via <code>pip</code>:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>fast-forward-indexes
+</code></pre>
+</div>
+
+<p>Alternatively, the package can be installed from source:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mrjleo/fast-forward-indexes.git
+<span class="nb">cd</span><span class="w"> </span>fast-forward-indexes
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+</code></pre>
+</div>
+
+<p>After installing the package, simply import the library:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">import</span> <span class="nn">fast_forward</span>
+</code></pre>
+</div>
+
+<h1 id="getting-started">Getting started</h1>
+
+<p>Using a Fast-Forward index is as simple as providing a TREC run with sparse scores:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn"><a href="fast_forward/encoder.html">fast_forward.encoder</a></span> <span class="kn">import</span> <span class="n">TCTColBERTQueryEncoder</span>
+<span class="kn">from</span> <span class="nn">fast_forward</span> <span class="kn">import</span> <span class="n">OnDiskIndex</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">Ranking</span>
+
+<span class="c1"># choose a pre-trained query encoder</span>
+<span class="n">encoder</span> <span class="o">=</span> <span class="n">TCTColBERTQueryEncoder</span><span class="p">(</span><span class="s2">&quot;castorini/tct_colbert-msmarco&quot;</span><span class="p">)</span>
+
+<span class="c1"># load an index from disk into memory</span>
+<span class="n">index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">),</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
+
+<span class="c1"># load a run (TREC format)</span>
+<span class="n">first_stage_ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/sparse/run.tsv&quot;</span><span class="p">))</span>
+
+<span class="c1"># load all required queries</span>
+<span class="n">queries</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;q1&quot;</span><span class="p">:</span> <span class="s2">&quot;query 1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;q2&quot;</span><span class="p">:</span> <span class="s2">&quot;query 2&quot;</span><span class="p">,</span>
+    <span class="c1"># ...</span>
+    <span class="s2">&quot;qn&quot;</span><span class="p">:</span> <span class="s2">&quot;query n&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># compute the corresponding semantic scores and interpolate</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span>
+    <span class="n">first_stage_ranking</span><span class="p">,</span>
+    <span class="n">queries</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+    <span class="n">cutoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">early_stopping</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># create a new TREC runfile with the interpolated ranking</span>
+<span class="n">result</span><span class="p">[</span><span class="n">alpha</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/interpolated/run.tsv&quot;</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<h1 id="guides">Guides</h1>
+
+<p>This section contains guides for the most important features.</p>
+
+<h2 id="creating-an-index">Creating an index</h2>
+
+<p>Creating a Fast-Forward index is simple. The following snippet illustrates how to create a <code><a href="fast_forward/index/disk.html#OnDiskIndex">fast_forward.index.disk.OnDiskIndex</a></code> object (given a <code><a href="fast_forward/encoder.html#QueryEncoder">fast_forward.encoder.QueryEncoder</a></code>, <code>my_encoder</code>) and add some representations to it:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_index.h5&quot;</span><span class="p">),</span> <span class="n">my_encoder</span><span class="p">)</span>
+<span class="n">my_index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+    <span class="n">my_vectors</span><span class="p">,</span> <span class="c1"># three vectors in total</span>
+    <span class="n">doc_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;d1&quot;</span><span class="p">,</span> <span class="s2">&quot;d1&quot;</span><span class="p">,</span> <span class="s2">&quot;d2&quot;</span><span class="p">],</span>
+    <span class="n">psg_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;d1_p1&quot;</span><span class="p">,</span> <span class="s2">&quot;d1_p2&quot;</span><span class="p">,</span> <span class="s2">&quot;d2_p1&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Here, <code>my_vectors</code> is a Numpy array of shape <code>(3, dim)</code>. The first two vectors correspond to two passages of the document <code>d1</code>, the third vector corresponds to <code>d2</code>, which has only a single passage. It is also possible to provide either only document IDs or only passage IDs.</p>
+
+<p>The index can then be subsequently loaded back using <code><a href="fast_forward/index/disk.html#OnDiskIndex.load">fast_forward.index.disk.OnDiskIndex.load</a></code>.</p>
+
+<h2 id="using-an-index">Using an index</h2>
+
+<p>The usage of a Fast-Forward index (i.e., computing semantic scores and interpolation) is handled by <code><a href="fast_forward/index.html#Index.get_scores">fast_forward.index.Index.get_scores</a></code>. It requires a ranking (typically from a sparse retriever) and the corresponding queries and handles query encoding, scoring, interpolation and so on:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">sparse_ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/sparse/run.tsv&quot;</span><span class="p">))</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span>
+    <span class="n">sparse_ranking</span><span class="p">,</span>
+    <span class="n">queries</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+    <span class="n">cutoff</span><span class="o">=</span><span class="mi">1000</span>
+<span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Here, <code>queries</code> is a simple dictionary mapping query IDs to actual queries to be encoded. In order to use _early stopping_, use <code>early_stopping=True</code>. Note that early stopping is usually only useful for small <code>cutoff</code> values.</p>
+
+<h2 id="retrieval-modes">Retrieval modes</h2>
+
+<p>Each index has a retrieval mode (<code><a href="fast_forward/index.html#Mode">fast_forward.index.Mode</a></code>). The active mode influences the way scores are computed (<code><a href="fast_forward/index.html#Index.get_scores">fast_forward.index.Index.get_scores</a></code>). For example, consider the <a href="#creating-an-index">example index from earlier</a>. Setting the mode to <code><a href="fast_forward/index.html#Mode.PASSAGE">fast_forward.index.Mode.PASSAGE</a></code> will cause the index to compute scores on the passage level and return passage IDs:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_index</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span>
+</code></pre>
+</div>
+
+<p>Similarly, the index can return document IDs, where the score of a document computes as</p>
+
+<ul>
+<li>the highest score of its passages (<code><a href="fast_forward/index.html#Mode.MAXP">fast_forward.index.Mode.MAXP</a></code>),</li>
+<li>the score of the its first passage (<code><a href="fast_forward/index.html#Mode.FIRSTP">fast_forward.index.Mode.FIRSTP</a></code>) or</li>
+<li>the average score of all its passages (<code><a href="fast_forward/index.html#Mode.AVEP">fast_forward.index.Mode.AVEP</a></code>).</li>
+</ul>
+
+<h2 id="custom-query-encoders">Custom query encoders</h2>
+
+<p>Custom query encoders can easily be implemented. The preferred way to do this is by subclassing <code><a href="fast_forward/encoder.html#QueryEncoder">fast_forward.encoder.QueryEncoder</a></code> and overriding the <code><a href="fast_forward/encoder.html#QueryEncoder.encode">fast_forward.encoder.QueryEncoder.encode</a></code> method. This allows the new query encoder to make use of batch encoding.</p>
+
+<p>Alternatively, one can use the <code><a href="fast_forward/encoder.html#LambdaQueryEncoder">fast_forward.encoder.LambdaQueryEncoder</a></code> class, which wraps a function that encodes a single query. The following example shows how to do this with a <a href="https://github.com/castorini/pyserini">Pyserini</a> query encoder:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">pyserini_encoder</span> <span class="o">=</span> <span class="n">pyserini</span><span class="o">.</span><span class="n">dsearch</span><span class="o">.</span><span class="n">AnceQueryEncoder</span><span class="p">(</span><span class="s2">&quot;castorini/ance-msmarco-passage&quot;</span><span class="p">)</span>
+<span class="n">my_encoder</span> <span class="o">=</span> <span class="n">LambdaQueryEncoder</span><span class="p">(</span><span class="n">pyserini_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Note that this method is usually less efficient, as the queries are encoded one by one rather than in batches.</p>
+
+<h2 id="sequential-coalescing">Sequential coalescing</h2>
+
+<p>The sequential coalescing algorithm is a compression technique for indexes with multiple representations per document. It is implemented as <code><a href="fast_forward/index.html#create_coalesced_index">fast_forward.index.create_coalesced_index</a></code>. Example usage:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">))</span>
+<span class="n">coalesced_index</span> <span class="o">=</span> <span class="n">InMemoryIndex</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
+<span class="n">create_coalesced_index</span><span class="p">(</span><span class="n">my_index</span><span class="p">,</span> <span class="n">coalesced_index</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h1 id="examples">Examples</h1>
+
+<p>Example usage scripts can be found in the <code>examples</code> module.</p>
+
+<h2 id="creating-a-fast-forward-index-from-pyserini">Creating a Fast-Forward index from Pyserini</h2>
+
+<p>You can use this script to convert an existing dense <a href="https://github.com/castorini/pyserini">Pyserini</a> index to the Fast-Forward format.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.create_index_from_pyserini<span class="w"> </span>-h
+</code></pre>
+</div>
+
+<pre><code>usage: create_index_from_pyserini.py [-h] [--out_file OUT_FILE] INDEX
+
+positional arguments:
+  INDEX                Pyserini index name (pre-built) or path.
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --out_file OUT_FILE  Output file. (default: out)
+</code></pre>
+
+<p>For example, to convert the pre-built index <code>msmarco-doc-ance-maxp-bf</code>:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.create_index_from_pyserini<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>msmarco-doc-ance-maxp-bf<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>--out_file<span class="w"> </span>my_index
+</code></pre>
+</div>
+
+<h2 id="computing-and-interpolating-scores">Computing and interpolating scores</h2>
+
+<p>This script loads an index into memory and performs re-ranking based on a sparse run.
+The query encoder is loaded from the <a href="https://huggingface.co/models">Hugging Face Hub</a>.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.interpolate<span class="w"> </span>-h
+</code></pre>
+</div>
+
+<pre><code>usage: interpolate.py [-h] [--cutoff CUTOFF] [--cutoff_result CUTOFF_RESULT]
+                      [--alpha ALPHA [ALPHA ...]] [--early_stopping] [--target TARGET]
+                      INDEX {maxp,avep,firstp,passage} ENCODER SPARSE_SCORES
+                      QUERY_FILE
+
+positional arguments:
+  INDEX                 Fast-Forward index file.
+  {maxp,avep,firstp,passage}
+                        Retrieval mode.
+  ENCODER               Pre-trained transformer encoder.
+  SPARSE_SCORES         TREC runfile containing the scores of the sparse retriever.
+  QUERY_FILE            Queries (tsv).
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --cutoff CUTOFF       Maximum number of sparse documents per query. (default: None)
+  --cutoff_result CUTOFF_RESULT
+                        Maximum number of documents per query in the final ranking.
+                        (default: 1000)
+  --alpha ALPHA [ALPHA ...]
+                        Interpolation weight. (default: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5,
+                        0.6, 0.7, 0.8, 0.9, 1.0])
+  --early_stopping      Use approximated early stopping. (default: False)
+  --target TARGET       Output directory. (default: out)
+</code></pre>
+
+<p>The following example uses the pre-trained <code>castorini/tct_colbert-msmarco</code> query encoder.
+We re-rank the top-<code>5000</code> documents for each query using an interpolation weight of <code>0.2</code>.
+Finally, the top-<code>1000</code> documents are kept.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.interpolate<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>my_index<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>maxp<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>castorini/tct_colbert-msmarco<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>my_sparse_run.tsv<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>queries.tsv<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>--cutoff<span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>--cutoff_result<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>--target<span class="w"> </span>results<span class="w"> </span><span class="se">\\</span>
+<span class="w">    </span>--alpha<span class="w"> </span><span class="m">0</span>.2
+</code></pre>
+</div>
 </div>
 
                         <input id="mod-fast_forward-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
