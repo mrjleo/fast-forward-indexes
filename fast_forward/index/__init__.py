@@ -325,7 +325,7 @@ class Index(abc.ABC):
                     )
                     for id, score in scores.items():
                         run[q_id][id] = score
-                result[a] = Ranking(run, sort=True, copy=False)
+                result[a] = Ranking(run, sort=True)
                 result[a].cut(cutoff)
 
         LOGGER.info(f"computed scores in {time.time() - t0}s")

@@ -16,8 +16,7 @@ class Ranking(object):
         run: Run,
         name: str = None,
         sort: bool = True,
-        copy=False,
-        score_dtype: np.dtype = np.float32,
+        dtype: np.dtype = np.float32,
     ) -> None:
         """Constructor.
 
@@ -25,15 +24,14 @@ class Ranking(object):
             run (Run): Run to create ranking from.
             name (str, optional): Method name. Defaults to None.
             sort (bool, optional): Whether to sort the documents/passages by score. Defaults to True.
-            copy (bool, optional): Unused parameter. Defaults to False.
-            sort (score_dtype, np.dtype): How the score should be represented in the data frame. Defaults to np.float32.
+            dtype (np.dtype, optional): How the score should be represented in the data frame. Defaults to np.float32.
         """
         super().__init__()
         self.name = name
         self.is_sorted = sort
         self._df = pd.DataFrame.from_dict(run).stack().reset_index()
         self._df.columns = ("id", "q_id", "score")
-        self._df["score"] = self._df["score"].astype(score_dtype)
+        self._df["score"] = self._df["score"].astype(dtype)
         if sort:
             self.sort()
         self._q_ids = set(pd.unique(self._df["q_id"]))
@@ -187,4 +185,4 @@ def interpolate(
             results[q_id][doc_id] = (
                 alpha * r1[q_id][doc_id] + (1 - alpha) * r2[q_id][doc_id]
             )
-    return Ranking(results, name=name, sort=sort, copy=False)
+    return Ranking(results, name=name, sort=sort)
