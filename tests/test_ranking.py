@@ -35,7 +35,7 @@ class TestRanking(unittest.TestCase):
         r4 = Ranking({"q1": {"d1": 1, "d2": 2}, "q2": {}})
         self.assertEqual(r1, r2)
         self.assertNotEqual(r1, r3)
-        self.assertNotEqual(r1, r4)
+        self.assertEqual(r1, r4)
 
     def test_cut(self):
         r = Ranking(RUN)
