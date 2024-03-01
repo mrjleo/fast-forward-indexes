@@ -1,17 +1,23 @@
-import csv
-from collections import OrderedDict, defaultdict
-from copy import deepcopy
+from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Iterator
+from typing import Dict, Iterator, Union
 
-Run = Dict[str, Dict[str, float]]
+import numpy as np
+import pandas as pd
+
+Run = Dict[str, Dict[str, Union[float, int]]]
 
 
 class Ranking(object):
     """Represents rankings of documents/passages w.r.t. queries."""
 
     def __init__(
-        self, run: Run, name: str = None, sort: bool = True, copy: bool = True
+        self,
+        run: Run,
+        name: str = None,
+        sort: bool = True,
+        copy=False,
+        score_dtype: np.dtype = np.float32,
     ) -> None:
         """Constructor.
 
@@ -19,25 +25,23 @@ class Ranking(object):
             run (Run): Run to create ranking from.
             name (str, optional): Method name. Defaults to None.
             sort (bool, optional): Whether to sort the documents/passages by score. Defaults to True.
-            copy (bool, optional): Whether to make a deep copy of the run to avoid side effects. Defaults to True.
+            copy (bool, optional): Unused parameter. Defaults to False.
+            sort (score_dtype, np.dtype): How the score should be represented in the data frame. Defaults to np.float32.
         """
         super().__init__()
         self.name = name
         self.is_sorted = sort
-        if copy:
-            self.run = deepcopy(run)
-        else:
-            self.run = run
+        self._df = pd.DataFrame.from_dict(run).stack().reset_index()
+        self._df.columns = ("id", "q_id", "score")
+        self._df["score"] = self._df["score"].astype(score_dtype)
         if sort:
             self.sort()
-        self.q_ids = set(self.run.keys())
+        self._q_ids = set(pd.unique(self._df["q_id"]))
+        self.q_ids = self._q_ids
 
     def sort(self) -> None:
         """Sort the ranking by scores (in-place)."""
-        for q_id, d in self.run.items():
-            self.run[q_id] = OrderedDict(
-                sorted(d.items(), key=lambda x: x[1], reverse=True)
-            )
+        self._df.sort_values(by=["q_id", "score"], inplace=True, ascending=False)
         self.is_sorted = True
 
     def cut(self, cutoff: int) -> None:
@@ -48,8 +52,7 @@ class Ranking(object):
         """
         if not self.is_sorted:
             self.sort()
-        for q_id in self.q_ids:
-            self.run[q_id] = OrderedDict(list(self.run[q_id].items())[:cutoff])
+        self._df = self._df.groupby("q_id").head(2)
 
     def __getitem__(self, q_id: str) -> Dict[str, float]:
         """Return the ranking for a query.
@@ -60,7 +63,7 @@ class Ranking(object):
         Returns:
             Dict[str, float]: Document/passage IDs mapped to scores.
         """
-        return self.run[q_id]
+        return dict(self._df[self._df["q_id"] == q_id][["id", "score"]].values)
 
     def __len__(self) -> int:
         """Return the number of queries.
@@ -68,7 +71,7 @@ class Ranking(object):
         Returns:
             int: The number of queries.
         """
-        return len(self.q_ids)
+        return len(self._q_ids)
 
     def __iter__(self) -> Iterator[str]:
         """Yield all query IDs.
@@ -76,7 +79,7 @@ class Ranking(object):
         Yields:
             str: The query IDs.
         """
-        yield from self.q_ids
+        yield from self._q_ids
 
     def __contains__(self, key: object) -> bool:
         """Check whether a query ID is in the ranking.
@@ -87,7 +90,7 @@ class Ranking(object):
         Returns:
             bool: Wherther the query ID has associated document/passage IDs.
         """
-        return key in self.q_ids
+        return key in self._q_ids
 
     def __eq__(self, o: object) -> bool:
         """Check if this ranking is identical to another one.
@@ -98,16 +101,9 @@ class Ranking(object):
         Returns:
             bool: Whether the two rankings are identical.
         """
-        if not isinstance(o, Ranking):
-            return False
-
-        if self.q_ids != o.q_ids:
-            return False
-
-        for q_id in self.q_ids:
-            if self[q_id] != o[q_id]:
-                return False
-        return True
+        return self._df.set_index(["q_id", "id"])["score"].equals(
+            o._df.set_index(["q_id", "id"])["score"]
+        )
 
     def __repr__(self) -> str:
         """Return the run a string representation of this ranking.
@@ -115,7 +111,7 @@ class Ranking(object):
         Returns:
             str: The string representation.
         """
-        return self.run.__repr__()
+        return self._df.__repr__()
 
     def save(
         self,
@@ -126,14 +122,20 @@ class Ranking(object):
         Args:
             target (Path): Output file.
         """
+        df_ranks = self._df.groupby("q_id").cumcount().to_frame()
+        df_ranks.columns = ("rank",)
+        df_out = self._df.join(df_ranks)
+        df_out["name"] = str(self.name)
+        df_out["q0"] = "Q0"
+
         target.parent.mkdir(parents=True, exist_ok=True)
-        with open(target, "w", encoding="utf-8", newline="") as fp:
-            writer = csv.writer(fp, delimiter="\t")
-            for q_id in self:
-                ranking = sorted(self[q_id].keys(), key=self[q_id].get, reverse=True)
-                for rank, id in enumerate(ranking, 1):
-                    score = self[q_id][id]
-                    writer.writerow([q_id, "Q0", id, rank, score, str(self.name)])
+        df_out.to_csv(
+            target,
+            sep="\t",
+            columns=["q_id", "q0", "id", "rank", "score", "name"],
+            index=False,
+            header=False,
+        )
 
     @classmethod
     def from_file(cls, fname: Path) -> "Ranking":
@@ -150,7 +152,7 @@ class Ranking(object):
             for line in fp:
                 q_id, _, id, _, score, name = line.split()
                 run[q_id][id] = float(score)
-        return cls(run, name, sort=True, copy=False)
+        return cls(run, name, sort=True)
 
 
 def interpolate(
