@@ -48,6 +48,7 @@ class Ranking(object):
     def sort(self) -> None:
         """Sort the ranking by scores (in-place)."""
         self._df.sort_values(by=["q_id", "score"], inplace=True, ascending=False)
+        self._df.reset_index(inplace=True, drop=True)
         self.is_sorted = True
 
     def cut(self, cutoff: int) -> None:
@@ -58,7 +59,7 @@ class Ranking(object):
         """
         if not self.is_sorted:
             self.sort()
-        self._df = self._df.groupby("q_id").head(2)
+        self._df = self._df.groupby("q_id").head(2).reset_index(drop=True)
 
     def __getitem__(self, q_id: str) -> Dict[str, float]:
         """Return the ranking for a query.
