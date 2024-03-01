@@ -145,21 +145,32 @@ class Ranking(object):
         )
 
     @classmethod
-    def from_file(cls, fname: Path) -> "Ranking":
+    def from_file(cls, fname: Path, dtype: np.dtype = np.float32) -> "Ranking":
         """Create a Ranking object from a runfile in TREC format.
 
         Args:
             fname (Path): TREC runfile to read.
+            dtype (np.dtype, optional): How the score should be represented in the data frame. Defaults to np.float32.
 
         Returns:
             Ranking: The resulting ranking.
         """
-        run = defaultdict(dict)
-        with open(fname, encoding="utf-8") as fp:
-            for line in fp:
-                q_id, _, id, _, score, name = line.split()
-                run[q_id][id] = float(score)
-        return cls(run, name, sort=True)
+        ranking = cls.__new__(cls)
+        super(Ranking, ranking).__init__()
+        ranking._df = pd.read_csv(
+            fname,
+            delim_whitespace=True,
+            skipinitialspace=True,
+            header=None,
+            names=["q_id", "q0", "id", "rank", "score", "name"],
+        )
+
+        ranking.name = ranking._df["name"][0]
+        ranking._df["score"] = ranking._df["score"].astype(dtype)
+        ranking._df.drop(["q0", "rank", "name"], axis=1, inplace=True)
+        ranking.sort()
+        ranking._q_ids = set(pd.unique(ranking._df["q_id"]))
+        return ranking
 
 
 def interpolate(
