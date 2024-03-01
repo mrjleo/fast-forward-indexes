@@ -1,6 +1,6 @@
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Iterator, Union
+from typing import Dict, Iterator, Set, Union
 
 import numpy as np
 import pandas as pd
@@ -37,7 +37,15 @@ class Ranking(object):
         if sort:
             self.sort()
         self._q_ids = set(pd.unique(self._df["q_id"]))
-        self.q_ids = self._q_ids
+
+    @property
+    def q_ids(self) -> Set[str]:
+        """The set of (unique) query IDs in this ranking. Only queries with at least one scored document are considered.
+
+        Returns:
+            Set[str]: The query IDs.
+        """
+        return self._q_ids
 
     def sort(self) -> None:
         """Sort the ranking by scores (in-place)."""
