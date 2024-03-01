@@ -1,9 +1,9 @@
 import abc
 import logging
-import time
 from collections import OrderedDict, defaultdict
 from enum import Enum
 from queue import PriorityQueue
+from time import perf_counter
 from typing import Callable, Dict, Iterable, Iterator, List, Sequence, Set, Tuple, Union
 
 import numpy as np
@@ -284,7 +284,7 @@ class Index(abc.ABC):
         if early_stopping and cutoff is None:
             raise ValueError("A cut-off depth is required for early stopping.")
 
-        t0 = time.time()
+        t0 = perf_counter()
 
         # batch encode queries
         q_id_list = list(ranking)
@@ -328,7 +328,7 @@ class Index(abc.ABC):
                 result[a] = Ranking(run, sort=True)
                 result[a].cut(cutoff)
 
-        LOGGER.info(f"computed scores in {time.time() - t0}s")
+        LOGGER.info(f"computed scores in {perf_counter() - t0}s")
         return result
 
 
