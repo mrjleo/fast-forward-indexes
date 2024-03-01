@@ -59,7 +59,7 @@ class Ranking(object):
         """
         if not self.is_sorted:
             self.sort()
-        self._df = self._df.groupby("q_id").head(2).reset_index(drop=True)
+        self._df = self._df.groupby("q_id").head(cutoff).reset_index(drop=True)
 
     def __getitem__(self, q_id: str) -> Dict[str, float]:
         """Return the ranking for a query.
