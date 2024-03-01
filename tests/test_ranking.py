@@ -3,6 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pandas as pd
+
 from fast_forward import Ranking
 
 RUN = {
@@ -20,13 +22,23 @@ class TestRanking(unittest.TestCase):
         self.assertIn("q2", r)
         self.assertNotIn("q3", r)
 
-    def test_sorting(self):
+    def test_sort(self):
         r = Ranking(RUN, sort=False)
         self.assertFalse(r.is_sorted)
         r.sort()
         self.assertTrue(r.is_sorted)
         self.assertEqual(r["q1"], {"d2": 300, "d1": 2, "d0": 1})
         self.assertEqual(r["q2"], {"d2": 600, "d3": 7, "d1": 5, "d0": 4})
+
+    def test_attach_queries(self):
+        r = Ranking(RUN)
+        r.attach_queries({"q1": "query 1", "q2": "query 2"})
+        self.assertEqual(
+            pd.unique(r._df.loc[r._df["q_id"].eq("q1"), "query"]).tolist(), ["query 1"]
+        )
+        self.assertEqual(
+            pd.unique(r._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(), ["query 2"]
+        )
 
     def test_eq(self):
         r1 = Ranking({"q1": {"d1": 1, "d2": 2}})

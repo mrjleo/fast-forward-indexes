@@ -45,6 +45,17 @@ class Ranking(object):
         """
         return self._q_ids
 
+    def attach_queries(self, queries: Dict[str, str]) -> None:
+        """Attach queries to this ranking (in-place).
+
+        Args:
+            queries (Dict[str, str]): Query IDs mapped to queries.
+        """
+        if set(queries.keys()) != self._q_ids:
+            raise ValueError("Queries are incomplete")
+        q_df = pd.DataFrame(queries.items(), columns=["q_id", "query"])
+        self._df = self._df.merge(q_df, how="left", on="q_id")
+
     def sort(self) -> None:
         """Sort the ranking by scores (in-place)."""
         self._df.sort_values(by=["q_id", "score"], inplace=True, ascending=False)
@@ -100,7 +111,7 @@ class Ranking(object):
         return key in self._q_ids
 
     def __eq__(self, o: object) -> bool:
-        """Check if this ranking is identical to another one.
+        """Check if this ranking is identical to another one. Only takes IDs and scores into account.
 
         Args:
             o (object): The other ranking.
