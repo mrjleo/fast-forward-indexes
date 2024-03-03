@@ -13,28 +13,29 @@ class Ranking(object):
 
     def __init__(
         self,
-        run: Run,
+        df: pd.DataFrame,
         name: str = None,
-        sort: bool = True,
         dtype: np.dtype = np.float32,
+        copy: bool = True,
     ) -> None:
-        """Constructor.
+        """Create a ranking from an existing data frame.
 
         Args:
-            run (Run): Run to create ranking from.
-            name (str, optional): Method name. Defaults to None.
-            sort (bool, optional): Whether to sort the documents/passages by score. Defaults to True.
-            dtype (np.dtype, optional): How the score should be represented in the data frame. Defaults to np.float32.
+            df (pd.DataFrame): Data frame containing IDs and scores.
+            name (str, optional): Method name. Defaults to None. Defaults to True.
+            dtype (np.dtype, optional): How the scores should be represented in the data frame. Defaults to np.float32.
+            copy (bool, optional): Whether to copy the data frame. Defaults to True.
         """
         super().__init__()
         self.name = name
-        self.is_sorted = sort
-        self._df = pd.DataFrame.from_dict(run).stack().reset_index()
-        self._df.columns = ("id", "q_id", "score")
+        if copy:
+            self._df = df.loc[:, ["q_id", "id", "score"]].copy()
+        else:
+            self._df = df.loc[:, ["q_id", "id", "score"]]
+
         self._df["score"] = self._df["score"].astype(dtype)
-        if sort:
-            self.sort()
         self._q_ids = set(pd.unique(self._df["q_id"]))
+        self.sort()
 
     @property
     def q_ids(self) -> Set[str]:
@@ -68,8 +69,6 @@ class Ranking(object):
         Args:
             cutoff (int): Number of best scores per query to keep (k).
         """
-        if not self.is_sorted:
-            self.sort()
         self._df = self._df.groupby("q_id").head(cutoff).reset_index(drop=True)
 
     def __getitem__(self, q_id: str) -> Dict[str, float]:
@@ -156,32 +155,41 @@ class Ranking(object):
         )
 
     @classmethod
-    def from_file(cls, fname: Path, dtype: np.dtype = np.float32) -> "Ranking":
-        """Create a Ranking object from a runfile in TREC format.
+    def from_run(
+        cls, run: Run, name: str = None, dtype: np.dtype = np.float32
+    ) -> "Ranking":
+        """Create a Ranking object from a TREC run.
 
         Args:
-            fname (Path): TREC runfile to read.
+            run (Run): TREC run.
             dtype (np.dtype, optional): How the score should be represented in the data frame. Defaults to np.float32.
 
         Returns:
             Ranking: The resulting ranking.
         """
-        ranking = cls.__new__(cls)
-        super(Ranking, ranking).__init__()
-        ranking._df = pd.read_csv(
-            fname,
+        df = pd.DataFrame.from_dict(run).stack().reset_index()
+        df.columns = ("id", "q_id", "score")
+        return cls(df, name=name, dtype=dtype, copy=False)
+
+    @classmethod
+    def from_file(cls, f: Path, dtype: np.dtype = np.float32) -> "Ranking":
+        """Create a Ranking object from a runfile in TREC format.
+
+        Args:
+            f (Path): TREC runfile to read.
+            dtype (np.dtype, optional): How the score should be represented in the data frame. Defaults to np.float32.
+
+        Returns:
+            Ranking: The resulting ranking.
+        """
+        df = pd.read_csv(
+            f,
             delim_whitespace=True,
             skipinitialspace=True,
             header=None,
             names=["q_id", "q0", "id", "rank", "score", "name"],
         )
-
-        ranking.name = ranking._df["name"][0]
-        ranking._df["score"] = ranking._df["score"].astype(dtype)
-        ranking._df.drop(["q0", "rank", "name"], axis=1, inplace=True)
-        ranking.sort()
-        ranking._q_ids = set(pd.unique(ranking._df["q_id"]))
-        return ranking
+        return cls(df, name=df["name"][0], dtype=dtype, copy=False)
 
 
 def interpolate(
@@ -208,4 +216,4 @@ def interpolate(
             results[q_id][doc_id] = (
                 alpha * r1[q_id][doc_id] + (1 - alpha) * r2[q_id][doc_id]
             )
-    return Ranking(results, name=name, sort=sort)
+    return Ranking.from_run(results, name=name, sort=sort)

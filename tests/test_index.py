@@ -27,12 +27,12 @@ DUMMY_DOC_RUN = {
     "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
     "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800, "dx": 7},
 }
-DUMMY_DOC_RANKING = Ranking(DUMMY_DOC_RUN)
+DUMMY_DOC_RANKING = Ranking.from_run(DUMMY_DOC_RUN)
 DUMMY_PSG_RUN = {
     "q1": {"p0": 100, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
     "q2": {"p0": 500, "p1": 6, "p2": 7, "p3": 8, "p4": 9},
 }
-DUMMY_PSG_RANKING = Ranking(DUMMY_PSG_RUN)
+DUMMY_PSG_RANKING = Ranking.from_run(DUMMY_PSG_RUN)
 DUMMY_ENCODER = LambdaQueryEncoder(lambda _: np.array([1, 1, 1, 1, 1]))
 
 
@@ -112,7 +112,7 @@ class TestIndex(unittest.TestCase):
         )
         self.assertEqual(
             result[0.0],
-            Ranking(
+            Ranking.from_run(
                 {
                     "q1": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
                     "q2": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
@@ -121,7 +121,7 @@ class TestIndex(unittest.TestCase):
         )
         self.assertEqual(
             result[0.5],
-            Ranking(
+            Ranking.from_run(
                 {
                     "q1": {"d0": 51, "d1": 2.5, "d2": 3.5, "d3": 102.5},
                     "q2": {"d0": 201, "d1": 4, "d2": 5, "d3": 402.5},
@@ -130,7 +130,7 @@ class TestIndex(unittest.TestCase):
         )
         self.assertEqual(
             result[1.0],
-            Ranking(
+            Ranking.from_run(
                 {
                     "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
                     "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800},
@@ -149,18 +149,11 @@ class TestIndex(unittest.TestCase):
             early_stopping=True,
         )
 
-        # test unsorted ranking
-        scores_2 = self.doc_psg_index.get_scores(
-            Ranking(DUMMY_DOC_RUN, sort=False),
-            DUMMY_QUERIES,
-            alpha=0.5,
-            cutoff=2,
-            early_stopping=True,
-        )
-
         self.assertEqual(
             scores_1[0.5],
-            Ranking({"q1": {"d3": 102.5, "d0": 51}, "q2": {"d3": 402.5, "d0": 201}}),
+            Ranking.from_run(
+                {"q1": {"d3": 102.5, "d0": 51}, "q2": {"d3": 402.5, "d0": 201}}
+            ),
         )
         self.assertEqual(scores_1[0.5], scores_2[0.5])
 
@@ -174,7 +167,7 @@ class TestIndex(unittest.TestCase):
             )
 
     def test_firstp(self):
-        expected = Ranking(
+        expected = Ranking.from_run(
             {
                 "q1": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
                 "q2": {"d0": 1, "d1": 3, "d2": 4, "d3": 5},
@@ -192,7 +185,7 @@ class TestIndex(unittest.TestCase):
         )
 
     def test_avep(self):
-        expected = Ranking(
+        expected = Ranking.from_run(
             {
                 "q1": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
                 "q2": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
@@ -210,7 +203,7 @@ class TestIndex(unittest.TestCase):
         )
 
     def test_passage(self):
-        expected = Ranking(
+        expected = Ranking.from_run(
             {
                 "q1": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
                 "q2": {"p0": 1, "p1": 2, "p2": 3, "p3": 4, "p4": 5},
