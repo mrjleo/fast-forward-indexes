@@ -135,16 +135,14 @@ class Ranking(object):
         if not isinstance(o, Ranking) or self.has_ff_scores != o.has_ff_scores:
             return False
 
-        score_eq = self._df.set_index(["q_id", "id"])["score"].equals(
-            o._df.set_index(["q_id", "id"])["score"]
-        )
+        df1 = self._df.sort_values(["q_id", "id"]).reset_index(drop=True)
+        df2 = o._df.sort_values(["q_id", "id"]).reset_index(drop=True)
+
+        cols = ["q_id", "id", "score"]
         if self.has_ff_scores:
-            ff_score_eq = self._df.set_index(["q_id", "id"])["ff_score"].equals(
-                o._df.set_index(["q_id", "id"])["ff_score"]
-            )
-        else:
-            ff_score_eq = True
-        return score_eq and ff_score_eq
+            cols += ["ff_score"]
+
+        return df1[cols].equals(df2[cols])
 
     def __repr__(self) -> str:
         """Return the run a string representation of this ranking.
