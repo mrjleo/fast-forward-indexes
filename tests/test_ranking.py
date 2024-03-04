@@ -63,12 +63,10 @@ class TestRanking(unittest.TestCase):
         self.assertNotEqual(r1, 0)
 
     def test_cut(self):
-        r = Ranking.from_run(RUN)
-        r.cut(2)
-        r_expected = Ranking.from_run(
-            {"q1": {"d2": 300, "d1": 2}, "q2": {"d2": 600, "d3": 7}}
+        self.assertEqual(
+            Ranking.from_run(RUN).cut(2),
+            Ranking.from_run({"q1": {"d2": 300, "d1": 2}, "q2": {"d2": 600, "d3": 7}}),
         )
-        self.assertEqual(r, r_expected)
 
     def test_save_load(self):
         r = Ranking.from_run(RUN, name="Dummy")
@@ -84,14 +82,10 @@ class TestRanking(unittest.TestCase):
     def test_interpolate(self):
         r = Ranking.from_run(RUN)
         r._df["ff_score"] = list(map(np.float32, range(len(r._df))))
-        r_int = r.interpolate(0.5, inplace=False)
+        r_int = r.interpolate(0.5)
         self.assertNotEqual(r, r_int)
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
-        r.interpolate(0.5, inplace=True)
-        print(r._df.dtypes)
-        print(r_int._df.dtypes)
-        self.assertEqual(r, r_int)
 
 
 if __name__ == "__main__":

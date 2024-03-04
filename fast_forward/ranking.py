@@ -85,25 +85,6 @@ class Ranking(object):
         """
         return self._q_ids
 
-    def attach_queries(self, queries: Dict[str, str]) -> None:
-        """Attach queries to this ranking (in-place).
-
-        Args:
-            queries (Dict[str, str]): Query IDs mapped to queries.
-        """
-        if set(queries.keys()) != self._q_ids:
-            raise ValueError("Queries are incomplete")
-        q_df = pd.DataFrame(queries.items(), columns=["q_id", "query"])
-        self._df = self._df.merge(q_df, how="left", on="q_id")
-
-    def cut(self, cutoff: int) -> None:
-        """For each query, remove all but the top-k scoring documents/passages.
-
-        Args:
-            cutoff (int): Number of best scores per query to keep (k).
-        """
-        self._df = self._df.groupby("q_id").head(cutoff).reset_index(drop=True)
-
     def __getitem__(self, q_id: str) -> Dict[str, float]:
         """Return the ranking for a query.
 
@@ -173,25 +154,47 @@ class Ranking(object):
         """
         return self._df.__repr__()
 
-    def interpolate(self, alpha: float, inplace: bool = False) -> "Ranking":
+    def attach_queries(self, queries: Dict[str, str]) -> None:
+        """Attach queries to this ranking (in-place).
+
+        Args:
+            queries (Dict[str, str]): Query IDs mapped to queries.
+        """
+        if set(queries.keys()) != self._q_ids:
+            raise ValueError("Queries are incomplete")
+        q_df = pd.DataFrame(queries.items(), columns=["q_id", "query"])
+        self._df = self._df.merge(q_df, how="left", on="q_id")
+
+    def cut(self, cutoff: int) -> "Ranking":
+        """For each query, remove all but the top-k scoring documents/passages.
+
+        Args:
+            cutoff (int): Number of best scores per query to keep (k).
+
+        Returns:
+            Ranking: The resulting ranking.
+        """
+        return Ranking(
+            self._df.groupby("q_id").head(cutoff).reset_index(drop=True),
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=True,
+            is_sorted=True,
+        )
+
+    def interpolate(self, alpha: float) -> "Ranking":
         """Interpolate scores as score * alpha + ff_score * (1 - alpha).
 
         Args:
             alpha (float): Interpolation parameter.
-            inplace (bool, optional): Whether to modify this ranking in-place.
-        """
-        if inplace:
-            self._df["score"] = (
-                alpha * self._df["score"] + (1 - alpha) * self._df["ff_score"]
-            )
-            self._df.drop(columns="ff_score", inplace=True)
-            self._sort()
-            return self
 
-        new_df = self._df.drop(columns="ff_score")
-        new_df["score"] = alpha * self._df["score"] + (1 - alpha) * self._df["ff_score"]
+        Returns:
+            Ranking: The resulting ranking.
+        """
+        new_df = self._df.dropna().copy()
+        new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["ff_score"]
         return Ranking(
-            new_df,
+            new_df.drop(columns="ff_score"),
             name=self.name,
             dtype=self._df.dtypes["score"],
             copy=False,
