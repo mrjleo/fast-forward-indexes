@@ -1,4 +1,4 @@
-from collections import defaultdict
+from heapq import heappop, heappush
 from pathlib import Path
 from typing import Dict, Iterator, Set, Union
 
@@ -199,6 +199,56 @@ class Ranking(object):
             dtype=self._df.dtypes["score"],
             copy=False,
             is_sorted=False,
+        )
+
+    def interpolate_early_stopping(self, alpha: float, cutoff: int) -> "Ranking":
+        """Interpolate with early stopping.
+
+        Args:
+            alpha (float): Interpolation parameter.
+            cutoff (int): Cut-off depth.
+
+        Returns:
+            Ranking: The resulting ranking.
+        """
+
+        def _es(q_df):
+            heap = []
+            min_relevant_score = float("-inf")
+            max_ff_score = float("-inf")
+            for id, score, ff_score in zip(q_df["id"], q_df["score"], q_df["ff_score"]):
+                if len(heap) >= cutoff:
+                    # check if approximated max possible score is too low to make a difference
+                    min_relevant_score, min_relevant_id = heappop(heap)
+                    max_possible_score = alpha * score + (1 - alpha) * max_ff_score
+
+                    # early stopping
+                    if max_possible_score <= min_relevant_score:
+                        heappush(heap, (min_relevant_score, min_relevant_id))
+                        break
+
+                max_ff_score = max(max_ff_score, ff_score)
+                next_score = alpha * score + (1 - alpha) * ff_score
+                if next_score > min_relevant_score:
+                    heappush(heap, (next_score, id))
+                else:
+                    heappush(heap, (min_relevant_score, min_relevant_id))
+            return reversed([heappop(heap) for _ in range(len(heap))])
+
+        q_dfs_out = []
+        for q_id in self.q_ids:
+            q_df = self._df[self._df["q_id"] == q_id].dropna()
+            q_df_out = pd.DataFrame(_es(q_df), columns=["score", "id"])
+            q_df_out["q_id"] = q_id
+            q_df_out["query"] = q_df["query"].values[0]
+            q_dfs_out.append(q_df_out)
+
+        return Ranking(
+            pd.concat(q_dfs_out).reset_index(),
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=True,
         )
 
     def save(

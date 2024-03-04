@@ -12,6 +12,7 @@ RUN = {
     "q1": {"d0": 1, "d1": 2, "d2": 300},
     "q2": {"d0": 4, "d1": 5, "d2": 600, "d3": 7},
 }
+DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
 
 
 class TestRanking(unittest.TestCase):
@@ -26,7 +27,7 @@ class TestRanking(unittest.TestCase):
     def test_attach_queries(self):
         r = Ranking.from_run(RUN)
         self.assertFalse(r.has_queries)
-        r.attach_queries({"q1": "query 1", "q2": "query 2"})
+        r.attach_queries(DUMMY_QUERIES)
         self.assertTrue(r.has_queries)
         self.assertEqual(
             pd.unique(r._df.loc[r._df["q_id"].eq("q1"), "query"]).tolist(), ["query 1"]
@@ -35,9 +36,7 @@ class TestRanking(unittest.TestCase):
             pd.unique(r._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(), ["query 2"]
         )
 
-        r_with_queries = Ranking.from_run(
-            RUN, queries={"q1": "query 1", "q2": "query 2"}
-        )
+        r_with_queries = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
         self.assertAlmostEqual(r, r_with_queries)
 
     def test_ff_scores(self):
@@ -86,6 +85,16 @@ class TestRanking(unittest.TestCase):
         self.assertNotEqual(r, r_int)
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
+
+    def test_early_stopping(self):
+        r = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
+        r._df["ff_score"] = [4.0, 5.0, 3.0, 2.0, 4.0, 3.0, 2.0]
+        r._df["ff_score"] = r._df["ff_score"].astype(np.float32)
+        for cutoff in (1, 2, 3):
+            self.assertEqual(
+                r.interpolate(0.5).cut(cutoff),
+                r.interpolate_early_stopping(0.5, cutoff),
+            )
 
 
 if __name__ == "__main__":

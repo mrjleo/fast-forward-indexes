@@ -1,12 +1,10 @@
 import abc
 import logging
 from enum import Enum
-from queue import PriorityQueue
 from time import perf_counter
-from typing import Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union
+from typing import Callable, Iterable, List, Sequence, Set, Tuple, Union
 
 import numpy as np
-import pandas as pd
 from scipy.spatial.distance import cosine
 from tqdm import tqdm
 
@@ -359,50 +357,3 @@ def create_coalesced_index(
         target_index.add(np.array(vectors), doc_ids=doc_ids)
 
     assert source_index.doc_ids == target_index.doc_ids
-
-
-def _interpolate_early_stopping(
-    ids: Iterable[str],
-    dense_scores: Iterable[float],
-    sparse_scores: Iterable[float],
-    alpha: float,
-    cutoff: int,
-) -> Dict[str, float]:
-    """Interpolate scores with early stopping.
-
-    Args:
-        ids (Iterable[str]): Document/passage IDs.
-        dense_scores (Iterable[float]): Corresponding dense scores.
-        sparse_scores (Iterable[float]): Corresponding sparse scores.
-        alpha (float): Interpolation parameter.
-        cutoff (int): Cut-off depth.
-
-    Returns:
-        Dict[str, float]: Document/passage IDs mapped to scores.
-    """
-    result = {}
-    relevant_scores = PriorityQueue(cutoff)
-    min_relevant_score = float("-inf")
-    max_dense_score = float("-inf")
-    for id, dense_score, sparse_score in zip(ids, dense_scores, sparse_scores):
-        if relevant_scores.qsize() >= cutoff:
-
-            # check if approximated max possible score is too low to make a difference
-            min_relevant_score = relevant_scores.get_nowait()
-            max_possible_score = alpha * sparse_score + (1 - alpha) * max_dense_score
-
-            # early stopping
-            if max_possible_score <= min_relevant_score:
-                break
-
-        if dense_score is None:
-            LOGGER.warning(f"{id} not indexed, skipping")
-            continue
-
-        max_dense_score = max(max_dense_score, dense_score)
-        score = alpha * sparse_score + (1 - alpha) * dense_score
-        result[id] = score
-
-        # the new score might be ranked higher than the one we removed
-        relevant_scores.put_nowait(max(score, min_relevant_score))
-    return result
