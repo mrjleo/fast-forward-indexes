@@ -287,8 +287,14 @@ class Index(abc.ABC):
         else:
             op = lambda x: x[0]
 
+        def _mapfunc(i):
+            scores_i = select_scores[i]
+            if len(scores_i) == 0:
+                return np.nan
+            return op(scores[select_scores[i]])
+
         # insert FF scores in the correct rows
-        new_df["ff_score"] = new_df.index.map(lambda i: op(scores[select_scores[i]]))
+        new_df["ff_score"] = new_df.index.map(_mapfunc)
 
         LOGGER.info(f"computed scores in {perf_counter() - t0}s")
         return Ranking(
