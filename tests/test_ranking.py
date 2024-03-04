@@ -87,13 +87,20 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
 
     def test_early_stopping(self):
-        r = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
+        r = Ranking.from_run(RUN)
+        r_with_queries = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
         r._df["ff_score"] = [4.0, 5.0, 3.0, 2.0, 4.0, 3.0, 2.0]
         r._df["ff_score"] = r._df["ff_score"].astype(np.float32)
+        r_with_queries._df["ff_score"] = [4.0, 5.0, 3.0, 2.0, 4.0, 3.0, 2.0]
+        r_with_queries._df["ff_score"] = r._df["ff_score"].astype(np.float32)
         for cutoff in (1, 2, 3):
             self.assertEqual(
-                r.interpolate(0.5).cut(cutoff),
-                r.interpolate_early_stopping(0.5, cutoff),
+                r.interpolate(0.5, early_stopping=False).cut(cutoff),
+                r.interpolate(0.5, cutoff, early_stopping=True),
+            )
+            self.assertEqual(
+                r_with_queries.interpolate(0.5, early_stopping=False).cut(cutoff),
+                r_with_queries.interpolate(0.5, cutoff, early_stopping=True),
             )
 
 

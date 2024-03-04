@@ -1,3 +1,4 @@
+import logging
 from heapq import heappop, heappush
 from pathlib import Path
 from typing import Dict, Iterator, Set, Union
@@ -6,6 +7,8 @@ import numpy as np
 import pandas as pd
 
 Run = Dict[str, Dict[str, Union[float, int]]]
+
+LOGGER = logging.getLogger(__name__)
 
 
 class Ranking(object):
@@ -180,35 +183,37 @@ class Ranking(object):
             is_sorted=True,
         )
 
-    def interpolate(self, alpha: float) -> "Ranking":
-        """Interpolate scores as score * alpha + ff_score * (1 - alpha).
+    def interpolate(
+        self, alpha: float, cutoff: int = None, early_stopping: bool = False
+    ) -> "Ranking":
+        """Interpolate scores as `score * alpha + ff_score * (1 - alpha)`
 
         Args:
             alpha (float): Interpolation parameter.
+            cutoff (int, optional): Cut-off depth. Defaults to None.
+            early_stopping (bool, optional): Use early stopping (requires cut-off depth). Defaults to None.
 
         Returns:
             Ranking: The resulting ranking.
         """
-        new_df = self._df.dropna().copy()
-        new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["ff_score"]
-        return Ranking(
-            new_df.drop(columns="ff_score"),
-            name=self.name,
-            dtype=self._df.dtypes["score"],
-            copy=False,
-            is_sorted=False,
-        )
 
-    def interpolate_early_stopping(self, alpha: float, cutoff: int) -> "Ranking":
-        """Interpolate with early stopping.
+        if early_stopping and cutoff is None:
+            LOGGER.warning("No cut-off depth provided, disabling early stopping")
+            early_stopping = False
 
-        Args:
-            alpha (float): Interpolation parameter.
-            cutoff (int): Cut-off depth.
-
-        Returns:
-            Ranking: The resulting ranking.
-        """
+        if not early_stopping:
+            new_df = self._df.dropna().copy()
+            new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["ff_score"]
+            result = Ranking(
+                new_df.drop(columns="ff_score"),
+                name=self.name,
+                dtype=self._df.dtypes["score"],
+                copy=False,
+                is_sorted=False,
+            )
+            if cutoff is not None:
+                return result.cut(cutoff)
+            return result
 
         def _es(q_df):
             heap = []
@@ -238,7 +243,8 @@ class Ranking(object):
             q_df = self._df[self._df["q_id"] == q_id].dropna()
             q_df_out = pd.DataFrame(_es(q_df), columns=["score", "id"])
             q_df_out["q_id"] = q_id
-            q_df_out["query"] = q_df["query"].values[0]
+            if "query" in q_df.columns:
+                q_df_out["query"] = q_df["query"].values[0]
             q_dfs_out.append(q_df_out)
 
         return Ranking(
