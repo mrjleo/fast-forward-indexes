@@ -34,6 +34,16 @@ class TestRanking(unittest.TestCase):
             pd.unique(r._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(), ["query 2"]
         )
 
+    def test_ff_scores(self):
+        r1 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
+        r2 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
+
+        self.assertFalse(r1.has_ff_scores)
+        self.assertEqual(r1, r2)
+        r1._df["ff_score"] = range(len(r1._df))
+        self.assertTrue(r1.has_ff_scores)
+        self.assertNotEqual(r1, r2)
+
     def test_eq(self):
         r1 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
         r2 = Ranking.from_run({"q1": {"d2": 2, "d1": 1}})
@@ -42,6 +52,9 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(r1, r2)
         self.assertNotEqual(r1, r3)
         self.assertEqual(r1, r4)
+
+        self.assertNotEqual(r1, "string")
+        self.assertNotEqual(r1, 0)
 
     def test_cut(self):
         r = Ranking.from_run(RUN)

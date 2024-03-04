@@ -60,6 +60,15 @@ class Ranking(object):
         return "query" in self._df.columns
 
     @property
+    def has_ff_scores(self) -> bool:
+        """Whether the ranking has semantic scores.
+
+        Returns:
+            bool: Whether semantic scores exist.
+        """
+        return "ff_score" in self._df.columns
+
+    @property
     def q_ids(self) -> Set[str]:
         """The set of (unique) query IDs in this ranking. Only queries with at least one scored document are considered.
 
@@ -134,9 +143,19 @@ class Ranking(object):
         Returns:
             bool: Whether the two rankings are identical.
         """
-        return self._df.set_index(["q_id", "id"])["score"].equals(
+        if not isinstance(o, Ranking) or self.has_ff_scores != o.has_ff_scores:
+            return False
+
+        score_eq = self._df.set_index(["q_id", "id"])["score"].equals(
             o._df.set_index(["q_id", "id"])["score"]
         )
+        if self.has_ff_scores:
+            ff_score_eq = self._df.set_index(["q_id", "id"])["ff_score"].equals(
+                o._df.set_index(["q_id", "id"])["ff_score"]
+            )
+        else:
+            ff_score_eq = True
+        return score_eq and ff_score_eq
 
     def __repr__(self) -> str:
         """Return the run a string representation of this ranking.
