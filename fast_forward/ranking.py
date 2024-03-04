@@ -17,6 +17,7 @@ class Ranking(object):
         name: str = None,
         dtype: np.dtype = np.float32,
         copy: bool = True,
+        is_sorted: bool = False,
     ) -> None:
         """Create a ranking from an existing data frame.
 
@@ -25,17 +26,29 @@ class Ranking(object):
             name (str, optional): Method name. Defaults to None. Defaults to True.
             dtype (np.dtype, optional): How the scores should be represented in the data frame. Defaults to np.float32.
             copy (bool, optional): Whether to copy the data frame. Defaults to True.
+            is_sorted (bool, optional): Whether the data frame is already sorted (by score). Defaults to False.
         """
         super().__init__()
         self.name = name
+
+        cols = ["q_id", "id", "score"] + [
+            col for col in ("query", "ff_score") if col in df.columns
+        ]
         if copy:
-            self._df = df.loc[:, ["q_id", "id", "score"]].copy()
+            self._df = df.loc[:, cols].copy()
         else:
-            self._df = df.loc[:, ["q_id", "id", "score"]]
+            self._df = df.loc[:, cols]
 
         self._df["score"] = self._df["score"].astype(dtype)
         self._q_ids = set(pd.unique(self._df["q_id"]))
-        self.sort()
+
+        if not is_sorted:
+            self._sort()
+
+    def _sort(self) -> None:
+        """Sort the ranking by scores (in-place)."""
+        self._df.sort_values(by=["q_id", "score"], inplace=True, ascending=False)
+        self._df.reset_index(inplace=True, drop=True)
 
     @property
     def q_ids(self) -> Set[str]:
@@ -56,12 +69,6 @@ class Ranking(object):
             raise ValueError("Queries are incomplete")
         q_df = pd.DataFrame(queries.items(), columns=["q_id", "query"])
         self._df = self._df.merge(q_df, how="left", on="q_id")
-
-    def sort(self) -> None:
-        """Sort the ranking by scores (in-place)."""
-        self._df.sort_values(by=["q_id", "score"], inplace=True, ascending=False)
-        self._df.reset_index(inplace=True, drop=True)
-        self.is_sorted = True
 
     def cut(self, cutoff: int) -> None:
         """For each query, remove all but the top-k scoring documents/passages.
