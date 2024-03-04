@@ -44,9 +44,14 @@ class Ranking(object):
         else:
             self._df = df.loc[:, cols]
 
-        self._df["score"] = self._df["score"].astype(dtype)
-        if "ff_score" in df.columns:
-            self._df["ff_score"] = self._df["ff_score"].astype(dtype)
+        for col, dt in (
+            ("score", dtype),
+            ("ff_score", dtype),
+            ("q_id", str),
+            ("id", str),
+        ):
+            if col in self._df.columns and self._df[col].dtype != dt:
+                self._df[col] = self._df[col].astype(dt)
 
         self._q_ids = set(pd.unique(self._df["q_id"]))
 
@@ -186,7 +191,7 @@ class Ranking(object):
     def interpolate(
         self, alpha: float, cutoff: int = None, early_stopping: bool = False
     ) -> "Ranking":
-        """Interpolate scores as `score * alpha + ff_score * (1 - alpha)`
+        """Interpolate as `score = score * alpha + ff_score * (1 - alpha)`.
 
         Args:
             alpha (float): Interpolation parameter.
