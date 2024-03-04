@@ -24,7 +24,9 @@ class TestRanking(unittest.TestCase):
 
     def test_attach_queries(self):
         r = Ranking.from_run(RUN)
+        self.assertFalse(r.has_queries)
         r.attach_queries({"q1": "query 1", "q2": "query 2"})
+        self.assertTrue(r.has_queries)
         self.assertEqual(
             pd.unique(r._df.loc[r._df["q_id"].eq("q1"), "query"]).tolist(), ["query 1"]
         )

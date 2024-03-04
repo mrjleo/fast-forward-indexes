@@ -51,6 +51,15 @@ class Ranking(object):
         self._df.reset_index(inplace=True, drop=True)
 
     @property
+    def has_queries(self) -> bool:
+        """Whether the ranking has queries attached.
+
+        Returns:
+            bool: Whether queries exist.
+        """
+        return "query" in self._df.columns
+
+    @property
     def q_ids(self) -> Set[str]:
         """The set of (unique) query IDs in this ranking. Only queries with at least one scored document are considered.
 
