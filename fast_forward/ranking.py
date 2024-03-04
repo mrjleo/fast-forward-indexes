@@ -40,6 +40,9 @@ class Ranking(object):
             self._df = df.loc[:, cols]
 
         self._df["score"] = self._df["score"].astype(dtype)
+        if "ff_score" in df.columns:
+            self._df["ff_score"] = self._df["ff_score"].astype(dtype)
+
         self._q_ids = set(pd.unique(self._df["q_id"]))
 
         if not is_sorted:
@@ -165,6 +168,31 @@ class Ranking(object):
         """
         return self._df.__repr__()
 
+    def interpolate(self, alpha: float, inplace: bool = False) -> "Ranking":
+        """Interpolate scores as score * alpha + ff_score * (1 - alpha).
+
+        Args:
+            alpha (float): Interpolation parameter.
+            inplace (bool, optional): Whether to modify this ranking in-place.
+        """
+        if inplace:
+            self._df["score"] = (
+                alpha * self._df["score"] + (1 - alpha) * self._df["ff_score"]
+            )
+            self._df.drop(columns="ff_score", inplace=True)
+            self._sort()
+            return self
+
+        new_df = self._df.drop(columns="ff_score")
+        new_df["score"] = alpha * self._df["score"] + (1 - alpha) * self._df["ff_score"]
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=False,
+        )
+
     def save(
         self,
         target: Path,
@@ -225,30 +253,3 @@ class Ranking(object):
             names=["q_id", "q0", "id", "rank", "score", "name"],
         )
         return cls(df, name=df["name"][0], dtype=dtype, copy=False)
-
-
-def interpolate(
-    r1: Ranking, r2: Ranking, alpha: float, name: str = None, sort: bool = True
-) -> Ranking:
-    """Interpolate scores. For each query-doc pair:
-        * If the pair has only one score, ignore it.
-        * If the pair has two scores, interpolate: r1 * alpha + r2 * (1 - alpha).
-
-    Args:
-        r1 (Ranking): Scores from the first retriever.
-        r2 (Ranking): Scores from the second retriever.
-        alpha (float): Interpolation weight.
-        name (str, optional): Ranking name. Defaults to None.
-        sort (bool, optional): Whether to sort the documents by score. Defaults to True.
-
-    Returns:
-        Ranking: Interpolated ranking.
-    """
-    assert r1.q_ids == r2.q_ids
-    results = defaultdict(dict)
-    for q_id in r1:
-        for doc_id in r1[q_id].keys() & r2[q_id].keys():
-            results[q_id][doc_id] = (
-                alpha * r1[q_id][doc_id] + (1 - alpha) * r2[q_id][doc_id]
-            )
-    return Ranking.from_run(results, name=name, sort=sort)

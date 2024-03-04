@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from fast_forward import Ranking
@@ -40,7 +41,7 @@ class TestRanking(unittest.TestCase):
 
         self.assertFalse(r1.has_ff_scores)
         self.assertEqual(r1, r2)
-        r1._df["ff_score"] = range(len(r1._df))
+        r1._df["ff_score"] = list(map(np.float32, range(len(r1._df))))
         self.assertTrue(r1.has_ff_scores)
         self.assertNotEqual(r1, r2)
 
@@ -74,6 +75,18 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(r.name, r_from_file.name)
         os.close(fd)
         os.remove(f)
+
+    def test_interpolate(self):
+        r = Ranking.from_run(RUN)
+        r._df["ff_score"] = list(map(np.float32, range(len(r._df))))
+        r_int = r.interpolate(0.5, inplace=False)
+        self.assertNotEqual(r, r_int)
+        self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
+        self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
+        r.interpolate(0.5, inplace=True)
+        print(r._df.dtypes)
+        print(r_int._df.dtypes)
+        self.assertEqual(r, r_int)
 
 
 if __name__ == "__main__":
