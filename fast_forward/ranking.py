@@ -15,6 +15,7 @@ class Ranking(object):
         self,
         df: pd.DataFrame,
         name: str = None,
+        queries: Dict[str, str] = None,
         dtype: np.dtype = np.float32,
         copy: bool = True,
         is_sorted: bool = False,
@@ -23,7 +24,8 @@ class Ranking(object):
 
         Args:
             df (pd.DataFrame): Data frame containing IDs and scores.
-            name (str, optional): Method name. Defaults to None. Defaults to True.
+            name (str, optional): Method name. Defaults to None. Defaults to None.
+            queries (Dict[str, str], optional): Query IDs mapped to queries. Defaults to None.
             dtype (np.dtype, optional): How the scores should be represented in the data frame. Defaults to np.float32.
             copy (bool, optional): Whether to copy the data frame. Defaults to True.
             is_sorted (bool, optional): Whether the data frame is already sorted (by score). Defaults to False.
@@ -47,6 +49,9 @@ class Ranking(object):
 
         if not is_sorted:
             self._sort()
+
+        if queries is not None:
+            self.attach_queries(queries)
 
     def _sort(self) -> None:
         """Sort the ranking by scores (in-place)."""
@@ -219,12 +224,18 @@ class Ranking(object):
 
     @classmethod
     def from_run(
-        cls, run: Run, name: str = None, dtype: np.dtype = np.float32
+        cls,
+        run: Run,
+        name: str = None,
+        queries: Dict[str, str] = None,
+        dtype: np.dtype = np.float32,
     ) -> "Ranking":
         """Create a Ranking object from a TREC run.
 
         Args:
             run (Run): TREC run.
+            name (str, optional): Method name. Defaults to None. Defaults to None.
+            queries (Dict[str, str], optional): Query IDs mapped to queries. Defaults to None.
             dtype (np.dtype, optional): How the score should be represented in the data frame. Defaults to np.float32.
 
         Returns:
@@ -232,14 +243,20 @@ class Ranking(object):
         """
         df = pd.DataFrame.from_dict(run).stack().reset_index()
         df.columns = ("id", "q_id", "score")
-        return cls(df, name=name, dtype=dtype, copy=False)
+        return cls(df, name=name, queries=queries, dtype=dtype, copy=False)
 
     @classmethod
-    def from_file(cls, f: Path, dtype: np.dtype = np.float32) -> "Ranking":
+    def from_file(
+        cls,
+        f: Path,
+        queries: Dict[str, str] = None,
+        dtype: np.dtype = np.float32,
+    ) -> "Ranking":
         """Create a Ranking object from a runfile in TREC format.
 
         Args:
             f (Path): TREC runfile to read.
+            queries (Dict[str, str], optional): Query IDs mapped to queries. Defaults to None.
             dtype (np.dtype, optional): How the score should be represented in the data frame. Defaults to np.float32.
 
         Returns:
@@ -252,4 +269,4 @@ class Ranking(object):
             header=None,
             names=["q_id", "q0", "id", "rank", "score", "name"],
         )
-        return cls(df, name=df["name"][0], dtype=dtype, copy=False)
+        return cls(df, name=df["name"][0], queries=queries, dtype=dtype, copy=False)

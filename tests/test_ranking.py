@@ -35,6 +35,11 @@ class TestRanking(unittest.TestCase):
             pd.unique(r._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(), ["query 2"]
         )
 
+        r_with_queries = Ranking.from_run(
+            RUN, queries={"q1": "query 1", "q2": "query 2"}
+        )
+        self.assertAlmostEqual(r, r_with_queries)
+
     def test_ff_scores(self):
         r1 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
         r2 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
