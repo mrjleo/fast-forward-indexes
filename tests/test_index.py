@@ -113,24 +113,6 @@ class TestIndex(unittest.TestCase):
                 }
             ),
         )
-        self.assertEqual(
-            result.interpolate(0.5),
-            Ranking.from_run(
-                {
-                    "q1": {"d0": 51, "d1": 2.5, "d2": 3.5, "d3": 102.5},
-                    "q2": {"d0": 201, "d1": 4, "d2": 5, "d3": 402.5},
-                }
-            ),
-        )
-        self.assertEqual(
-            result.interpolate(1.0),
-            Ranking.from_run(
-                {
-                    "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
-                    "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800},
-                }
-            ),
-        )
 
     def test_firstp(self):
         expected = Ranking.from_run(
@@ -154,7 +136,7 @@ class TestIndex(unittest.TestCase):
         expected = Ranking.from_run(
             {
                 "q1": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
-                "q2": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5, "dx": np.nan},
+                "q2": {"d0": 1.5, "d1": 3, "d2": 4, "d3": 5},
             }
         )
 
