@@ -55,7 +55,7 @@ class Index(abc.ABC):
             np.ndarray: The query representations.
         """
         if self._query_encoder is None:
-            raise RuntimeError("This index does not have a query encoder.")
+            raise RuntimeError("Index does not have a query encoder.")
 
         result = []
         for i in range(0, len(queries), self._encoder_batch_size):
@@ -193,9 +193,7 @@ class Index(abc.ABC):
             RuntimeError: When items can't be added to the index for any reason.
         """
         if doc_ids is None and psg_ids is None:
-            raise ValueError(
-                "At least one of `doc_ids` and `psg_ids` must be provided."
-            )
+            raise ValueError("At least one of doc_ids and psg_ids must be provided.")
 
         num_vectors, dim = vectors.shape
         if doc_ids is not None:
@@ -205,7 +203,7 @@ class Index(abc.ABC):
 
         if dim != self.dim:
             raise ValueError(
-                f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})"
+                f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
             )
 
         self._add(vectors, doc_ids, psg_ids)
@@ -240,7 +238,7 @@ class Index(abc.ABC):
             ValueError: When the ranking has no queries attached.
         """
         if not ranking.has_queries:
-            raise ValueError("Input ranking has no queries attached")
+            raise ValueError("Input ranking has no queries attached.")
 
         t0 = perf_counter()
         new_df = ranking._df.copy(deep=False)
@@ -295,7 +293,7 @@ class Index(abc.ABC):
         # insert FF scores in the correct rows
         new_df["ff_score"] = new_df.index.map(_mapfunc)
 
-        LOGGER.info(f"computed scores in {perf_counter() - t0}s")
+        LOGGER.info("computed scores in %s seconds", {perf_counter() - t0})
         return Ranking(
             new_df,
             name=ranking.name,

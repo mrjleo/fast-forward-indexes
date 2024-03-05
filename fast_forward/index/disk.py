@@ -51,7 +51,7 @@ class OnDiskIndex(Index):
             ValueError: When the file exists and `overwrite=False`.
         """
         if index_file.exists() and not overwrite:
-            raise ValueError(f"File {index_file} exists")
+            raise ValueError(f"File {index_file} exists.")
 
         super().__init__(query_encoder, mode, encoder_batch_size)
         self._index_file = index_file.absolute()
@@ -164,7 +164,7 @@ class OnDiskIndex(Index):
                 new_size = max(
                     capacity + num_new_vecs - space_left, self._resize_min_val
                 )
-                LOGGER.debug(f"resizing index from {capacity} to {new_size}")
+                LOGGER.debug("resizing index from %s to %s", capacity, new_size)
                 fp["vectors"].resize(new_size, axis=0)
                 fp["doc_ids"].resize(new_size, axis=0)
                 fp["psg_ids"].resize(new_size, axis=0)
@@ -177,14 +177,14 @@ class OnDiskIndex(Index):
                 for i, doc_id in enumerate(doc_ids):
                     if len(doc_id) > doc_id_size:
                         raise RuntimeError(
-                            f"document ID {doc_id} is longer than the maximum ({doc_id_size} characters)"
+                            f"Document ID {doc_id} is longer than the maximum ({doc_id_size} characters)."
                         )
                     add_doc_ids.append((doc_id, cur_num_vectors + i))
             if psg_ids is not None:
                 for i, psg_id in enumerate(psg_ids):
                     if len(psg_id) > psg_id_size:
                         raise RuntimeError(
-                            f"passage ID {psg_id} is longer than the maximum ({psg_id_size} characters)"
+                            f"Passage ID {psg_id} is longer than the maximum ({psg_id_size} characters)."
                         )
                     add_psg_ids.append((psg_id, cur_num_vectors + i))
 
@@ -223,7 +223,7 @@ class OnDiskIndex(Index):
                 elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
                     idxs = [self._psg_id_to_idx[id]]
                 else:
-                    LOGGER.warning(f"no vectors for {id}")
+                    LOGGER.warning("no vectors for %s", id)
                     idxs = []
 
                 for idx in idxs:

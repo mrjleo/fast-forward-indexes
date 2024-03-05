@@ -167,7 +167,7 @@ class Ranking(object):
             queries (Dict[str, str]): Query IDs mapped to queries.
         """
         if set(queries.keys()) != self._q_ids:
-            raise ValueError("Queries are incomplete")
+            raise ValueError("Queries are incomplete.")
         q_df = pd.DataFrame(queries.items(), columns=["q_id", "query"])
         self._df = self._df.merge(q_df, how="left", on="q_id")
 
@@ -203,7 +203,7 @@ class Ranking(object):
         """
 
         if early_stopping and cutoff is None:
-            LOGGER.warning("No cut-off depth provided, disabling early stopping")
+            LOGGER.warning("no cut-off depth provided, disabling early stopping")
             early_stopping = False
 
         if not early_stopping:

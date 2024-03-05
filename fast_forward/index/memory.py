@@ -80,7 +80,7 @@ class InMemoryIndex(Index):
                 if psg_id not in self._psg_id_to_idx:
                     self._psg_id_to_idx[psg_id] = j
                 else:
-                    LOGGER.error(f"passage ID {psg_id} already exists")
+                    LOGGER.error("passage ID %s already exists", psg_id)
 
         # add vectors to shards
         added = 0
@@ -132,7 +132,7 @@ class InMemoryIndex(Index):
             elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
                 idxs = [self._psg_id_to_idx[id]]
             else:
-                LOGGER.warning(f"no vectors for {id}")
+                LOGGER.warning("no vectors for %s", id)
                 idxs = []
 
             for idx in idxs:
