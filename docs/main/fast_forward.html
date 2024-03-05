@@ -42,6 +42,7 @@
                     <li><a href="fast_forward/encoder.html">encoder</a></li>
                     <li><a href="fast_forward/index.html">index</a></li>
                     <li><a href="fast_forward/ranking.html">ranking</a></li>
+                    <li><a href="fast_forward/util.html">util</a></li>
             </ul>
 
             <h2>API Documentation</h2>
@@ -209,11 +210,11 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
 <h2 id="sequential-coalescing">Sequential coalescing</h2>
 
-<p>The sequential coalescing algorithm is a compression technique for indexes with multiple representations per document. It is implemented as <code><a href="fast_forward/index.html#create_coalesced_index">fast_forward.index.create_coalesced_index</a></code>. Example usage:</p>
+<p>The sequential coalescing algorithm is a compression technique for indexes with multiple representations per document. It is implemented as <code><a href="fast_forward/util.html#create_coalesced_index">fast_forward.util.create_coalesced_index</a></code>. Example usage:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">))</span>
-<span class="n">coalesced_index</span> <span class="o">=</span> <span class="n">InMemoryIndex</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
+<span class="n">coalesced_index</span> <span class="o">=</span> <span class="n">InMemoryIndex</span><span class="p">(</span><span class="mi">768</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
 <span class="n">create_coalesced_index</span><span class="p">(</span><span class="n">my_index</span><span class="p">,</span> <span class="n">coalesced_index</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
 </code></pre>
 </div>
