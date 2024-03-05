@@ -132,10 +132,10 @@ Note that this method is usually less efficient, as the queries are encoded one 
 
 ## Sequential coalescing
 
-The sequential coalescing algorithm is a compression technique for indexes with multiple representations per document. It is implemented as `fast_forward.index.create_coalesced_index`. Example usage:
+The sequential coalescing algorithm is a compression technique for indexes with multiple representations per document. It is implemented as `fast_forward.util.create_coalesced_index`. Example usage:
 
 ```python
 my_index = OnDiskIndex.load(Path("/path/to/index.h5"))
-coalesced_index = InMemoryIndex(mode=Mode.MAXP)
+coalesced_index = InMemoryIndex(768, mode=Mode.MAXP)
 create_coalesced_index(my_index, coalesced_index, 0.3)
 ```
