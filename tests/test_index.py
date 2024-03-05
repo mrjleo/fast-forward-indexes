@@ -101,7 +101,7 @@ class TestIndex(unittest.TestCase):
                 idxs,
             )
 
-    def test_interpolation(self):
+    def test_maxp(self):
         self.doc_psg_index.mode = Mode.MAXP
         result = self.doc_psg_index(DUMMY_DOC_RANKING)
         self.assertEqual(
