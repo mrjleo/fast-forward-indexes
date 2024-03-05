@@ -16,7 +16,7 @@ class InMemoryIndex(Index):
     def __init__(
         self,
         dim: int,
-        encoder: QueryEncoder = None,
+        query_encoder: QueryEncoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -27,7 +27,7 @@ class InMemoryIndex(Index):
 
         Args:
             dim (int): Vector dimension.
-            encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
+            query_encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
@@ -42,7 +42,7 @@ class InMemoryIndex(Index):
         self._dim = dim
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
-        super().__init__(encoder, mode, encoder_batch_size)
+        super().__init__(query_encoder, mode, encoder_batch_size)
 
     def __len__(self) -> int:
         # account for the fact that the first shard might be larger

@@ -1,17 +1,15 @@
 import abc
 import logging
-import time
-from collections import OrderedDict, defaultdict
 from enum import Enum
-from queue import PriorityQueue
-from typing import Callable, Dict, Iterable, Iterator, List, Sequence, Set, Tuple, Union
+from time import perf_counter
+from typing import Callable, Iterable, List, Sequence, Set, Tuple, Union
 
 import numpy as np
 from scipy.spatial.distance import cosine
 from tqdm import tqdm
 
 from fast_forward.encoder import QueryEncoder
-from fast_forward.ranking import Ranking, interpolate
+from fast_forward.ranking import Ranking
 
 LOGGER = logging.getLogger(__name__)
 
@@ -39,14 +37,14 @@ class Index(abc.ABC):
         Args:
             encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
-            encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
+            encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
         super().__init__()
-        self.encoder = encoder
+        self.query_encoder = encoder
         self.mode = mode
         self._encoder_batch_size = encoder_batch_size
 
-    def encode(self, queries: Sequence[str]) -> List[np.ndarray]:
+    def encode_queries(self, queries: Sequence[str]) -> np.ndarray:
         """Encode queries.
 
         Args:
@@ -56,35 +54,35 @@ class Index(abc.ABC):
             RuntimeError: When no query encoder exists.
 
         Returns:
-            List[np.ndarray]: The query representations.
+            np.ndarray: The query representations.
         """
-        if self._encoder is None:
+        if self._query_encoder is None:
             raise RuntimeError("This index does not have a query encoder.")
 
         result = []
         for i in range(0, len(queries), self._encoder_batch_size):
             batch = queries[i : i + self._encoder_batch_size]
-            result.extend(self._encoder.encode(batch))
-        return result
+            result.append(self._query_encoder.encode(batch))
+        return np.concatenate(result)
 
     @property
-    def encoder(self) -> QueryEncoder:
+    def query_encoder(self) -> QueryEncoder:
         """Return the query encoder.
 
         Returns:
             QueryEncoder: The encoder.
         """
-        return self._encoder
+        return self._query_encoder
 
-    @encoder.setter
-    def encoder(self, encoder: QueryEncoder) -> None:
+    @query_encoder.setter
+    def query_encoder(self, encoder: QueryEncoder) -> None:
         """Set the query encoder.
 
         Args:
             encoder (QueryEncoder): The encoder.
         """
         assert encoder is None or isinstance(encoder, QueryEncoder)
-        self._encoder = encoder
+        self._query_encoder = encoder
 
     @property
     def mode(self) -> Mode:
@@ -231,105 +229,82 @@ class Index(abc.ABC):
         """
         pass
 
-    def _compute_scores(self, q_rep: np.ndarray, ids: Iterable[str]) -> Iterator[float]:
-        """Compute scores based on the current mode.
+    def __call__(self, ranking: Ranking) -> Ranking:
+        """Compute scores for a ranking.
 
         Args:
-            q_rep (np.ndarray): Query representation.
-            ids (Iterable[str]): Document/passage IDs.
-
-        Yields:
-            float: The scores, preserving the order of the IDs.
-        """
-        vectors, id_indices = self._get_vectors(ids)
-        all_scores = np.dot(q_rep, vectors.T)
-
-        for ind in id_indices:
-            if len(ind) == 0:
-                yield None
-            else:
-                if self.mode == Mode.MAXP:
-                    yield np.max(all_scores[ind])
-                elif self.mode == Mode.AVEP:
-                    yield np.average(all_scores[ind])
-                elif self.mode in (Mode.FIRSTP, Mode.PASSAGE):
-                    yield all_scores[ind][0]
-
-    def get_scores(
-        self,
-        ranking: Ranking,
-        queries: Dict[str, str],
-        alpha: Union[float, Iterable[float]] = 0.0,
-        cutoff: int = None,
-        early_stopping: bool = False,
-    ) -> Dict[float, Ranking]:
-        """Compute corresponding dense scores for a ranking and interpolate.
-
-        Args:
-            ranking (Ranking): The ranking to compute scores for and interpolate with.
-            queries (Dict[str, str]): Query IDs mapped to queries.
-            alpha (Union[float, Iterable[float]], optional): Interpolation weight(s). Defaults to 0.0.
-            cutoff (int, optional): Cut-off depth (documents/passages per query). Defaults to None.
-            early_stopping (bool, optional): Whether to use early stopping. Defaults to False.
-
-        Raises:
-            ValueError: When the cut-off depth is missing for early stopping.
+            ranking (Ranking): The ranking to compute scores for. Must have queries attached.
 
         Returns:
-            Dict[float, Ranking]: Alpha mapped to interpolated scores.
+            Ranking: The updated ranking.
+
+        Raises:
+            ValueError: When the ranking has no queries attached.
         """
-        if isinstance(alpha, float):
-            alpha = [alpha]
+        if not ranking.has_queries:
+            raise ValueError("Input ranking has no queries attached")
 
-        if early_stopping and cutoff is None:
-            raise ValueError("A cut-off depth is required for early stopping.")
+        t0 = perf_counter()
+        new_df = ranking._df.copy(deep=False)
 
-        t0 = time.time()
+        # map doc/passage IDs to unique numbers (0 to n)
+        id_df = new_df[["id"]].drop_duplicates().reset_index(drop=True)
+        id_df["id_no"] = id_df.index
+        new_df = new_df.merge(id_df, on="id", suffixes=[None, "_"])
+
+        # get all unique queries and query IDs and map to unique numbers (0 to m)
+        query_df = new_df[["q_id", "query"]].drop_duplicates().reset_index(drop=True)
+        query_df["q_no"] = query_df.index
+        new_df = new_df.merge(query_df, on="q_id", suffixes=[None, "_"])
 
         # batch encode queries
-        q_id_list = list(ranking)
-        q_reps = self.encode([queries[q_id] for q_id in q_id_list])
+        query_vectors = self.encode_queries(list(query_df["query"]))
 
-        result = {}
-        if not early_stopping:
-            # here we can simply compute the dense scores once and interpolate for each alpha
-            dense_run = defaultdict(OrderedDict)
-            for q_id, q_rep in zip(tqdm(q_id_list), q_reps):
-                ids = list(ranking[q_id].keys())
-                for id, score in zip(ids, self._compute_scores(q_rep, ids)):
-                    if score is None:
-                        LOGGER.warning(f"{id} not indexed, skipping")
-                    else:
-                        dense_run[q_id][id] = score
-            for a in alpha:
-                result[a] = interpolate(
-                    ranking, Ranking(dense_run, sort=False), a, sort=True
-                )
-                if cutoff is not None:
-                    result[a].cut(cutoff)
+        # get all required vectors from the FF index
+        vectors, id_to_vec_idxs = self._get_vectors(id_df["id"].to_list())
+
+        # compute indices for query vectors and doc/passage vectors in current arrays
+        select_query_vectors = []
+        select_vectors = []
+        select_scores = []
+        c = 0
+        for id_no, q_no in zip(new_df["id_no"], new_df["q_no"]):
+            vec_idxs = id_to_vec_idxs[id_no]
+            select_vectors.extend(vec_idxs)
+            select_scores.append(list(range(c, c + len(vec_idxs))))
+            c += len(vec_idxs)
+            select_query_vectors.extend([q_no] * len(vec_idxs))
+
+        # compute all dot products (scores)
+        q_reps = query_vectors[select_query_vectors]
+        d_reps = vectors[select_vectors]
+        scores = np.sum(q_reps * d_reps, axis=1)
+
+        # select aggregation operation based on current mode
+        if self.mode == Mode.MAXP:
+            op = np.max
+        elif self.mode == Mode.AVEP:
+            op = np.average
         else:
-            # early stopping requries the ranking to be sorted
-            # this should normally be the case anyway
-            if not ranking.is_sorted:
-                LOGGER.warning("input ranking not sorted. sorting...")
-                ranking.sort()
+            op = lambda x: x[0]
 
-            # since early stopping depends on alpha, we have to run the algorithm more than once
-            for a in alpha:
-                run = defaultdict(OrderedDict)
-                for q_id, q_rep in zip(tqdm(q_id_list), q_reps):
-                    ids, sparse_scores = zip(*ranking[q_id].items())
-                    dense_scores = self._compute_scores(q_rep, ids)
-                    scores = _interpolate_early_stopping(
-                        ids, dense_scores, sparse_scores, a, cutoff
-                    )
-                    for id, score in scores.items():
-                        run[q_id][id] = score
-                result[a] = Ranking(run, sort=True, copy=False)
-                result[a].cut(cutoff)
+        def _mapfunc(i):
+            scores_i = select_scores[i]
+            if len(scores_i) == 0:
+                return np.nan
+            return op(scores[select_scores[i]])
 
-        LOGGER.info(f"computed scores in {time.time() - t0}s")
-        return result
+        # insert FF scores in the correct rows
+        new_df["ff_score"] = new_df.index.map(_mapfunc)
+
+        LOGGER.info(f"computed scores in {perf_counter() - t0}s")
+        return Ranking(
+            new_df,
+            name=ranking.name,
+            dtype=ranking._df.dtypes["score"],
+            copy=False,
+            is_sorted=True,
+        )
 
 
 def create_coalesced_index(
@@ -385,50 +360,3 @@ def create_coalesced_index(
         target_index.add(np.array(vectors), doc_ids=doc_ids)
 
     assert source_index.doc_ids == target_index.doc_ids
-
-
-def _interpolate_early_stopping(
-    ids: Iterable[str],
-    dense_scores: Iterable[float],
-    sparse_scores: Iterable[float],
-    alpha: float,
-    cutoff: int,
-) -> Dict[str, float]:
-    """Interpolate scores with early stopping.
-
-    Args:
-        ids (Iterable[str]): Document/passage IDs.
-        dense_scores (Iterable[float]): Corresponding dense scores.
-        sparse_scores (Iterable[float]): Corresponding sparse scores.
-        alpha (float): Interpolation parameter.
-        cutoff (int): Cut-off depth.
-
-    Returns:
-        Dict[str, float]: Document/passage IDs mapped to scores.
-    """
-    result = {}
-    relevant_scores = PriorityQueue(cutoff)
-    min_relevant_score = float("-inf")
-    max_dense_score = float("-inf")
-    for id, dense_score, sparse_score in zip(ids, dense_scores, sparse_scores):
-        if relevant_scores.qsize() >= cutoff:
-
-            # check if approximated max possible score is too low to make a difference
-            min_relevant_score = relevant_scores.get_nowait()
-            max_possible_score = alpha * sparse_score + (1 - alpha) * max_dense_score
-
-            # early stopping
-            if max_possible_score <= min_relevant_score:
-                break
-
-        if dense_score is None:
-            LOGGER.warning(f"{id} not indexed, skipping")
-            continue
-
-        max_dense_score = max(max_dense_score, dense_score)
-        score = alpha * sparse_score + (1 - alpha) * dense_score
-        result[id] = score
-
-        # the new score might be ranked higher than the one we removed
-        relevant_scores.put_nowait(max(score, min_relevant_score))
-    return result

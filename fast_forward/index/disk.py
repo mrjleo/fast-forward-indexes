@@ -22,7 +22,7 @@ class OnDiskIndex(Index):
         self,
         index_file: Path,
         dim: int,
-        encoder: QueryEncoder = None,
+        query_encoder: QueryEncoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -37,7 +37,7 @@ class OnDiskIndex(Index):
         Args:
             index_file (Path): Index file to create (or overwrite).
             dim (int): Vector dimension.
-            encoder (QueryEncoder, optional): Query encoder. Defaults to None.
+            query_encoder (QueryEncoder, optional): Query encoder. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             init_size (int, optional): Initial size to allocate (number of vectors). Defaults to 2**14.
@@ -53,7 +53,7 @@ class OnDiskIndex(Index):
         if index_file.exists() and not overwrite:
             raise ValueError(f"File {index_file} exists")
 
-        super().__init__(encoder, mode, encoder_batch_size)
+        super().__init__(query_encoder, mode, encoder_batch_size)
         self._index_file = index_file.absolute()
         self._resize_min_val = resize_min_val
         self._doc_id_to_idx = defaultdict(list)
@@ -105,7 +105,7 @@ class OnDiskIndex(Index):
         with h5py.File(self._index_file, "r") as fp:
             index = InMemoryIndex(
                 dim=self.dim,
-                encoder=self._encoder,
+                query_encoder=self._query_encoder,
                 mode=self.mode,
                 encoder_batch_size=self._encoder_batch_size,
                 init_size=len(self),
@@ -270,7 +270,10 @@ class OnDiskIndex(Index):
         with h5py.File(index._index_file, "r") as fp:
             for i, (doc_id, psg_id) in tqdm(
                 enumerate(
-                    zip(fp["doc_ids"].asstr()[:], fp["psg_ids"].asstr()[:]),
+                    zip(
+                        fp["doc_ids"].asstr()[: fp.attrs["num_vectors"]],
+                        fp["psg_ids"].asstr()[: fp.attrs["num_vectors"]],
+                    ),
                 ),
                 total=fp.attrs["num_vectors"],
             ):
