@@ -18,38 +18,33 @@ Using a Fast-Forward index is as simple as providing a TREC run with sparse scor
 
 ```python
 from pathlib import Path
-from fast_forward.encoder import TCTColBERTQueryEncoder
 from fast_forward import OnDiskIndex, Mode, Ranking
+from fast_forward.encoder import TCTColBERTQueryEncoder
 
 # choose a pre-trained query encoder
 encoder = TCTColBERTQueryEncoder("castorini/tct_colbert-msmarco")
 
-# load an index from disk into memory
-index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, Mode.MAXP)
+# load an index on disk
+ff_index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, Mode.MAXP)
 
 # load a run (TREC format)
-first_stage_ranking = Ranking.from_file(Path("/path/to/sparse/run.tsv"))
+first_stage_ranking = Ranking.from_file(Path("/path/to/input/run.tsv")).cut(5000)
 
-# load all required queries
-queries = {
-    "q1": "query 1",
-    "q2": "query 2",
-    # ...
-    "qn": "query n",
-}
-
-# compute the corresponding semantic scores and interpolate
-alpha = 0.2
-result = index.get_scores(
-    first_stage_ranking,
-    queries,
-    alpha=alpha,
-    cutoff=10,
-    early_stopping=True,
+# attach all required queries
+first_stage_ranking.attach_queries(
+    {
+        "q1": "query 1",
+        "q2": "query 2",
+        # ...
+        "qn": "query n",
+    }
 )
 
+# compute the corresponding semantic scores and interpolate
+result = ff_index(first_stage_ranking).interpolate(0.1)
+
 # create a new TREC runfile with the interpolated ranking
-result[alpha].save(Path("/path/to/interpolated/run.tsv"))
+result.save(Path("/path/to/output/run.tsv"))
 ```
 
 ## Documentation

@@ -1,6 +1,6 @@
-This is the reference implementation of [Fast-Forward indexes](https://arxiv.org/abs/2110.06051).
+This is the implementation of [Fast-Forward indexes](https://dl.acm.org/doi/abs/10.1145/3485447.3511955).
 
-⚠ **Important**: As this library is still in its early stages, the API is subject to change!
+**Important**: As this library is still in its early stages, the API is subject to change!
 
 # Features
 
@@ -38,38 +38,33 @@ Using a Fast-Forward index is as simple as providing a TREC run with sparse scor
 
 ```python
 from pathlib import Path
-from fast_forward.encoder import TCTColBERTQueryEncoder
 from fast_forward import OnDiskIndex, Mode, Ranking
+from fast_forward.encoder import TCTColBERTQueryEncoder
 
 # choose a pre-trained query encoder
 encoder = TCTColBERTQueryEncoder("castorini/tct_colbert-msmarco")
 
-# load an index from disk into memory
-index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, Mode.MAXP)
+# load an index on disk
+ff_index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, Mode.MAXP)
 
 # load a run (TREC format)
-first_stage_ranking = Ranking.from_file(Path("/path/to/sparse/run.tsv"))
+first_stage_ranking = Ranking.from_file(Path("/path/to/input/run.tsv")).cut(5000)
 
-# load all required queries
-queries = {
-    "q1": "query 1",
-    "q2": "query 2",
-    # ...
-    "qn": "query n",
-}
-
-# compute the corresponding semantic scores and interpolate
-alpha = 0.2
-result = index.get_scores(
-    first_stage_ranking,
-    queries,
-    alpha=alpha,
-    cutoff=10,
-    early_stopping=True,
+# attach all required queries
+first_stage_ranking.attach_queries(
+    {
+        "q1": "query 1",
+        "q2": "query 2",
+        # ...
+        "qn": "query n",
+    }
 )
 
+# compute the corresponding semantic scores and interpolate
+result = ff_index(first_stage_ranking).interpolate(0.1)
+
 # create a new TREC runfile with the interpolated ranking
-result[alpha].save(Path("/path/to/interpolated/run.tsv"))
+result.save(Path("/path/to/output/run.tsv"))
 ```
 
 # Guides
@@ -78,12 +73,12 @@ This section contains guides for the most important features.
 
 ## Creating an index
 
-Creating a Fast-Forward index is simple. The following snippet illustrates how to create a `fast_forward.index.disk.OnDiskIndex` object (given a `fast_forward.encoder.QueryEncoder`, `my_encoder`) and add some representations to it:
+Creating a Fast-Forward index is simple. The following snippet illustrates how to create a `fast_forward.index.disk.OnDiskIndex` object (given a `fast_forward.encoder.QueryEncoder`, `my_query_encoder`) and add some representations to it:
 
 ```python
-my_index = OnDiskIndex(Path("my_index.h5"), my_encoder)
+my_index = OnDiskIndex(Path("my_index.h5"), 768, my_query_encoder)
 my_index.add(
-    my_vectors, # three vectors in total
+    my_vectors,  # shape (3, 768)
     doc_ids=["d1", "d1", "d2"],
     psg_ids=["d1_p1", "d1_p2", "d2_p1"]
 )
@@ -95,23 +90,22 @@ The index can then be subsequently loaded back using `fast_forward.index.disk.On
 
 ## Using an index
 
-The usage of a Fast-Forward index (i.e., computing semantic scores and interpolation) is handled by `fast_forward.index.Index.get_scores`. It requires a ranking (typically from a sparse retriever) and the corresponding queries and handles query encoding, scoring, interpolation and so on:
+The usage of a Fast-Forward index (i.e., computing semantic scores and interpolation) is handled by `fast_forward.index.Index.__call__`. It requires a ranking (typically from a sparse retriever) with the corresponding queries:
 
 ```python
-sparse_ranking = Ranking.from_file(Path("/path/to/sparse/run.tsv"))
-result = index.get_scores(
-    sparse_ranking,
-    queries,
-    alpha=[0.0, 0.5, 1.0],
-    cutoff=1000
-)
+ranking = Ranking.from_file(Path("/path/to/sparse/run.tsv"), queries)
+result = my_index(ranking)
 ```
 
-Here, `queries` is a simple dictionary mapping query IDs to actual queries to be encoded. In order to use _early stopping_, use `early_stopping=True`. Note that early stopping is usually only useful for small `cutoff` values.
+Here, `queries` is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, `result`, has semantic scores for each query-document (or query-passage) pair attached. The individual scores (i.e., retrieval and re-ranking) can be interpolated using `Ranking.interpolate` in order to compute the final scores:
+
+```python
+result = result.interpolate(0.1)
+```
 
 ## Retrieval modes
 
-Each index has a retrieval mode (`fast_forward.index.Mode`). The active mode influences the way scores are computed (`fast_forward.index.Index.get_scores`). For example, consider the [example index from earlier](#creating-an-index). Setting the mode to `fast_forward.index.Mode.PASSAGE` will cause the index to compute scores on the passage level and return passage IDs:
+Each index has a retrieval mode (`fast_forward.index.Mode`). The active mode influences the way scores are computed (`fast_forward.index.Index.__call__`). For example, consider the [example index from earlier](#creating-an-index). Setting the mode to `fast_forward.index.Mode.PASSAGE` will cause the index to compute scores on the passage level (and expect passage IDs in the input ranking):
 
 ```python
 my_index.mode = Mode.PASSAGE
