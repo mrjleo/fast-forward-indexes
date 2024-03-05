@@ -34,11 +34,6 @@
     <li><a href="#custom-query-encoders">Custom query encoders</a></li>
     <li><a href="#sequential-coalescing">Sequential coalescing</a></li>
   </ul></li>
-  <li><a href="#examples">Examples</a>
-  <ul>
-    <li><a href="#creating-a-fast-forward-index-from-pyserini">Creating a Fast-Forward index from Pyserini</a></li>
-    <li><a href="#computing-and-interpolating-scores">Computing and interpolating scores</a></li>
-  </ul></li>
 </ul>
 
 
@@ -220,92 +215,6 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 <pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">))</span>
 <span class="n">coalesced_index</span> <span class="o">=</span> <span class="n">InMemoryIndex</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
 <span class="n">create_coalesced_index</span><span class="p">(</span><span class="n">my_index</span><span class="p">,</span> <span class="n">coalesced_index</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
-</code></pre>
-</div>
-
-<h1 id="examples">Examples</h1>
-
-<p>Example usage scripts can be found in the <code>examples</code> module.</p>
-
-<h2 id="creating-a-fast-forward-index-from-pyserini">Creating a Fast-Forward index from Pyserini</h2>
-
-<p>You can use this script to convert an existing dense <a href="https://github.com/castorini/pyserini">Pyserini</a> index to the Fast-Forward format.</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.create_index_from_pyserini<span class="w"> </span>-h
-</code></pre>
-</div>
-
-<pre><code>usage: create_index_from_pyserini.py [-h] [--out_file OUT_FILE] INDEX
-
-positional arguments:
-  INDEX                Pyserini index name (pre-built) or path.
-
-optional arguments:
-  -h, --help           show this help message and exit
-  --out_file OUT_FILE  Output file. (default: out)
-</code></pre>
-
-<p>For example, to convert the pre-built index <code>msmarco-doc-ance-maxp-bf</code>:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.create_index_from_pyserini<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>msmarco-doc-ance-maxp-bf<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>--out_file<span class="w"> </span>my_index
-</code></pre>
-</div>
-
-<h2 id="computing-and-interpolating-scores">Computing and interpolating scores</h2>
-
-<p>This script loads an index into memory and performs re-ranking based on a sparse run.
-The query encoder is loaded from the <a href="https://huggingface.co/models">Hugging Face Hub</a>.</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.interpolate<span class="w"> </span>-h
-</code></pre>
-</div>
-
-<pre><code>usage: interpolate.py [-h] [--cutoff CUTOFF] [--cutoff_result CUTOFF_RESULT]
-                      [--alpha ALPHA [ALPHA ...]] [--early_stopping] [--target TARGET]
-                      INDEX {maxp,avep,firstp,passage} ENCODER SPARSE_SCORES
-                      QUERY_FILE
-
-positional arguments:
-  INDEX                 Fast-Forward index file.
-  {maxp,avep,firstp,passage}
-                        Retrieval mode.
-  ENCODER               Pre-trained transformer encoder.
-  SPARSE_SCORES         TREC runfile containing the scores of the sparse retriever.
-  QUERY_FILE            Queries (tsv).
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --cutoff CUTOFF       Maximum number of sparse documents per query. (default: None)
-  --cutoff_result CUTOFF_RESULT
-                        Maximum number of documents per query in the final ranking.
-                        (default: 1000)
-  --alpha ALPHA [ALPHA ...]
-                        Interpolation weight. (default: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5,
-                        0.6, 0.7, 0.8, 0.9, 1.0])
-  --early_stopping      Use approximated early stopping. (default: False)
-  --target TARGET       Output directory. (default: out)
-</code></pre>
-
-<p>The following example uses the pre-trained <code>castorini/tct_colbert-msmarco</code> query encoder.
-We re-rank the top-<code>5000</code> documents for each query using an interpolation weight of <code>0.2</code>.
-Finally, the top-<code>1000</code> documents are kept.</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>fast_forward.examples.interpolate<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>my_index<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>maxp<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>castorini/tct_colbert-msmarco<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>my_sparse_run.tsv<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>queries.tsv<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>--cutoff<span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>--cutoff_result<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>--target<span class="w"> </span>results<span class="w"> </span><span class="se">\\</span>
-<span class="w">    </span>--alpha<span class="w"> </span><span class="m">0</span>.2
 </code></pre>
 </div>
 </div>
