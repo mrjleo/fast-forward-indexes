@@ -7,11 +7,11 @@ from fast_forward.index import Index, Mode
 
 
 def cos_dist(a: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """Cosine distance of elements in two vectors.
+    """Cosine distance of two vectors.
 
     Args:
-        a (np.ndarray): First vectors.
-        b (np.ndarray): Second vectors.
+        a (np.ndarray): First vector.
+        b (np.ndarray): Second vector.
 
     Returns:
         np.ndarray: Cosine distance.
