@@ -27,17 +27,18 @@ encoder = TCTColBERTQueryEncoder("castorini/tct_colbert-msmarco")
 # load an index on disk
 ff_index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, Mode.MAXP)
 
-# load a run (TREC format)
-first_stage_ranking = Ranking.from_file(Path("/path/to/input/run.tsv")).cut(5000)
-
-# attach all required queries
-first_stage_ranking.attach_queries(
-    {
-        "q1": "query 1",
-        "q2": "query 2",
-        # ...
-        "qn": "query n",
-    }
+# load a run (TREC format) and attach all required queries
+first_stage_ranking = (
+    Ranking.from_file(Path("/path/to/input/run.tsv"))
+    .attach_queries(
+        {
+            "q1": "query 1",
+            "q2": "query 2",
+            # ...
+            "qn": "query n",
+        }
+    )
+    .cut(5000)
 )
 
 # compute the corresponding semantic scores and interpolate

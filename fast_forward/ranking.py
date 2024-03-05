@@ -11,6 +11,26 @@ Run = Dict[str, Dict[str, Union[float, int]]]
 LOGGER = logging.getLogger(__name__)
 
 
+def _attach_queries(df: pd.DataFrame, queries: Dict[str, str]) -> pd.DataFrame:
+    """Attach queries to a data frame.
+
+    Args:
+        df (pd.DataFrame): The data frame (same format as used by rankings).
+        queries (Dict[str, str]): Query IDs mapped to queries.
+
+    Raises:
+        ValueError: When the queries are incomplete.
+
+    Returns:
+        pd.DataFrame: The data frame with queries attached.
+    """
+    if not set(pd.unique(df["q_id"])).issubset(set(queries.keys())):
+        raise ValueError("Queries are incomplete.")
+    return df.merge(
+        pd.DataFrame(queries.items(), columns=["q_id", "query"]), how="left", on="q_id"
+    )
+
+
 class Ranking(object):
     """Represents rankings of documents/passages w.r.t. queries."""
 
@@ -32,6 +52,9 @@ class Ranking(object):
             dtype (np.dtype, optional): How the scores should be represented in the data frame. Defaults to np.float32.
             copy (bool, optional): Whether to copy the data frame. Defaults to True.
             is_sorted (bool, optional): Whether the data frame is already sorted (by score). Defaults to False.
+
+        Raises:
+            ValueError: When the queries are incomplete.
         """
         super().__init__()
         self.name = name
@@ -59,7 +82,7 @@ class Ranking(object):
             self._sort()
 
         if queries is not None:
-            self.attach_queries(queries)
+            self._df = _attach_queries(self._df, queries)
 
     def _sort(self) -> None:
         """Sort the ranking by scores (in-place)."""
@@ -160,16 +183,26 @@ class Ranking(object):
         """
         return self._df.__repr__()
 
-    def attach_queries(self, queries: Dict[str, str]) -> None:
-        """Attach queries to this ranking (in-place).
+    def attach_queries(self, queries: Dict[str, str]) -> "Ranking":
+        """Attach queries to the ranking.
 
         Args:
             queries (Dict[str, str]): Query IDs mapped to queries.
+
+        Raises:
+            ValueError: When the queries are incomplete.
+
+        Returns:
+            Ranking: The resulting ranking.
         """
-        if set(queries.keys()) != self._q_ids:
-            raise ValueError("Queries are incomplete.")
-        q_df = pd.DataFrame(queries.items(), columns=["q_id", "query"])
-        self._df = self._df.merge(q_df, how="left", on="q_id")
+        return Ranking(
+            self._df,
+            self.name,
+            queries=queries,
+            dtype=self._df.dtypes["score"],
+            copy=True,
+            is_sorted=True,
+        )
 
     def cut(self, cutoff: int) -> "Ranking":
         """For each query, remove all but the top-k scoring documents/passages.

@@ -26,18 +26,25 @@ class TestRanking(unittest.TestCase):
 
     def test_attach_queries(self):
         r = Ranking.from_run(RUN)
+        r_with_queries = r.attach_queries(DUMMY_QUERIES)
         self.assertFalse(r.has_queries)
-        r.attach_queries(DUMMY_QUERIES)
-        self.assertTrue(r.has_queries)
+        self.assertTrue(r_with_queries.has_queries)
         self.assertEqual(
-            pd.unique(r._df.loc[r._df["q_id"].eq("q1"), "query"]).tolist(), ["query 1"]
+            pd.unique(r_with_queries._df.loc[r._df["q_id"].eq("q1"), "query"]).tolist(),
+            ["query 1"],
         )
         self.assertEqual(
-            pd.unique(r._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(), ["query 2"]
+            pd.unique(r_with_queries._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(),
+            ["query 2"],
         )
 
-        r_with_queries = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
-        self.assertAlmostEqual(r, r_with_queries)
+        more_queries = {"qx": "other query"}
+        with self.assertRaises(ValueError):
+            Ranking.from_run(RUN, queries=more_queries)
+
+        more_queries.update(DUMMY_QUERIES)
+        r2_with_queries = Ranking.from_run(RUN, queries=more_queries)
+        self.assertEqual(r2_with_queries, r_with_queries)
 
     def test_ff_scores(self):
         r1 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
