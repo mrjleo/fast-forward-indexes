@@ -270,7 +270,10 @@ class OnDiskIndex(Index):
         with h5py.File(index._index_file, "r") as fp:
             for i, (doc_id, psg_id) in tqdm(
                 enumerate(
-                    zip(fp["doc_ids"].asstr()[:], fp["psg_ids"].asstr()[:]),
+                    zip(
+                        fp["doc_ids"].asstr()[: fp.attrs["num_vectors"]],
+                        fp["psg_ids"].asstr()[: fp.attrs["num_vectors"]],
+                    ),
                 ),
                 total=fp.attrs["num_vectors"],
             ):
