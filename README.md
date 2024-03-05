@@ -1,8 +1,8 @@
 # Fast-Forward Indexes
 
-This is the reference implementation of [Fast-Forward indexes](https://arxiv.org/abs/2110.06051).
+This is the implementation of [Fast-Forward indexes](https://dl.acm.org/doi/abs/10.1145/3485447.3511955).
 
-⚠ **Important**: As this library is still in its early stages, the API is subject to change!
+**Important**: As this library is still in its early stages, the API is subject to change!
 
 ## Installation
 
@@ -50,8 +50,3 @@ result.save(Path("/path/to/output/run.tsv"))
 ## Documentation
 
 A more detailed documentation is available [here](https://mrjleo.github.io/fast-forward-indexes/docs).
-
-## Examples
-
-- [Creating a Fast-Forward index from a prebuilt Pyserini index](fast_forward/examples/create_index_from_pyserini.py)
-- [Computing dense scores for a sparse run and interpolating](fast_forward/examples/interpolate.py)

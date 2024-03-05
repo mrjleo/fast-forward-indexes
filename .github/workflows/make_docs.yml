@@ -23,7 +23,7 @@ jobs:
           python -m pip install -e .
       - name: Run pdoc
         run: |
-          pdoc fast_forward !fast_forward.examples -d google -o ./out
+          pdoc fast_forward -d google -o ./out
       - name: Push to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
