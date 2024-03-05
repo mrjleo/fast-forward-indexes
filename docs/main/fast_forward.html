@@ -117,17 +117,18 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 <span class="c1"># load an index on disk</span>
 <span class="n">ff_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">),</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
 
-<span class="c1"># load a run (TREC format)</span>
-<span class="n">first_stage_ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/input/run.tsv&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
-
-<span class="c1"># attach all required queries</span>
-<span class="n">first_stage_ranking</span><span class="o">.</span><span class="n">attach_queries</span><span class="p">(</span>
-    <span class="p">{</span>
-        <span class="s2">&quot;q1&quot;</span><span class="p">:</span> <span class="s2">&quot;query 1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;q2&quot;</span><span class="p">:</span> <span class="s2">&quot;query 2&quot;</span><span class="p">,</span>
-        <span class="c1"># ...</span>
-        <span class="s2">&quot;qn&quot;</span><span class="p">:</span> <span class="s2">&quot;query n&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
+<span class="c1"># load a run (TREC format) and attach all required queries</span>
+<span class="n">first_stage_ranking</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/input/run.tsv&quot;</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">attach_queries</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;q1&quot;</span><span class="p">:</span> <span class="s2">&quot;query 1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;q2&quot;</span><span class="p">:</span> <span class="s2">&quot;query 2&quot;</span><span class="p">,</span>
+            <span class="c1"># ...</span>
+            <span class="s2">&quot;qn&quot;</span><span class="p">:</span> <span class="s2">&quot;query n&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># compute the corresponding semantic scores and interpolate</span>
