@@ -182,6 +182,9 @@ class TestIndex(unittest.TestCase):
             self.index_wrong_dim.add(
                 DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
             )
+        ranking_no_queries = Ranking.from_run(DUMMY_DOC_RUN)
+        with self.assertRaises(ValueError):
+            self.doc_psg_index(ranking_no_queries)
 
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged

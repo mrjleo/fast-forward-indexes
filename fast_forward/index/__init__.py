@@ -237,11 +237,14 @@ class Index(abc.ABC):
 
         Returns:
             Ranking: The updated ranking.
+
+        Raises:
+            ValueError: When the ranking has no queries attached.
         """
+        if not ranking.has_queries:
+            raise ValueError("Input ranking has no queries attached")
+
         t0 = perf_counter()
-
-        # TODO: error when no queries
-
         new_df = ranking._df.copy(deep=False)
 
         # map doc/passage IDs to unique numbers (0 to n)
