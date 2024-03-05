@@ -67,9 +67,9 @@
                     <h1 class="modulename">
 fast_forward    </h1>
 
-                        <div class="docstring"><p>This is the reference implementation of <a href="https://arxiv.org/abs/2110.06051">Fast-Forward indexes</a>.</p>
+                        <div class="docstring"><p>This is the implementation of <a href="https://dl.acm.org/doi/abs/10.1145/3485447.3511955">Fast-Forward indexes</a>.</p>
 
-<p>⚠ <strong>Important</strong>: As this library is still in its early stages, the API is subject to change!</p>
+<p><strong>Important</strong>: As this library is still in its early stages, the API is subject to change!</p>
 
 <h1 id="features">Features</h1>
 
@@ -112,38 +112,33 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn"><a href="fast_forward/encoder.html">fast_forward.encoder</a></span> <span class="kn">import</span> <span class="n">TCTColBERTQueryEncoder</span>
 <span class="kn">from</span> <span class="nn">fast_forward</span> <span class="kn">import</span> <span class="n">OnDiskIndex</span><span class="p">,</span> <span class="n">Mode</span><span class="p">,</span> <span class="n">Ranking</span>
+<span class="kn">from</span> <span class="nn"><a href="fast_forward/encoder.html">fast_forward.encoder</a></span> <span class="kn">import</span> <span class="n">TCTColBERTQueryEncoder</span>
 
 <span class="c1"># choose a pre-trained query encoder</span>
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">TCTColBERTQueryEncoder</span><span class="p">(</span><span class="s2">&quot;castorini/tct_colbert-msmarco&quot;</span><span class="p">)</span>
 
-<span class="c1"># load an index from disk into memory</span>
-<span class="n">index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">),</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
+<span class="c1"># load an index on disk</span>
+<span class="n">ff_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">),</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
 
 <span class="c1"># load a run (TREC format)</span>
-<span class="n">first_stage_ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/sparse/run.tsv&quot;</span><span class="p">))</span>
+<span class="n">first_stage_ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/input/run.tsv&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
 
-<span class="c1"># load all required queries</span>
-<span class="n">queries</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;q1&quot;</span><span class="p">:</span> <span class="s2">&quot;query 1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;q2&quot;</span><span class="p">:</span> <span class="s2">&quot;query 2&quot;</span><span class="p">,</span>
-    <span class="c1"># ...</span>
-    <span class="s2">&quot;qn&quot;</span><span class="p">:</span> <span class="s2">&quot;query n&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="c1"># compute the corresponding semantic scores and interpolate</span>
-<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span>
-    <span class="n">first_stage_ranking</span><span class="p">,</span>
-    <span class="n">queries</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-    <span class="n">cutoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">early_stopping</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="c1"># attach all required queries</span>
+<span class="n">first_stage_ranking</span><span class="o">.</span><span class="n">attach_queries</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;q1&quot;</span><span class="p">:</span> <span class="s2">&quot;query 1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;q2&quot;</span><span class="p">:</span> <span class="s2">&quot;query 2&quot;</span><span class="p">,</span>
+        <span class="c1"># ...</span>
+        <span class="s2">&quot;qn&quot;</span><span class="p">:</span> <span class="s2">&quot;query n&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
 <span class="p">)</span>
 
+<span class="c1"># compute the corresponding semantic scores and interpolate</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">ff_index</span><span class="p">(</span><span class="n">first_stage_ranking</span><span class="p">)</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+
 <span class="c1"># create a new TREC runfile with the interpolated ranking</span>
-<span class="n">result</span><span class="p">[</span><span class="n">alpha</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/interpolated/run.tsv&quot;</span><span class="p">))</span>
+<span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/output/run.tsv&quot;</span><span class="p">))</span>
 </code></pre>
 </div>
 
@@ -153,12 +148,12 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
 <h2 id="creating-an-index">Creating an index</h2>
 
-<p>Creating a Fast-Forward index is simple. The following snippet illustrates how to create a <code><a href="fast_forward/index/disk.html#OnDiskIndex">fast_forward.index.disk.OnDiskIndex</a></code> object (given a <code><a href="fast_forward/encoder.html#QueryEncoder">fast_forward.encoder.QueryEncoder</a></code>, <code>my_encoder</code>) and add some representations to it:</p>
+<p>Creating a Fast-Forward index is simple. The following snippet illustrates how to create a <code><a href="fast_forward/index/disk.html#OnDiskIndex">fast_forward.index.disk.OnDiskIndex</a></code> object (given a <code><a href="fast_forward/encoder.html#QueryEncoder">fast_forward.encoder.QueryEncoder</a></code>, <code>my_query_encoder</code>) and add some representations to it:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_index.h5&quot;</span><span class="p">),</span> <span class="n">my_encoder</span><span class="p">)</span>
+<pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_index.h5&quot;</span><span class="p">),</span> <span class="mi">768</span><span class="p">,</span> <span class="n">my_query_encoder</span><span class="p">)</span>
 <span class="n">my_index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-    <span class="n">my_vectors</span><span class="p">,</span> <span class="c1"># three vectors in total</span>
+    <span class="n">my_vectors</span><span class="p">,</span>  <span class="c1"># shape (3, 768)</span>
     <span class="n">doc_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;d1&quot;</span><span class="p">,</span> <span class="s2">&quot;d1&quot;</span><span class="p">,</span> <span class="s2">&quot;d2&quot;</span><span class="p">],</span>
     <span class="n">psg_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;d1_p1&quot;</span><span class="p">,</span> <span class="s2">&quot;d1_p2&quot;</span><span class="p">,</span> <span class="s2">&quot;d2_p1&quot;</span><span class="p">]</span>
 <span class="p">)</span>
@@ -171,24 +166,24 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
 <h2 id="using-an-index">Using an index</h2>
 
-<p>The usage of a Fast-Forward index (i.e., computing semantic scores and interpolation) is handled by <code><a href="fast_forward/index.html#Index.get_scores">fast_forward.index.Index.get_scores</a></code>. It requires a ranking (typically from a sparse retriever) and the corresponding queries and handles query encoding, scoring, interpolation and so on:</p>
+<p>The usage of a Fast-Forward index (i.e., computing semantic scores and interpolation) is handled by <code>fast_forward.index.Index.__call__</code>. It requires a ranking (typically from a sparse retriever) with the corresponding queries:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">sparse_ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/sparse/run.tsv&quot;</span><span class="p">))</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_scores</span><span class="p">(</span>
-    <span class="n">sparse_ranking</span><span class="p">,</span>
-    <span class="n">queries</span><span class="p">,</span>
-    <span class="n">alpha</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
-    <span class="n">cutoff</span><span class="o">=</span><span class="mi">1000</span>
-<span class="p">)</span>
+<pre><span></span><code><span class="n">ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/sparse/run.tsv&quot;</span><span class="p">),</span> <span class="n">queries</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">my_index</span><span class="p">(</span><span class="n">ranking</span><span class="p">)</span>
 </code></pre>
 </div>
 
-<p>Here, <code>queries</code> is a simple dictionary mapping query IDs to actual queries to be encoded. In order to use _early stopping_, use <code>early_stopping=True</code>. Note that early stopping is usually only useful for small <code>cutoff</code> values.</p>
+<p>Here, <code>queries</code> is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, <code>result</code>, has semantic scores for each query-document (or query-passage) pair attached. The individual scores (i.e., retrieval and re-ranking) can be interpolated using <code>Ranking.interpolate</code> in order to compute the final scores:</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</code></pre>
+</div>
 
 <h2 id="retrieval-modes">Retrieval modes</h2>
 
-<p>Each index has a retrieval mode (<code><a href="fast_forward/index.html#Mode">fast_forward.index.Mode</a></code>). The active mode influences the way scores are computed (<code><a href="fast_forward/index.html#Index.get_scores">fast_forward.index.Index.get_scores</a></code>). For example, consider the <a href="#creating-an-index">example index from earlier</a>. Setting the mode to <code><a href="fast_forward/index.html#Mode.PASSAGE">fast_forward.index.Mode.PASSAGE</a></code> will cause the index to compute scores on the passage level and return passage IDs:</p>
+<p>Each index has a retrieval mode (<code><a href="fast_forward/index.html#Mode">fast_forward.index.Mode</a></code>). The active mode influences the way scores are computed (<code>fast_forward.index.Index.__call__</code>). For example, consider the <a href="#creating-an-index">example index from earlier</a>. Setting the mode to <code><a href="fast_forward/index.html#Mode.PASSAGE">fast_forward.index.Mode.PASSAGE</a></code> will cause the index to compute scores on the passage level (and expect passage IDs in the input ranking):</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">my_index</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span>
