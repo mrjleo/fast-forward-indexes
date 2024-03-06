@@ -41,11 +41,11 @@ first_stage_ranking = (
     .cut(5000)
 )
 
-# compute the corresponding semantic scores and interpolate
-result = ff_index(first_stage_ranking).interpolate(0.1)
+# compute the corresponding semantic scores
+out = ff_index(first_stage_ranking)
 
-# create a new TREC runfile with the interpolated ranking
-result.save(Path("/path/to/output/run.tsv"))
+# interpolate scores and create a new TREC runfile
+first_stage_ranking.interpolate(out, 0.1).save(Path("/path/to/output/run.tsv"))
 ```
 
 ## Documentation

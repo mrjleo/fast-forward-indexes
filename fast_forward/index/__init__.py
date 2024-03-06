@@ -232,7 +232,7 @@ class Index(abc.ABC):
             ranking (Ranking): The ranking to compute scores for. Must have queries attached.
 
         Returns:
-            Ranking: The updated ranking.
+            Ranking: Ranking with the computed scores.
 
         Raises:
             ValueError: When the ranking has no queries attached.
@@ -290,14 +290,14 @@ class Index(abc.ABC):
                 return np.nan
             return op(scores[select_scores[i]])
 
-        # insert FF scores in the correct rows
-        new_df["ff_score"] = new_df.index.map(_mapfunc)
+        # insert scores in the correct rows
+        new_df["score"] = new_df.index.map(_mapfunc)
 
-        LOGGER.info("computed scores in %s seconds", {perf_counter() - t0})
+        LOGGER.info("computed scores in %s seconds", perf_counter() - t0)
         return Ranking(
             new_df,
             name=ranking.name,
             dtype=ranking._df.dtypes["score"],
             copy=False,
-            is_sorted=True,
+            is_sorted=False,
         )

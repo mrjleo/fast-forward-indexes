@@ -46,16 +46,6 @@ class TestRanking(unittest.TestCase):
         r2_with_queries = Ranking.from_run(RUN, queries=more_queries)
         self.assertEqual(r2_with_queries, r_with_queries)
 
-    def test_ff_scores(self):
-        r1 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
-        r2 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
-
-        self.assertFalse(r1.has_ff_scores)
-        self.assertEqual(r1, r2)
-        r1._df["ff_score"] = list(map(np.float32, range(len(r1._df))))
-        self.assertTrue(r1.has_ff_scores)
-        self.assertNotEqual(r1, r2)
-
     def test_eq(self):
         r1 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
         r2 = Ranking.from_run({"q1": {"d2": 2, "d1": 1}})
@@ -87,28 +77,27 @@ class TestRanking(unittest.TestCase):
 
     def test_interpolate(self):
         r = Ranking.from_run(RUN)
-        r._df["ff_score"] = list(map(np.float32, range(len(r._df))))
-        r_int = r.interpolate(0.5)
+        df = r._df.copy()
+        df["score"] = list(map(np.float32, range(len(r._df))))
+        r2 = Ranking(df)
+        r_int = r.interpolate(r2, 0.5)
         self.assertNotEqual(r, r_int)
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
 
     def test_early_stopping(self):
-        r = Ranking.from_run(RUN)
-        r_with_queries = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
-        r._df["ff_score"] = [4.0, 5.0, 3.0, 2.0, 4.0, 3.0, 2.0]
-        r._df["ff_score"] = r._df["ff_score"].astype(np.float32)
-        r_with_queries._df["ff_score"] = [4.0, 5.0, 3.0, 2.0, 4.0, 3.0, 2.0]
-        r_with_queries._df["ff_score"] = r._df["ff_score"].astype(np.float32)
+        r = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
+        df = r._df.copy()
+        df["score"] = [4.0, 5.0, 3.0, 2.0, 4.0, 3.0, 2.0]
+        df["score"] = r._df["score"].astype(np.float32)
+        r2 = Ranking(df)
+
         for cutoff in (1, 2, 3):
+            res_es = r.interpolate(r2, 0.5, cutoff, early_stopping=True)
             self.assertEqual(
-                r.interpolate(0.5, early_stopping=False).cut(cutoff),
-                r.interpolate(0.5, cutoff, early_stopping=True),
+                r.interpolate(r2, 0.5, early_stopping=False).cut(cutoff), res_es
             )
-            self.assertEqual(
-                r_with_queries.interpolate(0.5, early_stopping=False).cut(cutoff),
-                r_with_queries.interpolate(0.5, cutoff, early_stopping=True),
-            )
+            self.assertTrue(res_es.has_queries)
 
 
 if __name__ == "__main__":

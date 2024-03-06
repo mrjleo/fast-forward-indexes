@@ -104,8 +104,9 @@ class TestIndex(unittest.TestCase):
     def test_maxp(self):
         self.doc_psg_index.mode = Mode.MAXP
         result = self.doc_psg_index(DUMMY_DOC_RANKING)
+        print(result)
         self.assertEqual(
-            result.interpolate(0.0),
+            result,
             Ranking.from_run(
                 {
                     "q1": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
@@ -123,12 +124,12 @@ class TestIndex(unittest.TestCase):
         )
         self.doc_psg_index.mode = Mode.FIRSTP
         self.assertEqual(
-            self.doc_psg_index(DUMMY_DOC_RANKING).interpolate(0.0),
+            self.doc_psg_index(DUMMY_DOC_RANKING),
             expected,
         )
         self.index_partial_ids.mode = Mode.FIRSTP
         self.assertEqual(
-            self.doc_psg_index(DUMMY_DOC_RANKING).interpolate(0.0),
+            self.doc_psg_index(DUMMY_DOC_RANKING),
             expected,
         )
 
@@ -142,14 +143,14 @@ class TestIndex(unittest.TestCase):
 
         self.doc_psg_index.mode = Mode.AVEP
         print(expected)
-        print(self.doc_psg_index(DUMMY_DOC_RANKING).interpolate(0.0))
+        print(self.doc_psg_index(DUMMY_DOC_RANKING))
         self.assertEqual(
-            self.doc_psg_index(DUMMY_DOC_RANKING).interpolate(0.0),
+            self.doc_psg_index(DUMMY_DOC_RANKING),
             expected,
         )
         self.index_partial_ids.mode = Mode.AVEP
         self.assertEqual(
-            self.index_partial_ids(DUMMY_DOC_RANKING).interpolate(0.0),
+            self.index_partial_ids(DUMMY_DOC_RANKING),
             expected,
         )
 
@@ -161,15 +162,15 @@ class TestIndex(unittest.TestCase):
             }
         )
         self.doc_psg_index.mode = Mode.PASSAGE
-        print(self.doc_psg_index(DUMMY_PSG_RANKING).interpolate(0.0))
+        print(self.doc_psg_index(DUMMY_PSG_RANKING))
         print(expected)
         self.assertEqual(
-            self.doc_psg_index(DUMMY_PSG_RANKING).interpolate(0.0),
+            self.doc_psg_index(DUMMY_PSG_RANKING),
             expected,
         )
         self.index_partial_ids.mode = Mode.PASSAGE
         self.assertEqual(
-            self.index_partial_ids(DUMMY_PSG_RANKING).interpolate(0.0),
+            self.index_partial_ids(DUMMY_PSG_RANKING),
             expected,
         )
 

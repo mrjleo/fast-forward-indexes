@@ -61,11 +61,11 @@ first_stage_ranking = (
     .cut(5000)
 )
 
-# compute the corresponding semantic scores and interpolate
-result = ff_index(first_stage_ranking).interpolate(0.1)
+# compute the corresponding semantic scores
+out = ff_index(first_stage_ranking)
 
-# create a new TREC runfile with the interpolated ranking
-result.save(Path("/path/to/output/run.tsv"))
+# interpolate scores and create a new TREC runfile
+first_stage_ranking.interpolate(out, 0.1).save(Path("/path/to/output/run.tsv"))
 ```
 
 # Guides
@@ -91,17 +91,17 @@ The index can then be subsequently loaded back using `fast_forward.index.disk.On
 
 ## Using an index
 
-The usage of a Fast-Forward index (i.e., computing semantic scores and interpolation) is handled by `fast_forward.index.Index.__call__`. It requires a ranking (typically from a sparse retriever) with the corresponding queries:
+The usage of a Fast-Forward index is handled by `fast_forward.index.Index.__call__`. It requires a ranking (typically from a sparse retriever) with the corresponding queries:
 
 ```python
 ranking = Ranking.from_file(Path("/path/to/sparse/run.tsv"), queries)
 result = my_index(ranking)
 ```
 
-Here, `queries` is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, `result`, has semantic scores for each query-document (or query-passage) pair attached. The individual scores (i.e., retrieval and re-ranking) can be interpolated using `Ranking.interpolate` in order to compute the final scores:
+Here, `queries` is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, `result`, has the semantic scores for the query-document (or query-passage) pairs. The individual scores (i.e., retrieval and re-ranking) can be interpolated using `Ranking.interpolate`:
 
 ```python
-result = result.interpolate(0.1)
+interpolated_ranking = ranking.interpolate(result, 0.1)
 ```
 
 ## Retrieval modes

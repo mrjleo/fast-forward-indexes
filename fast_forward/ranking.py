@@ -43,7 +43,7 @@ class Ranking(object):
         copy: bool = True,
         is_sorted: bool = False,
     ) -> None:
-        """Create a ranking from an existing data frame.
+        """Create a ranking from an existing data frame. Removes rows with NaN scores.
 
         Args:
             df (pd.DataFrame): Data frame containing IDs and scores.
@@ -59,35 +59,28 @@ class Ranking(object):
         super().__init__()
         self.name = name
 
-        cols = ["q_id", "id", "score"] + [
-            col for col in ("query", "ff_score") if col in df.columns
-        ]
+        cols = ["q_id", "id", "score"]
+        if "query" in df.columns:
+            cols += ["query"]
+        self._df = df.loc[:, cols].dropna()
         if copy:
-            self._df = df.loc[:, cols].copy()
-        else:
-            self._df = df.loc[:, cols]
+            self._df = self._df.copy()
 
         for col, dt in (
             ("score", dtype),
-            ("ff_score", dtype),
             ("q_id", str),
             ("id", str),
         ):
             if col in self._df.columns and self._df[col].dtype != dt:
                 self._df[col] = self._df[col].astype(dt)
 
-        self._q_ids = set(pd.unique(self._df["q_id"]))
-
         if not is_sorted:
-            self._sort()
+            self._df.sort_values(by=["q_id", "score"], inplace=True, ascending=False)
+        self._df.reset_index(inplace=True, drop=True)
 
+        self._q_ids = set(pd.unique(self._df["q_id"]))
         if queries is not None:
             self._df = _attach_queries(self._df, queries)
-
-    def _sort(self) -> None:
-        """Sort the ranking by scores (in-place)."""
-        self._df.sort_values(by=["q_id", "score"], inplace=True, ascending=False)
-        self._df.reset_index(inplace=True, drop=True)
 
     @property
     def has_queries(self) -> bool:
@@ -97,15 +90,6 @@ class Ranking(object):
             bool: Whether queries exist.
         """
         return "query" in self._df.columns
-
-    @property
-    def has_ff_scores(self) -> bool:
-        """Whether the ranking has semantic scores.
-
-        Returns:
-            bool: Whether semantic scores exist.
-        """
-        return "ff_score" in self._df.columns
 
     @property
     def q_ids(self) -> Set[str]:
@@ -163,16 +147,13 @@ class Ranking(object):
         Returns:
             bool: Whether the two rankings are identical.
         """
-        if not isinstance(o, Ranking) or self.has_ff_scores != o.has_ff_scores:
+        if not isinstance(o, Ranking):
             return False
 
         df1 = self._df.sort_values(["q_id", "id"]).reset_index(drop=True)
         df2 = o._df.sort_values(["q_id", "id"]).reset_index(drop=True)
 
         cols = ["q_id", "id", "score"]
-        if self.has_ff_scores:
-            cols += ["ff_score"]
-
         return df1[cols].equals(df2[cols])
 
     def __repr__(self) -> str:
@@ -222,11 +203,16 @@ class Ranking(object):
         )
 
     def interpolate(
-        self, alpha: float, cutoff: int = None, early_stopping: bool = False
+        self,
+        other: "Ranking",
+        alpha: float,
+        cutoff: int = None,
+        early_stopping: bool = False,
     ) -> "Ranking":
-        """Interpolate as `score = score * alpha + ff_score * (1 - alpha)`.
+        """Interpolate as `score = self.score * alpha + other.score * (1 - alpha)`.
 
         Args:
+            other (Ranking): Ranking to interpolate with.
             alpha (float): Interpolation parameter.
             cutoff (int, optional): Cut-off depth. Defaults to None.
             early_stopping (bool, optional): Use early stopping (requires cut-off depth). Defaults to None.
@@ -239,11 +225,14 @@ class Ranking(object):
             LOGGER.warning("no cut-off depth provided, disabling early stopping")
             early_stopping = False
 
+        # preserves order by score
+        new_df = self._df.merge(other._df, on=["q_id", "id"], suffixes=[None, "_other"])
         if not early_stopping:
-            new_df = self._df.dropna().copy()
-            new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["ff_score"]
+            new_df["score"] = (
+                alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
+            )
             result = Ranking(
-                new_df.drop(columns="ff_score"),
+                new_df,
                 name=self.name,
                 dtype=self._df.dtypes["score"],
                 copy=False,
@@ -256,20 +245,22 @@ class Ranking(object):
         def _es(q_df):
             heap = []
             min_relevant_score = float("-inf")
-            max_ff_score = float("-inf")
-            for id, score, ff_score in zip(q_df["id"], q_df["score"], q_df["ff_score"]):
+            max_score_other = float("-inf")
+            for id, score, score_other in zip(
+                q_df["id"], q_df["score"], q_df["score_other"]
+            ):
                 if len(heap) >= cutoff:
                     # check if approximated max possible score is too low to make a difference
                     min_relevant_score, min_relevant_id = heappop(heap)
-                    max_possible_score = alpha * score + (1 - alpha) * max_ff_score
+                    max_possible_score = alpha * score + (1 - alpha) * max_score_other
 
                     # early stopping
                     if max_possible_score <= min_relevant_score:
                         heappush(heap, (min_relevant_score, min_relevant_id))
                         break
 
-                max_ff_score = max(max_ff_score, ff_score)
-                next_score = alpha * score + (1 - alpha) * ff_score
+                max_score_other = max(max_score_other, score_other)
+                next_score = alpha * score + (1 - alpha) * score_other
                 if next_score > min_relevant_score:
                     heappush(heap, (next_score, id))
                 else:
@@ -278,7 +269,7 @@ class Ranking(object):
 
         q_dfs_out = []
         for q_id in self.q_ids:
-            q_df = self._df[self._df["q_id"] == q_id].dropna()
+            q_df = new_df[self._df["q_id"] == q_id]
             q_df_out = pd.DataFrame(_es(q_df), columns=["score", "id"])
             q_df_out["q_id"] = q_id
             if "query" in q_df.columns:
