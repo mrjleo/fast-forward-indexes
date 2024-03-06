@@ -368,6 +368,21 @@ class TestOnDiskIndex(TestIndex):
         self.assertEqual(index._get_psg_ids(), set(psg_ids_ok))
         self.assertEqual(16, len(index))
 
+    def test_ds_buffer_size(self):
+        index = OnDiskIndex(
+            self.temp_dir / "ds_buffer_size_index.h5",
+            16,
+            mode=Mode.PASSAGE,
+            ds_buffer_size=5,
+        )
+        psg_reps = np.random.normal(size=(16, 16))
+        psg_ids = [f"p{i}" for i in range(16)]
+        index.add(psg_reps, psg_ids=psg_ids)
+        vecs, id_idxs = index._get_vectors(psg_ids)
+        np.testing.assert_almost_equal(
+            vecs[id_idxs], psg_reps.reshape((16, 1, 16)), decimal=6
+        )
+
     def tearDown(self):
         shutil.rmtree(self.temp_dir)
 

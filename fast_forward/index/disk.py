@@ -16,7 +16,11 @@ LOGGER = logging.getLogger(__name__)
 
 
 class OnDiskIndex(Index):
-    """Fast-Forward index that is read from disk (HDF5)."""
+    """Fast-Forward index that is read from disk.
+
+    Uses HDF5 via h5py under the hood. The buffer (ds_buffer_size) works around a h5py limitation.
+    More information: https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing
+    """
 
     def __init__(
         self,
@@ -31,6 +35,7 @@ class OnDiskIndex(Index):
         dtype: np.dtype = np.float32,
         max_id_length: int = 8,
         overwrite: bool = False,
+        ds_buffer_size: int = 2**10,
     ) -> None:
         """Constructor.
 
@@ -46,6 +51,7 @@ class OnDiskIndex(Index):
             dtype (np.dtype, optional): Vector dtype. Defaults to np.float32.
             max_id_length (int, optional): Maximum length of document and passage IDs (number of characters). Defaults to 8.
             overwrite (bool, optional): Overwrite index file if it exists. Defaults to False.
+            ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
 
         Raises:
             ValueError: When the file exists and `overwrite=False`.
@@ -56,6 +62,7 @@ class OnDiskIndex(Index):
         super().__init__(query_encoder, mode, encoder_batch_size)
         self._index_file = index_file.absolute()
         self._resize_min_val = resize_min_val
+        self._ds_buffer_size = ds_buffer_size
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
 
@@ -236,7 +243,15 @@ class OnDiskIndex(Index):
             for id_idx, (id, vec_idx) in enumerate(idx_pairs):
                 vec_idxs.append(vec_idx)
                 id_to_idxs[id].append(id_idx)
-            return fp["vectors"][vec_idxs], [id_to_idxs[id] for id in ids]
+
+            # reading all vectors at once slows h5py down significantly, so we read them in chunks and concatenate
+            vectors = np.concatenate(
+                [
+                    fp["vectors"][vec_idxs[i : i + self._ds_buffer_size]]
+                    for i in range(0, len(vec_idxs), self._ds_buffer_size)
+                ]
+            )
+            return vectors, [id_to_idxs[id] for id in ids]
 
     @classmethod
     def load(
@@ -246,6 +261,7 @@ class OnDiskIndex(Index):
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         resize_min_val: int = 2**10,
+        ds_buffer_size: int = 2**10,
     ) -> "OnDiskIndex":
         """Open an existing index on disk.
 
@@ -255,6 +271,7 @@ class OnDiskIndex(Index):
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
+            ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
 
         Returns:
             OnDiskIndex: The index.
@@ -263,6 +280,7 @@ class OnDiskIndex(Index):
         super(OnDiskIndex, index).__init__(encoder, mode, encoder_batch_size)
         index._index_file = index_file.absolute()
         index._resize_min_val = resize_min_val
+        index._ds_buffer_size = ds_buffer_size
 
         # read ID mappings
         index._doc_id_to_idx = defaultdict(list)
