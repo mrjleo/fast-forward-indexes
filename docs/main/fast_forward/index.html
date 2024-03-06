@@ -341,7 +341,7 @@
 </span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a><span class="sd">            ranking (Ranking): The ranking to compute scores for. Must have queries attached.</span>
 </span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>
 </span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">        Returns:</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">            Ranking: The updated ranking.</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">            Ranking: Ranking with the computed scores.</span>
 </span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a><span class="sd">        Raises:</span>
 </span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a><span class="sd">            ValueError: When the ranking has no queries attached.</span>
@@ -399,16 +399,16 @@
 </span><span id="L-290"><a href="#L-290"><span class="linenos">290</span></a>                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 </span><span id="L-291"><a href="#L-291"><span class="linenos">291</span></a>            <span class="k">return</span> <span class="n">op</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="n">select_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
 </span><span id="L-292"><a href="#L-292"><span class="linenos">292</span></a>
-</span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a>        <span class="c1"># insert FF scores in the correct rows</span>
-</span><span id="L-294"><a href="#L-294"><span class="linenos">294</span></a>        <span class="n">new_df</span><span class="p">[</span><span class="s2">&quot;ff_score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_mapfunc</span><span class="p">)</span>
+</span><span id="L-293"><a href="#L-293"><span class="linenos">293</span></a>        <span class="c1"># insert scores in the correct rows</span>
+</span><span id="L-294"><a href="#L-294"><span class="linenos">294</span></a>        <span class="n">new_df</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_mapfunc</span><span class="p">)</span>
 </span><span id="L-295"><a href="#L-295"><span class="linenos">295</span></a>
-</span><span id="L-296"><a href="#L-296"><span class="linenos">296</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;computed scores in </span><span class="si">%s</span><span class="s2"> seconds&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">})</span>
+</span><span id="L-296"><a href="#L-296"><span class="linenos">296</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;computed scores in </span><span class="si">%s</span><span class="s2"> seconds&quot;</span><span class="p">,</span> <span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span>
 </span><span id="L-297"><a href="#L-297"><span class="linenos">297</span></a>        <span class="k">return</span> <span class="n">Ranking</span><span class="p">(</span>
 </span><span id="L-298"><a href="#L-298"><span class="linenos">298</span></a>            <span class="n">new_df</span><span class="p">,</span>
 </span><span id="L-299"><a href="#L-299"><span class="linenos">299</span></a>            <span class="n">name</span><span class="o">=</span><span class="n">ranking</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
 </span><span id="L-300"><a href="#L-300"><span class="linenos">300</span></a>            <span class="n">dtype</span><span class="o">=</span><span class="n">ranking</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
 </span><span id="L-301"><a href="#L-301"><span class="linenos">301</span></a>            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="L-302"><a href="#L-302"><span class="linenos">302</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-302"><a href="#L-302"><span class="linenos">302</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 </span><span id="L-303"><a href="#L-303"><span class="linenos">303</span></a>        <span class="p">)</span>
 </span></pre></div>
 
@@ -732,7 +732,7 @@
 </span><span id="Index-233"><a href="#Index-233"><span class="linenos">233</span></a><span class="sd">            ranking (Ranking): The ranking to compute scores for. Must have queries attached.</span>
 </span><span id="Index-234"><a href="#Index-234"><span class="linenos">234</span></a>
 </span><span id="Index-235"><a href="#Index-235"><span class="linenos">235</span></a><span class="sd">        Returns:</span>
-</span><span id="Index-236"><a href="#Index-236"><span class="linenos">236</span></a><span class="sd">            Ranking: The updated ranking.</span>
+</span><span id="Index-236"><a href="#Index-236"><span class="linenos">236</span></a><span class="sd">            Ranking: Ranking with the computed scores.</span>
 </span><span id="Index-237"><a href="#Index-237"><span class="linenos">237</span></a>
 </span><span id="Index-238"><a href="#Index-238"><span class="linenos">238</span></a><span class="sd">        Raises:</span>
 </span><span id="Index-239"><a href="#Index-239"><span class="linenos">239</span></a><span class="sd">            ValueError: When the ranking has no queries attached.</span>
@@ -790,16 +790,16 @@
 </span><span id="Index-291"><a href="#Index-291"><span class="linenos">291</span></a>                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 </span><span id="Index-292"><a href="#Index-292"><span class="linenos">292</span></a>            <span class="k">return</span> <span class="n">op</span><span class="p">(</span><span class="n">scores</span><span class="p">[</span><span class="n">select_scores</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
 </span><span id="Index-293"><a href="#Index-293"><span class="linenos">293</span></a>
-</span><span id="Index-294"><a href="#Index-294"><span class="linenos">294</span></a>        <span class="c1"># insert FF scores in the correct rows</span>
-</span><span id="Index-295"><a href="#Index-295"><span class="linenos">295</span></a>        <span class="n">new_df</span><span class="p">[</span><span class="s2">&quot;ff_score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_mapfunc</span><span class="p">)</span>
+</span><span id="Index-294"><a href="#Index-294"><span class="linenos">294</span></a>        <span class="c1"># insert scores in the correct rows</span>
+</span><span id="Index-295"><a href="#Index-295"><span class="linenos">295</span></a>        <span class="n">new_df</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_mapfunc</span><span class="p">)</span>
 </span><span id="Index-296"><a href="#Index-296"><span class="linenos">296</span></a>
-</span><span id="Index-297"><a href="#Index-297"><span class="linenos">297</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;computed scores in </span><span class="si">%s</span><span class="s2"> seconds&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">})</span>
+</span><span id="Index-297"><a href="#Index-297"><span class="linenos">297</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;computed scores in </span><span class="si">%s</span><span class="s2"> seconds&quot;</span><span class="p">,</span> <span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">)</span>
 </span><span id="Index-298"><a href="#Index-298"><span class="linenos">298</span></a>        <span class="k">return</span> <span class="n">Ranking</span><span class="p">(</span>
 </span><span id="Index-299"><a href="#Index-299"><span class="linenos">299</span></a>            <span class="n">new_df</span><span class="p">,</span>
 </span><span id="Index-300"><a href="#Index-300"><span class="linenos">300</span></a>            <span class="n">name</span><span class="o">=</span><span class="n">ranking</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
 </span><span id="Index-301"><a href="#Index-301"><span class="linenos">301</span></a>            <span class="n">dtype</span><span class="o">=</span><span class="n">ranking</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="s2">&quot;score&quot;</span><span class="p">],</span>
 </span><span id="Index-302"><a href="#Index-302"><span class="linenos">302</span></a>            <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="Index-303"><a href="#Index-303"><span class="linenos">303</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="Index-303"><a href="#Index-303"><span class="linenos">303</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 </span><span id="Index-304"><a href="#Index-304"><span class="linenos">304</span></a>        <span class="p">)</span>
 </span></pre></div>
 
