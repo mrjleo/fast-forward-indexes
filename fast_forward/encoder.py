@@ -97,15 +97,6 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27
     """
 
-    def _mean_pooling(last_hidden_state, attention_mask):
-        token_embeddings = last_hidden_state
-        input_mask_expanded = (
-            attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-        )
-        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
-        sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
-        return sum_embeddings / sum_mask
-
     def __call__(self, texts: Sequence[str]) -> np.ndarray:
         max_length = 512
         inputs = self.tokenizer(
