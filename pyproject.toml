@@ -1,6 +1,30 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "fast-forward-indexes"
+description = "Efficient interpolation-based ranking on CPUs"
+authors = [
+    {name = "Jurek Leonhardt"},
+]
+version = "0.1.0"
+readme = "README.md"
+license = {file = "LICENSE"}
+keywords = ["information retrieval", "ranking", "search"]
+requires-python = ">= 3.8"
+dependencies = [
+    "torch >=2.0.0",
+    "numpy >=1.24.0",
+    "pandas >=2.0.3",
+    "transformers >=4.28.0",
+    "tqdm",
+    "h5py >=3.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/mrjleo/fast-forward-indexes"
+Documentation = "https://mrjleo.github.io/fast-forward-indexes/docs/"
 
 [tool.pytest.ini_options]
 log_cli = true
