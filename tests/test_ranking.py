@@ -99,6 +99,14 @@ class TestRanking(unittest.TestCase):
             )
             self.assertTrue(res_es.has_queries)
 
+    def test_ir_measures_df(self):
+        r = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
+        df = r.to_ir_measures_df()
+        self.assertTrue(df["query_id"].equals(r._df["q_id"]))
+        self.assertTrue(df["doc_id"].equals(r._df["id"]))
+        self.assertTrue(df["score"].equals(r._df["score"]))
+        self.assertEqual(set(df.columns), set(("query_id", "doc_id", "score")))
+
 
 if __name__ == "__main__":
     unittest.main()
