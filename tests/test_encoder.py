@@ -23,7 +23,7 @@ class TestTCTColBERTEncoder(unittest.TestCase):
         out = self.query_encoder(["test query 1", "test query 2"])
         self.assertEqual(out.shape, (2, 768))
 
-    def test_query_encoder(self):
+    def test_doc_encoder(self):
         out = self.doc_encoder(["test doc 1", "test doc 2"])
         self.assertEqual(out.shape, (2, 768))
 
