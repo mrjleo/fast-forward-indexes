@@ -106,7 +106,7 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
         sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
         return sum_embeddings / sum_mask
 
-    def encode(self, texts: Sequence[str]) -> np.ndarray:
+    def __call__(self, texts: Sequence[str]) -> np.ndarray:
         max_length = 512
         inputs = self.tokenizer(
             ["[CLS] [D] " + text for text in texts],
