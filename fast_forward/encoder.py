@@ -10,7 +10,7 @@ class Encoder(abc.ABC):
     """Base class for encoders."""
 
     @abc.abstractmethod
-    def encode(self, texts: Sequence[str]) -> np.ndarray:
+    def __call__(self, texts: Sequence[str]) -> np.ndarray:
         """Encode a list of texts.
 
         Args:
@@ -43,7 +43,7 @@ class TransformerEncoder(Encoder):
         self.device = device
         self.tokenizer_args = tokenizer_args
 
-    def encode(self, texts: Sequence[str]) -> np.ndarray:
+    def __call__(self, texts: Sequence[str]) -> np.ndarray:
         inputs = self.tokenizer(texts, return_tensors="pt", **self.tokenizer_args)
         inputs.to(self.device)
         embeddings = self.model(**inputs).pooler_output.detach().cpu().numpy()
@@ -62,7 +62,7 @@ class LambdaEncoder(Encoder):
         super().__init__()
         self._f = f
 
-    def encode(self, texts: Sequence[str]) -> np.ndarray:
+    def __call__(self, texts: Sequence[str]) -> np.ndarray:
         return np.array(list(map(self._f, texts)))
 
 
@@ -73,7 +73,7 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72
     """
 
-    def encode(self, queries: Sequence[str]) -> np.ndarray:
+    def __call__(self, queries: Sequence[str]) -> np.ndarray:
         max_length = 36
         inputs = self.tokenizer(
             ["[CLS] [Q] " + q + "[MASK]" * max_length for q in queries],

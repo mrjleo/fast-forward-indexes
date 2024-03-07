@@ -60,7 +60,7 @@ class Index(abc.ABC):
         result = []
         for i in range(0, len(queries), self._encoder_batch_size):
             batch = queries[i : i + self._encoder_batch_size]
-            result.append(self._query_encoder.encode(batch))
+            result.append(self._query_encoder(batch))
         return np.concatenate(result)
 
     @property
