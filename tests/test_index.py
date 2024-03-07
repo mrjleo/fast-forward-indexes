@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 from fast_forward import InMemoryIndex, Mode, OnDiskIndex, Ranking
-from fast_forward.encoder import LambdaQueryEncoder
+from fast_forward.encoder import LambdaEncoder
 from fast_forward.util import create_coalesced_index
 
 DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
@@ -33,7 +33,7 @@ DUMMY_PSG_RUN = {
     "q2": {"p0": 500, "p1": 6, "p2": 7, "p3": 8, "p4": 9},
 }
 DUMMY_PSG_RANKING = Ranking.from_run(DUMMY_PSG_RUN, queries=DUMMY_QUERIES)
-DUMMY_ENCODER = LambdaQueryEncoder(lambda _: np.array([1, 1, 1, 1, 1]))
+DUMMY_ENCODER = LambdaEncoder(lambda _: np.array([1, 1, 1, 1, 1]))
 
 
 class TestIndex(unittest.TestCase):

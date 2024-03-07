@@ -8,7 +8,7 @@ import numpy as np
 from tqdm import tqdm
 
 import fast_forward
-from fast_forward.encoder import QueryEncoder
+from fast_forward.encoder import Encoder
 from fast_forward.index import Index, Mode
 from fast_forward.index.memory import InMemoryIndex
 
@@ -26,7 +26,7 @@ class OnDiskIndex(Index):
         self,
         index_file: Path,
         dim: int,
-        query_encoder: QueryEncoder = None,
+        query_encoder: Encoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -42,7 +42,7 @@ class OnDiskIndex(Index):
         Args:
             index_file (Path): Index file to create (or overwrite).
             dim (int): Vector dimension.
-            query_encoder (QueryEncoder, optional): Query encoder. Defaults to None.
+            query_encoder (Encoder, optional): Query encoder. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             init_size (int, optional): Initial size to allocate (number of vectors). Defaults to 2**14.
@@ -257,7 +257,7 @@ class OnDiskIndex(Index):
     def load(
         cls,
         index_file: Path,
-        encoder: QueryEncoder = None,
+        encoder: Encoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         resize_min_val: int = 2**10,
@@ -267,7 +267,7 @@ class OnDiskIndex(Index):
 
         Args:
             index_file (Path): Index file to open.
-            encoder (QueryEncoder, optional): Query encoder. Defaults to None.
+            encoder (Encoder, optional): Query encoder. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.

@@ -4,7 +4,7 @@ from typing import Iterable, List, Sequence, Set, Tuple, Union
 
 import numpy as np
 
-from fast_forward.encoder import QueryEncoder
+from fast_forward.encoder import Encoder
 from fast_forward.index import Index, Mode
 
 LOGGER = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ class InMemoryIndex(Index):
     def __init__(
         self,
         dim: int,
-        query_encoder: QueryEncoder = None,
+        query_encoder: Encoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -27,7 +27,7 @@ class InMemoryIndex(Index):
 
         Args:
             dim (int): Vector dimension.
-            query_encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
+            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
