@@ -2,19 +2,30 @@ import unittest
 
 import numpy as np
 
-from fast_forward.encoder import LambdaEncoder, TCTColBERTQueryEncoder
+from fast_forward.encoder import (
+    LambdaEncoder,
+    TCTColBERTDocumentEncoder,
+    TCTColBERTQueryEncoder,
+)
 
 
-class TestTCTColBERTQueryEncoder(unittest.TestCase):
+class TestTCTColBERTEncoder(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        self.encoder = TCTColBERTQueryEncoder(
+        self.query_encoder = TCTColBERTQueryEncoder(
+            "castorini/tct_colbert-msmarco", device="cpu"
+        )
+        self.doc_encoder = TCTColBERTDocumentEncoder(
             "castorini/tct_colbert-msmarco", device="cpu"
         )
 
-    def test_encode(self):
-        q_enc = self.encoder(["test query 1", "test query 2"])
-        self.assertEqual(q_enc.shape, (2, 768))
+    def test_query_encoder(self):
+        out = self.query_encoder(["test query 1", "test query 2"])
+        self.assertEqual(out.shape, (2, 768))
+
+    def test_query_encoder(self):
+        out = self.doc_encoder(["test doc 1", "test doc 2"])
+        self.assertEqual(out.shape, (2, 768))
 
 
 class TestLambdaEncoder(unittest.TestCase):
