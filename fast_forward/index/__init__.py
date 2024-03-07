@@ -26,19 +26,19 @@ class Index(abc.ABC):
 
     def __init__(
         self,
-        encoder: QueryEncoder = None,
+        query_encoder: QueryEncoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
     ) -> None:
         """Constructor.
 
         Args:
-            encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
-            mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
+            query_encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
+            mode (Mode, optional): Retrieval mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
         super().__init__()
-        self.query_encoder = encoder
+        self.query_encoder = query_encoder
         self.mode = mode
         self._encoder_batch_size = encoder_batch_size
 
