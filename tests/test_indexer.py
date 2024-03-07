@@ -18,17 +18,19 @@ class TestIndexer(unittest.TestCase):
     def test_index_dicts(self):
         self.indexer.index_dicts(
             [
-                {"text": "doc 1", "doc_id": "d1", "psg_id": "d1_p1"},
-                {"text": "doc 1", "doc_id": "d1", "psg_id": "d1_p2"},
-                {"text": "doc 1", "doc_id": "d1", "psg_id": "d1_p3"},
-                {"text": "doc 2", "doc_id": "d2", "psg_id": "d2_p1"},
-                {"text": "doc 3", "doc_id": "d3", "psg_id": "d3_p1"},
+                {"text": "123", "doc_id": "d1", "psg_id": "d1_p1"},
+                {"text": "234", "doc_id": "d1", "psg_id": "d1_p2"},
+                {"text": "456", "doc_id": "d1", "psg_id": "d1_p3"},
+                {"text": "567", "doc_id": "d2", "psg_id": "d2_p1"},
+                {"text": "678", "doc_id": "d3", "psg_id": "d3_p1"},
             ]
         )
-        self.assertEqual(5, len(self.index))
-        self.assertEqual(set(("d1", "d2", "d3")), self.index._get_doc_ids())
+        self.indexer.index_dicts([{"text": "890", "doc_id": "d4"}])
+        self.indexer.index_dicts([{"text": "901", "psg_id": "d5_p1"}])
+        self.assertEqual(7, len(self.index))
+        self.assertEqual(set(("d1", "d2", "d3", "d4")), self.index._get_doc_ids())
         self.assertEqual(
-            set(("d1_p1", "d1_p2", "d1_p3", "d2_p1", "d3_p1")),
+            set(("d1_p1", "d1_p2", "d1_p3", "d2_p1", "d3_p1", "d5_p1")),
             self.index._get_psg_ids(),
         )
 
