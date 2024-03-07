@@ -10,4 +10,4 @@ from fast_forward.index.memory import InMemoryIndex
 from fast_forward.indexer import Indexer
 from fast_forward.ranking import Ranking
 
-__version__ = __version__ = importlib.metadata.version("fast-forward-indexes")
+__version__ = importlib.metadata.version("fast-forward-indexes")

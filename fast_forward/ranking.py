@@ -284,7 +284,7 @@ class Ranking(object):
         )
 
     def to_ir_measures_df(self) -> pd.DataFrame:
-        """Return the ranking a data frame suitable for the ir-measures library.
+        """Return the ranking as a data frame suitable for the ir-measures library.
 
         Returns:
             pd.DataFrame: The data frame.
