@@ -31,37 +31,37 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="variable" href="#LOGGER">LOGGER</a>
+                    <a class="class" href="#Encoder">Encoder</a>
+                            <ul class="memberlist">
+                </ul>
+
             </li>
             <li>
-                    <a class="class" href="#QueryEncoder">QueryEncoder</a>
+                    <a class="class" href="#TransformerEncoder">TransformerEncoder</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#QueryEncoder.encode">encode</a>
+                                <a class="function" href="#TransformerEncoder.__init__">TransformerEncoder</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TransformerEncoder.model">model</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TransformerEncoder.tokenizer">tokenizer</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TransformerEncoder.device">device</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TransformerEncoder.tokenizer_args">tokenizer_args</a>
                         </li>
                 </ul>
 
             </li>
             <li>
-                    <a class="class" href="#TransformerQueryEncoder">TransformerQueryEncoder</a>
+                    <a class="class" href="#LambdaEncoder">LambdaEncoder</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="function" href="#TransformerQueryEncoder.__init__">TransformerQueryEncoder</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#TransformerQueryEncoder.model">model</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#TransformerQueryEncoder.tokenizer">tokenizer</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#TransformerQueryEncoder.device">device</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#TransformerQueryEncoder.tokenizer_args">tokenizer_args</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#TransformerQueryEncoder.encode">encode</a>
+                                <a class="function" href="#LambdaEncoder.__init__">LambdaEncoder</a>
                         </li>
                 </ul>
 
@@ -69,21 +69,12 @@
             <li>
                     <a class="class" href="#TCTColBERTQueryEncoder">TCTColBERTQueryEncoder</a>
                             <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#TCTColBERTQueryEncoder.encode">encode</a>
-                        </li>
                 </ul>
 
             </li>
             <li>
-                    <a class="class" href="#LambdaQueryEncoder">LambdaQueryEncoder</a>
+                    <a class="class" href="#TCTColBERTDocumentEncoder">TCTColBERTDocumentEncoder</a>
                             <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#LambdaQueryEncoder.__init__">LambdaQueryEncoder</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#LambdaQueryEncoder.encode">encode</a>
-                        </li>
                 </ul>
 
             </li>
@@ -108,269 +99,245 @@
 
                         <label class="view-source-button" for="mod-encoder-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="kn">import</span> <span class="nn">abc</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="kn">import</span> <span class="nn">logging</span>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoModel</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="k">class</span> <span class="nc">QueryEncoder</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for query encoders.&quot;&quot;&quot;</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a list of queries.</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">        Args:</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">            queries (Sequence[str]): The queries to encode.</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">        Returns:</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">            np.ndarray: The query representations.</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>        <span class="k">pass</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="k">class</span> <span class="nc">TransformerQueryEncoder</span><span class="p">(</span><span class="n">QueryEncoder</span><span class="p">):</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder for transformer models. Returns the pooler output.&quot;&quot;&quot;</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a><span class="sd">        Args:</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="sd">            device (str, optional): PyTorch device. Defaults to &#39;cpu&#39;.</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="sd">            **tokenizer_args: Additional tokenizer arguments.</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>        <span class="k">if</span> <span class="s2">&quot;tct_colbert&quot;</span> <span class="ow">in</span> <span class="n">model</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TCTColBERTQueryEncoder</span><span class="p">):</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;consider using the TCTColBERTQueryEncoder class&quot;</span><span class="p">)</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span> <span class="o">=</span> <span class="n">tokenizer_args</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">queries</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span><span class="p">)</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">pooler_output</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>        <span class="k">return</span> <span class="n">embeddings</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="k">class</span> <span class="nc">TCTColBERTQueryEncoder</span><span class="p">(</span><span class="n">TransformerQueryEncoder</span><span class="p">):</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder for pre-trained TCT-ColBERT models.</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="sd">    Adapted from Pyserini:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="sd">    https://github.com/castorini/pyserini/blob/70d79b420316d20302faaa000e08daa2416ed6e9/pyserini/dsearch/_dsearcher.py#L102</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">36</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>        <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[CLS] [Q] &quot;</span> <span class="o">+</span> <span class="n">q</span> <span class="o">+</span> <span class="s2">&quot;[MASK]&quot;</span> <span class="o">*</span> <span class="n">max_length</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">]</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>            <span class="n">queries</span><span class="p">,</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>            <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>            <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="p">)</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">last_hidden_state</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">embeddings</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a><span class="k">class</span> <span class="nc">LambdaQueryEncoder</span><span class="p">(</span><span class="n">QueryEncoder</span><span class="p">):</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder adapter class for arbitrary encoding functions.&quot;&quot;&quot;</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>
-</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a><span class="sd">        Args:</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a><span class="sd">            func (Callable[[str], np.ndarray]): Function to encode a single query.</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>
-</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="n">queries</span><span class="p">)))</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="kn">import</span> <span class="nn">abc</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="kn">import</span> <span class="nn">torch</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">AutoModel</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="k">class</span> <span class="nc">Encoder</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for encoders.&quot;&quot;&quot;</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a list of texts.</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="sd">        Args:</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="sd">            texts (Sequence[str]): The texts to encode.</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="sd">        Returns:</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="sd">            np.ndarray: The resulting vector representations.</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>        <span class="k">pass</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="k">class</span> <span class="nc">TransformerEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Uses a pre-trained transformer model for encoding. Returns the pooler output.&quot;&quot;&quot;</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="sd">        Args:</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">            device (str, optional): PyTorch device. Defaults to &quot;cpu&quot;.</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">            **tokenizer_args: Additional tokenizer arguments.</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span> <span class="o">=</span> <span class="n">tokenizer_args</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span><span class="p">)</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">pooler_output</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>        <span class="k">return</span> <span class="n">embeddings</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="k">class</span> <span class="nc">LambdaEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder adapter class for arbitrary encoding functions.&quot;&quot;&quot;</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">        Args:</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="n">f</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="p">,</span> <span class="n">texts</span><span class="p">)))</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="k">class</span> <span class="nc">TCTColBERTQueryEncoder</span><span class="p">(</span><span class="n">TransformerEncoder</span><span class="p">):</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder for pre-trained TCT-ColBERT models.</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    Adapted from Pyserini:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">36</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>            <span class="p">[</span><span class="s2">&quot;[CLS] [Q] &quot;</span> <span class="o">+</span> <span class="n">q</span> <span class="o">+</span> <span class="s2">&quot;[MASK]&quot;</span> <span class="o">*</span> <span class="n">max_length</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">],</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>            <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>            <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="p">)</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">last_hidden_state</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">embeddings</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="k">class</span> <span class="nc">TCTColBERTDocumentEncoder</span><span class="p">(</span><span class="n">TransformerEncoder</span><span class="p">):</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Document encoder for pre-trained TCT-ColBERT models.</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">    Adapted from Pyserini:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="sd">    https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">_mean_pooling</span><span class="p">(</span><span class="n">last_hidden_state</span><span class="p">,</span> <span class="n">attention_mask</span><span class="p">):</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="n">last_hidden_state</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="n">input_mask_expanded</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>            <span class="n">attention_mask</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">token_embeddings</span><span class="o">.</span><span class="n">size</span><span class="p">())</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>        <span class="p">)</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="n">sum_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">token_embeddings</span> <span class="o">*</span> <span class="n">input_mask_expanded</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="n">sum_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">input_mask_expanded</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">min</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>        <span class="k">return</span> <span class="n">sum_embeddings</span> <span class="o">/</span> <span class="n">sum_mask</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">512</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>            <span class="p">[</span><span class="s2">&quot;[CLS] [D] &quot;</span> <span class="o">+</span> <span class="n">text</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">],</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>            <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>            <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="p">)</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;last_hidden_state&quot;</span><span class="p">][:,</span> <span class="mi">4</span><span class="p">:,</span> <span class="p">:]</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="n">input_mask_expanded</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>            <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">][:,</span> <span class="mi">4</span><span class="p">:]</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>            <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>            <span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">token_embeddings</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>            <span class="o">.</span><span class="n">float</span><span class="p">()</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>        <span class="p">)</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>        <span class="n">sum_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">token_embeddings</span> <span class="o">*</span> <span class="n">input_mask_expanded</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="n">sum_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">input_mask_expanded</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">min</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">sum_embeddings</span> <span class="o">/</span> <span class="n">sum_mask</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>        <span class="k">return</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 </span></pre></div>
 
 
             </section>
-                <section id="LOGGER">
-                    <div class="attr variable">
-            <span class="name">LOGGER</span>        =
-<span class="default_value">&lt;Logger <a href="">fast_forward.encoder</a> (WARNING)&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#LOGGER"></a>
-    
-    
-
-                </section>
-                <section id="QueryEncoder">
-                            <input id="QueryEncoder-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="Encoder">
+                            <input id="Encoder-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">QueryEncoder</span><wbr>(<span class="base">abc.ABC</span>):
+    <span class="name">Encoder</span><wbr>(<span class="base">abc.ABC</span>):
 
-                <label class="view-source-button" for="QueryEncoder-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="Encoder-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#QueryEncoder"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="QueryEncoder-14"><a href="#QueryEncoder-14"><span class="linenos">14</span></a><span class="k">class</span> <span class="nc">QueryEncoder</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
-</span><span id="QueryEncoder-15"><a href="#QueryEncoder-15"><span class="linenos">15</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for query encoders.&quot;&quot;&quot;</span>
-</span><span id="QueryEncoder-16"><a href="#QueryEncoder-16"><span class="linenos">16</span></a>
-</span><span id="QueryEncoder-17"><a href="#QueryEncoder-17"><span class="linenos">17</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="QueryEncoder-18"><a href="#QueryEncoder-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="QueryEncoder-19"><a href="#QueryEncoder-19"><span class="linenos">19</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a list of queries.</span>
-</span><span id="QueryEncoder-20"><a href="#QueryEncoder-20"><span class="linenos">20</span></a>
-</span><span id="QueryEncoder-21"><a href="#QueryEncoder-21"><span class="linenos">21</span></a><span class="sd">        Args:</span>
-</span><span id="QueryEncoder-22"><a href="#QueryEncoder-22"><span class="linenos">22</span></a><span class="sd">            queries (Sequence[str]): The queries to encode.</span>
-</span><span id="QueryEncoder-23"><a href="#QueryEncoder-23"><span class="linenos">23</span></a>
-</span><span id="QueryEncoder-24"><a href="#QueryEncoder-24"><span class="linenos">24</span></a><span class="sd">        Returns:</span>
-</span><span id="QueryEncoder-25"><a href="#QueryEncoder-25"><span class="linenos">25</span></a><span class="sd">            np.ndarray: The query representations.</span>
-</span><span id="QueryEncoder-26"><a href="#QueryEncoder-26"><span class="linenos">26</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="QueryEncoder-27"><a href="#QueryEncoder-27"><span class="linenos">27</span></a>        <span class="k">pass</span>
+    <a class="headerlink" href="#Encoder"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Encoder-11"><a href="#Encoder-11"><span class="linenos">11</span></a><span class="k">class</span> <span class="nc">Encoder</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+</span><span id="Encoder-12"><a href="#Encoder-12"><span class="linenos">12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for encoders.&quot;&quot;&quot;</span>
+</span><span id="Encoder-13"><a href="#Encoder-13"><span class="linenos">13</span></a>
+</span><span id="Encoder-14"><a href="#Encoder-14"><span class="linenos">14</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Encoder-15"><a href="#Encoder-15"><span class="linenos">15</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Encoder-16"><a href="#Encoder-16"><span class="linenos">16</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a list of texts.</span>
+</span><span id="Encoder-17"><a href="#Encoder-17"><span class="linenos">17</span></a>
+</span><span id="Encoder-18"><a href="#Encoder-18"><span class="linenos">18</span></a><span class="sd">        Args:</span>
+</span><span id="Encoder-19"><a href="#Encoder-19"><span class="linenos">19</span></a><span class="sd">            texts (Sequence[str]): The texts to encode.</span>
+</span><span id="Encoder-20"><a href="#Encoder-20"><span class="linenos">20</span></a>
+</span><span id="Encoder-21"><a href="#Encoder-21"><span class="linenos">21</span></a><span class="sd">        Returns:</span>
+</span><span id="Encoder-22"><a href="#Encoder-22"><span class="linenos">22</span></a><span class="sd">            np.ndarray: The resulting vector representations.</span>
+</span><span id="Encoder-23"><a href="#Encoder-23"><span class="linenos">23</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Encoder-24"><a href="#Encoder-24"><span class="linenos">24</span></a>        <span class="k">pass</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Base class for query encoders.</p>
+            <div class="docstring"><p>Base class for encoders.</p>
 </div>
 
 
-                            <div id="QueryEncoder.encode" class="classattr">
-                                        <input id="QueryEncoder.encode-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-                    <div class="decorator">@abc.abstractmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">encode</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
-
-                <label class="view-source-button" for="QueryEncoder.encode-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#QueryEncoder.encode"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="QueryEncoder.encode-17"><a href="#QueryEncoder.encode-17"><span class="linenos">17</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="QueryEncoder.encode-18"><a href="#QueryEncoder.encode-18"><span class="linenos">18</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="QueryEncoder.encode-19"><a href="#QueryEncoder.encode-19"><span class="linenos">19</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a list of queries.</span>
-</span><span id="QueryEncoder.encode-20"><a href="#QueryEncoder.encode-20"><span class="linenos">20</span></a>
-</span><span id="QueryEncoder.encode-21"><a href="#QueryEncoder.encode-21"><span class="linenos">21</span></a><span class="sd">        Args:</span>
-</span><span id="QueryEncoder.encode-22"><a href="#QueryEncoder.encode-22"><span class="linenos">22</span></a><span class="sd">            queries (Sequence[str]): The queries to encode.</span>
-</span><span id="QueryEncoder.encode-23"><a href="#QueryEncoder.encode-23"><span class="linenos">23</span></a>
-</span><span id="QueryEncoder.encode-24"><a href="#QueryEncoder.encode-24"><span class="linenos">24</span></a><span class="sd">        Returns:</span>
-</span><span id="QueryEncoder.encode-25"><a href="#QueryEncoder.encode-25"><span class="linenos">25</span></a><span class="sd">            np.ndarray: The query representations.</span>
-</span><span id="QueryEncoder.encode-26"><a href="#QueryEncoder.encode-26"><span class="linenos">26</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="QueryEncoder.encode-27"><a href="#QueryEncoder.encode-27"><span class="linenos">27</span></a>        <span class="k">pass</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Encode a list of queries.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>queries (Sequence[str]):</strong>  The queries to encode.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>np.ndarray: The query representations.</p>
-</blockquote>
-</div>
-
-
-                            </div>
                 </section>
-                <section id="TransformerQueryEncoder">
-                            <input id="TransformerQueryEncoder-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="TransformerEncoder">
+                            <input id="TransformerEncoder-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">TransformerQueryEncoder</span><wbr>(<span class="base"><a href="#QueryEncoder">QueryEncoder</a></span>):
+    <span class="name">TransformerEncoder</span><wbr>(<span class="base"><a href="#Encoder">Encoder</a></span>):
 
-                <label class="view-source-button" for="TransformerQueryEncoder-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="TransformerEncoder-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#TransformerQueryEncoder"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="TransformerQueryEncoder-30"><a href="#TransformerQueryEncoder-30"><span class="linenos">30</span></a><span class="k">class</span> <span class="nc">TransformerQueryEncoder</span><span class="p">(</span><span class="n">QueryEncoder</span><span class="p">):</span>
-</span><span id="TransformerQueryEncoder-31"><a href="#TransformerQueryEncoder-31"><span class="linenos">31</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder for transformer models. Returns the pooler output.&quot;&quot;&quot;</span>
-</span><span id="TransformerQueryEncoder-32"><a href="#TransformerQueryEncoder-32"><span class="linenos">32</span></a>
-</span><span id="TransformerQueryEncoder-33"><a href="#TransformerQueryEncoder-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="TransformerQueryEncoder-34"><a href="#TransformerQueryEncoder-34"><span class="linenos">34</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
-</span><span id="TransformerQueryEncoder-35"><a href="#TransformerQueryEncoder-35"><span class="linenos">35</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="TransformerQueryEncoder-36"><a href="#TransformerQueryEncoder-36"><span class="linenos">36</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
-</span><span id="TransformerQueryEncoder-37"><a href="#TransformerQueryEncoder-37"><span class="linenos">37</span></a>
-</span><span id="TransformerQueryEncoder-38"><a href="#TransformerQueryEncoder-38"><span class="linenos">38</span></a><span class="sd">        Args:</span>
-</span><span id="TransformerQueryEncoder-39"><a href="#TransformerQueryEncoder-39"><span class="linenos">39</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
-</span><span id="TransformerQueryEncoder-40"><a href="#TransformerQueryEncoder-40"><span class="linenos">40</span></a><span class="sd">            device (str, optional): PyTorch device. Defaults to &#39;cpu&#39;.</span>
-</span><span id="TransformerQueryEncoder-41"><a href="#TransformerQueryEncoder-41"><span class="linenos">41</span></a><span class="sd">            **tokenizer_args: Additional tokenizer arguments.</span>
-</span><span id="TransformerQueryEncoder-42"><a href="#TransformerQueryEncoder-42"><span class="linenos">42</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="TransformerQueryEncoder-43"><a href="#TransformerQueryEncoder-43"><span class="linenos">43</span></a>        <span class="k">if</span> <span class="s2">&quot;tct_colbert&quot;</span> <span class="ow">in</span> <span class="n">model</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TCTColBERTQueryEncoder</span><span class="p">):</span>
-</span><span id="TransformerQueryEncoder-44"><a href="#TransformerQueryEncoder-44"><span class="linenos">44</span></a>            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;consider using the TCTColBERTQueryEncoder class&quot;</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder-45"><a href="#TransformerQueryEncoder-45"><span class="linenos">45</span></a>
-</span><span id="TransformerQueryEncoder-46"><a href="#TransformerQueryEncoder-46"><span class="linenos">46</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="TransformerQueryEncoder-47"><a href="#TransformerQueryEncoder-47"><span class="linenos">47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder-48"><a href="#TransformerQueryEncoder-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder-49"><a href="#TransformerQueryEncoder-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder-50"><a href="#TransformerQueryEncoder-50"><span class="linenos">50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
-</span><span id="TransformerQueryEncoder-51"><a href="#TransformerQueryEncoder-51"><span class="linenos">51</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span> <span class="o">=</span> <span class="n">tokenizer_args</span>
-</span><span id="TransformerQueryEncoder-52"><a href="#TransformerQueryEncoder-52"><span class="linenos">52</span></a>
-</span><span id="TransformerQueryEncoder-53"><a href="#TransformerQueryEncoder-53"><span class="linenos">53</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="TransformerQueryEncoder-54"><a href="#TransformerQueryEncoder-54"><span class="linenos">54</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">queries</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder-55"><a href="#TransformerQueryEncoder-55"><span class="linenos">55</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder-56"><a href="#TransformerQueryEncoder-56"><span class="linenos">56</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">pooler_output</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-</span><span id="TransformerQueryEncoder-57"><a href="#TransformerQueryEncoder-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">embeddings</span>
+    <a class="headerlink" href="#TransformerEncoder"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TransformerEncoder-27"><a href="#TransformerEncoder-27"><span class="linenos">27</span></a><span class="k">class</span> <span class="nc">TransformerEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+</span><span id="TransformerEncoder-28"><a href="#TransformerEncoder-28"><span class="linenos">28</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Uses a pre-trained transformer model for encoding. Returns the pooler output.&quot;&quot;&quot;</span>
+</span><span id="TransformerEncoder-29"><a href="#TransformerEncoder-29"><span class="linenos">29</span></a>
+</span><span id="TransformerEncoder-30"><a href="#TransformerEncoder-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="TransformerEncoder-31"><a href="#TransformerEncoder-31"><span class="linenos">31</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
+</span><span id="TransformerEncoder-32"><a href="#TransformerEncoder-32"><span class="linenos">32</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="TransformerEncoder-33"><a href="#TransformerEncoder-33"><span class="linenos">33</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="TransformerEncoder-34"><a href="#TransformerEncoder-34"><span class="linenos">34</span></a>
+</span><span id="TransformerEncoder-35"><a href="#TransformerEncoder-35"><span class="linenos">35</span></a><span class="sd">        Args:</span>
+</span><span id="TransformerEncoder-36"><a href="#TransformerEncoder-36"><span class="linenos">36</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
+</span><span id="TransformerEncoder-37"><a href="#TransformerEncoder-37"><span class="linenos">37</span></a><span class="sd">            device (str, optional): PyTorch device. Defaults to &quot;cpu&quot;.</span>
+</span><span id="TransformerEncoder-38"><a href="#TransformerEncoder-38"><span class="linenos">38</span></a><span class="sd">            **tokenizer_args: Additional tokenizer arguments.</span>
+</span><span id="TransformerEncoder-39"><a href="#TransformerEncoder-39"><span class="linenos">39</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="TransformerEncoder-40"><a href="#TransformerEncoder-40"><span class="linenos">40</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="TransformerEncoder-41"><a href="#TransformerEncoder-41"><span class="linenos">41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</span><span id="TransformerEncoder-42"><a href="#TransformerEncoder-42"><span class="linenos">42</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span><span id="TransformerEncoder-43"><a href="#TransformerEncoder-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="TransformerEncoder-44"><a href="#TransformerEncoder-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</span><span id="TransformerEncoder-45"><a href="#TransformerEncoder-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+</span><span id="TransformerEncoder-46"><a href="#TransformerEncoder-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span> <span class="o">=</span> <span class="n">tokenizer_args</span>
+</span><span id="TransformerEncoder-47"><a href="#TransformerEncoder-47"><span class="linenos">47</span></a>
+</span><span id="TransformerEncoder-48"><a href="#TransformerEncoder-48"><span class="linenos">48</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="TransformerEncoder-49"><a href="#TransformerEncoder-49"><span class="linenos">49</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span><span class="p">)</span>
+</span><span id="TransformerEncoder-50"><a href="#TransformerEncoder-50"><span class="linenos">50</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span><span id="TransformerEncoder-51"><a href="#TransformerEncoder-51"><span class="linenos">51</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">pooler_output</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</span><span id="TransformerEncoder-52"><a href="#TransformerEncoder-52"><span class="linenos">52</span></a>        <span class="k">return</span> <span class="n">embeddings</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Query encoder for transformer models. Returns the pooler output.</p>
+            <div class="docstring"><p>Uses a pre-trained transformer model for encoding. Returns the pooler output.</p>
 </div>
 
 
-                            <div id="TransformerQueryEncoder.__init__" class="classattr">
-                                        <input id="TransformerQueryEncoder.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="TransformerEncoder.__init__" class="classattr">
+                                        <input id="TransformerEncoder.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">TransformerQueryEncoder</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span>,</span><span class="param">	<span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;cpu&#39;</span>,</span><span class="param">	<span class="o">**</span><span class="n">tokenizer_args</span></span>)</span>
+        <span class="name">TransformerEncoder</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]</span>,</span><span class="param">	<span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;cpu&#39;</span>,</span><span class="param">	<span class="o">**</span><span class="n">tokenizer_args</span></span>)</span>
 
-                <label class="view-source-button" for="TransformerQueryEncoder.__init__-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="TransformerEncoder.__init__-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#TransformerQueryEncoder.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="TransformerQueryEncoder.__init__-33"><a href="#TransformerQueryEncoder.__init__-33"><span class="linenos">33</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-</span><span id="TransformerQueryEncoder.__init__-34"><a href="#TransformerQueryEncoder.__init__-34"><span class="linenos">34</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
-</span><span id="TransformerQueryEncoder.__init__-35"><a href="#TransformerQueryEncoder.__init__-35"><span class="linenos">35</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="TransformerQueryEncoder.__init__-36"><a href="#TransformerQueryEncoder.__init__-36"><span class="linenos">36</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
-</span><span id="TransformerQueryEncoder.__init__-37"><a href="#TransformerQueryEncoder.__init__-37"><span class="linenos">37</span></a>
-</span><span id="TransformerQueryEncoder.__init__-38"><a href="#TransformerQueryEncoder.__init__-38"><span class="linenos">38</span></a><span class="sd">        Args:</span>
-</span><span id="TransformerQueryEncoder.__init__-39"><a href="#TransformerQueryEncoder.__init__-39"><span class="linenos">39</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
-</span><span id="TransformerQueryEncoder.__init__-40"><a href="#TransformerQueryEncoder.__init__-40"><span class="linenos">40</span></a><span class="sd">            device (str, optional): PyTorch device. Defaults to &#39;cpu&#39;.</span>
-</span><span id="TransformerQueryEncoder.__init__-41"><a href="#TransformerQueryEncoder.__init__-41"><span class="linenos">41</span></a><span class="sd">            **tokenizer_args: Additional tokenizer arguments.</span>
-</span><span id="TransformerQueryEncoder.__init__-42"><a href="#TransformerQueryEncoder.__init__-42"><span class="linenos">42</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="TransformerQueryEncoder.__init__-43"><a href="#TransformerQueryEncoder.__init__-43"><span class="linenos">43</span></a>        <span class="k">if</span> <span class="s2">&quot;tct_colbert&quot;</span> <span class="ow">in</span> <span class="n">model</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">TCTColBERTQueryEncoder</span><span class="p">):</span>
-</span><span id="TransformerQueryEncoder.__init__-44"><a href="#TransformerQueryEncoder.__init__-44"><span class="linenos">44</span></a>            <span class="n">LOGGER</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;consider using the TCTColBERTQueryEncoder class&quot;</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder.__init__-45"><a href="#TransformerQueryEncoder.__init__-45"><span class="linenos">45</span></a>
-</span><span id="TransformerQueryEncoder.__init__-46"><a href="#TransformerQueryEncoder.__init__-46"><span class="linenos">46</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="TransformerQueryEncoder.__init__-47"><a href="#TransformerQueryEncoder.__init__-47"><span class="linenos">47</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder.__init__-48"><a href="#TransformerQueryEncoder.__init__-48"><span class="linenos">48</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder.__init__-49"><a href="#TransformerQueryEncoder.__init__-49"><span class="linenos">49</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder.__init__-50"><a href="#TransformerQueryEncoder.__init__-50"><span class="linenos">50</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
-</span><span id="TransformerQueryEncoder.__init__-51"><a href="#TransformerQueryEncoder.__init__-51"><span class="linenos">51</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span> <span class="o">=</span> <span class="n">tokenizer_args</span>
+    <a class="headerlink" href="#TransformerEncoder.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TransformerEncoder.__init__-30"><a href="#TransformerEncoder.__init__-30"><span class="linenos">30</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="TransformerEncoder.__init__-31"><a href="#TransformerEncoder.__init__-31"><span class="linenos">31</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
+</span><span id="TransformerEncoder.__init__-32"><a href="#TransformerEncoder.__init__-32"><span class="linenos">32</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="TransformerEncoder.__init__-33"><a href="#TransformerEncoder.__init__-33"><span class="linenos">33</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="TransformerEncoder.__init__-34"><a href="#TransformerEncoder.__init__-34"><span class="linenos">34</span></a>
+</span><span id="TransformerEncoder.__init__-35"><a href="#TransformerEncoder.__init__-35"><span class="linenos">35</span></a><span class="sd">        Args:</span>
+</span><span id="TransformerEncoder.__init__-36"><a href="#TransformerEncoder.__init__-36"><span class="linenos">36</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
+</span><span id="TransformerEncoder.__init__-37"><a href="#TransformerEncoder.__init__-37"><span class="linenos">37</span></a><span class="sd">            device (str, optional): PyTorch device. Defaults to &quot;cpu&quot;.</span>
+</span><span id="TransformerEncoder.__init__-38"><a href="#TransformerEncoder.__init__-38"><span class="linenos">38</span></a><span class="sd">            **tokenizer_args: Additional tokenizer arguments.</span>
+</span><span id="TransformerEncoder.__init__-39"><a href="#TransformerEncoder.__init__-39"><span class="linenos">39</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="TransformerEncoder.__init__-40"><a href="#TransformerEncoder.__init__-40"><span class="linenos">40</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="TransformerEncoder.__init__-41"><a href="#TransformerEncoder.__init__-41"><span class="linenos">41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</span><span id="TransformerEncoder.__init__-42"><a href="#TransformerEncoder.__init__-42"><span class="linenos">42</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</span><span id="TransformerEncoder.__init__-43"><a href="#TransformerEncoder.__init__-43"><span class="linenos">43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</span><span id="TransformerEncoder.__init__-44"><a href="#TransformerEncoder.__init__-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</span><span id="TransformerEncoder.__init__-45"><a href="#TransformerEncoder.__init__-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+</span><span id="TransformerEncoder.__init__-46"><a href="#TransformerEncoder.__init__-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span> <span class="o">=</span> <span class="n">tokenizer_args</span>
 </span></pre></div>
 
 
@@ -380,89 +347,118 @@
 
 <ul>
 <li><strong>model (Union[str, Path]):</strong>  Pre-trained transformer model (name or path).</li>
-<li><strong>device (str, optional):</strong>  PyTorch device. Defaults to 'cpu'.</li>
+<li><strong>device (str, optional):</strong>  PyTorch device. Defaults to "cpu".</li>
 <li><strong>**tokenizer_args:</strong>  Additional tokenizer arguments.</li>
 </ul>
 </div>
 
 
                             </div>
-                            <div id="TransformerQueryEncoder.model" class="classattr">
+                            <div id="TransformerEncoder.model" class="classattr">
                                 <div class="attr variable">
             <span class="name">model</span>
 
         
     </div>
-    <a class="headerlink" href="#TransformerQueryEncoder.model"></a>
+    <a class="headerlink" href="#TransformerEncoder.model"></a>
     
     
 
                             </div>
-                            <div id="TransformerQueryEncoder.tokenizer" class="classattr">
+                            <div id="TransformerEncoder.tokenizer" class="classattr">
                                 <div class="attr variable">
             <span class="name">tokenizer</span>
 
         
     </div>
-    <a class="headerlink" href="#TransformerQueryEncoder.tokenizer"></a>
+    <a class="headerlink" href="#TransformerEncoder.tokenizer"></a>
     
     
 
                             </div>
-                            <div id="TransformerQueryEncoder.device" class="classattr">
+                            <div id="TransformerEncoder.device" class="classattr">
                                 <div class="attr variable">
             <span class="name">device</span>
 
         
     </div>
-    <a class="headerlink" href="#TransformerQueryEncoder.device"></a>
+    <a class="headerlink" href="#TransformerEncoder.device"></a>
     
     
 
                             </div>
-                            <div id="TransformerQueryEncoder.tokenizer_args" class="classattr">
+                            <div id="TransformerEncoder.tokenizer_args" class="classattr">
                                 <div class="attr variable">
             <span class="name">tokenizer_args</span>
 
         
     </div>
-    <a class="headerlink" href="#TransformerQueryEncoder.tokenizer_args"></a>
+    <a class="headerlink" href="#TransformerEncoder.tokenizer_args"></a>
     
     
 
                             </div>
-                            <div id="TransformerQueryEncoder.encode" class="classattr">
-                                        <input id="TransformerQueryEncoder.encode-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
+                </section>
+                <section id="LambdaEncoder">
+                            <input id="LambdaEncoder-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
             
-        <span class="def">def</span>
-        <span class="name">encode</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
+    <span class="def">class</span>
+    <span class="name">LambdaEncoder</span><wbr>(<span class="base"><a href="#Encoder">Encoder</a></span>):
 
-                <label class="view-source-button" for="TransformerQueryEncoder.encode-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="LambdaEncoder-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#TransformerQueryEncoder.encode"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="TransformerQueryEncoder.encode-53"><a href="#TransformerQueryEncoder.encode-53"><span class="linenos">53</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="TransformerQueryEncoder.encode-54"><a href="#TransformerQueryEncoder.encode-54"><span class="linenos">54</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span><span class="n">queries</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder.encode-55"><a href="#TransformerQueryEncoder.encode-55"><span class="linenos">55</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</span><span id="TransformerQueryEncoder.encode-56"><a href="#TransformerQueryEncoder.encode-56"><span class="linenos">56</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span><span class="o">.</span><span class="n">pooler_output</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-</span><span id="TransformerQueryEncoder.encode-57"><a href="#TransformerQueryEncoder.encode-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">embeddings</span>
+    <a class="headerlink" href="#LambdaEncoder"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LambdaEncoder-55"><a href="#LambdaEncoder-55"><span class="linenos">55</span></a><span class="k">class</span> <span class="nc">LambdaEncoder</span><span class="p">(</span><span class="n">Encoder</span><span class="p">):</span>
+</span><span id="LambdaEncoder-56"><a href="#LambdaEncoder-56"><span class="linenos">56</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder adapter class for arbitrary encoding functions.&quot;&quot;&quot;</span>
+</span><span id="LambdaEncoder-57"><a href="#LambdaEncoder-57"><span class="linenos">57</span></a>
+</span><span id="LambdaEncoder-58"><a href="#LambdaEncoder-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="LambdaEncoder-59"><a href="#LambdaEncoder-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="LambdaEncoder-60"><a href="#LambdaEncoder-60"><span class="linenos">60</span></a>
+</span><span id="LambdaEncoder-61"><a href="#LambdaEncoder-61"><span class="linenos">61</span></a><span class="sd">        Args:</span>
+</span><span id="LambdaEncoder-62"><a href="#LambdaEncoder-62"><span class="linenos">62</span></a><span class="sd">            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.</span>
+</span><span id="LambdaEncoder-63"><a href="#LambdaEncoder-63"><span class="linenos">63</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="LambdaEncoder-64"><a href="#LambdaEncoder-64"><span class="linenos">64</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="LambdaEncoder-65"><a href="#LambdaEncoder-65"><span class="linenos">65</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="n">f</span>
+</span><span id="LambdaEncoder-66"><a href="#LambdaEncoder-66"><span class="linenos">66</span></a>
+</span><span id="LambdaEncoder-67"><a href="#LambdaEncoder-67"><span class="linenos">67</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="LambdaEncoder-68"><a href="#LambdaEncoder-68"><span class="linenos">68</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_f</span><span class="p">,</span> <span class="n">texts</span><span class="p">)))</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Encode a list of queries.</p>
+            <div class="docstring"><p>Encoder adapter class for arbitrary encoding functions.</p>
+</div>
+
+
+                            <div id="LambdaEncoder.__init__" class="classattr">
+                                        <input id="LambdaEncoder.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">LambdaEncoder</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span></span>)</span>
+
+                <label class="view-source-button" for="LambdaEncoder.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#LambdaEncoder.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="LambdaEncoder.__init__-58"><a href="#LambdaEncoder.__init__-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="LambdaEncoder.__init__-59"><a href="#LambdaEncoder.__init__-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="LambdaEncoder.__init__-60"><a href="#LambdaEncoder.__init__-60"><span class="linenos">60</span></a>
+</span><span id="LambdaEncoder.__init__-61"><a href="#LambdaEncoder.__init__-61"><span class="linenos">61</span></a><span class="sd">        Args:</span>
+</span><span id="LambdaEncoder.__init__-62"><a href="#LambdaEncoder.__init__-62"><span class="linenos">62</span></a><span class="sd">            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.</span>
+</span><span id="LambdaEncoder.__init__-63"><a href="#LambdaEncoder.__init__-63"><span class="linenos">63</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="LambdaEncoder.__init__-64"><a href="#LambdaEncoder.__init__-64"><span class="linenos">64</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+</span><span id="LambdaEncoder.__init__-65"><a href="#LambdaEncoder.__init__-65"><span class="linenos">65</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_f</span> <span class="o">=</span> <span class="n">f</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Constructor.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>queries (Sequence[str]):</strong>  The queries to encode.</li>
+<li><strong>f (Callable[[str], np.ndarray]):</strong>  Function to encode a single piece of text.</li>
 </ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>np.ndarray: The query representations.</p>
-</blockquote>
 </div>
 
 
@@ -473,200 +469,129 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">TCTColBERTQueryEncoder</span><wbr>(<span class="base"><a href="#TransformerQueryEncoder">TransformerQueryEncoder</a></span>):
+    <span class="name">TCTColBERTQueryEncoder</span><wbr>(<span class="base"><a href="#TransformerEncoder">TransformerEncoder</a></span>):
 
                 <label class="view-source-button" for="TCTColBERTQueryEncoder-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#TCTColBERTQueryEncoder"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="TCTColBERTQueryEncoder-60"><a href="#TCTColBERTQueryEncoder-60"><span class="linenos">60</span></a><span class="k">class</span> <span class="nc">TCTColBERTQueryEncoder</span><span class="p">(</span><span class="n">TransformerQueryEncoder</span><span class="p">):</span>
-</span><span id="TCTColBERTQueryEncoder-61"><a href="#TCTColBERTQueryEncoder-61"><span class="linenos">61</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder for pre-trained TCT-ColBERT models.</span>
-</span><span id="TCTColBERTQueryEncoder-62"><a href="#TCTColBERTQueryEncoder-62"><span class="linenos">62</span></a>
-</span><span id="TCTColBERTQueryEncoder-63"><a href="#TCTColBERTQueryEncoder-63"><span class="linenos">63</span></a><span class="sd">    Adapted from Pyserini:</span>
-</span><span id="TCTColBERTQueryEncoder-64"><a href="#TCTColBERTQueryEncoder-64"><span class="linenos">64</span></a><span class="sd">    https://github.com/castorini/pyserini/blob/70d79b420316d20302faaa000e08daa2416ed6e9/pyserini/dsearch/_dsearcher.py#L102</span>
-</span><span id="TCTColBERTQueryEncoder-65"><a href="#TCTColBERTQueryEncoder-65"><span class="linenos">65</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="TCTColBERTQueryEncoder-66"><a href="#TCTColBERTQueryEncoder-66"><span class="linenos">66</span></a>
-</span><span id="TCTColBERTQueryEncoder-67"><a href="#TCTColBERTQueryEncoder-67"><span class="linenos">67</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="TCTColBERTQueryEncoder-68"><a href="#TCTColBERTQueryEncoder-68"><span class="linenos">68</span></a>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">36</span>
-</span><span id="TCTColBERTQueryEncoder-69"><a href="#TCTColBERTQueryEncoder-69"><span class="linenos">69</span></a>        <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[CLS] [Q] &quot;</span> <span class="o">+</span> <span class="n">q</span> <span class="o">+</span> <span class="s2">&quot;[MASK]&quot;</span> <span class="o">*</span> <span class="n">max_length</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">]</span>
-</span><span id="TCTColBERTQueryEncoder-70"><a href="#TCTColBERTQueryEncoder-70"><span class="linenos">70</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
-</span><span id="TCTColBERTQueryEncoder-71"><a href="#TCTColBERTQueryEncoder-71"><span class="linenos">71</span></a>            <span class="n">queries</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder-72"><a href="#TCTColBERTQueryEncoder-72"><span class="linenos">72</span></a>            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder-73"><a href="#TCTColBERTQueryEncoder-73"><span class="linenos">73</span></a>            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder-74"><a href="#TCTColBERTQueryEncoder-74"><span class="linenos">74</span></a>            <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder-75"><a href="#TCTColBERTQueryEncoder-75"><span class="linenos">75</span></a>            <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder-76"><a href="#TCTColBERTQueryEncoder-76"><span class="linenos">76</span></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span>
-</span><span id="TCTColBERTQueryEncoder-77"><a href="#TCTColBERTQueryEncoder-77"><span class="linenos">77</span></a>        <span class="p">)</span>
-</span><span id="TCTColBERTQueryEncoder-78"><a href="#TCTColBERTQueryEncoder-78"><span class="linenos">78</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</span><span id="TCTColBERTQueryEncoder-79"><a href="#TCTColBERTQueryEncoder-79"><span class="linenos">79</span></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
-</span><span id="TCTColBERTQueryEncoder-80"><a href="#TCTColBERTQueryEncoder-80"><span class="linenos">80</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">last_hidden_state</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-</span><span id="TCTColBERTQueryEncoder-81"><a href="#TCTColBERTQueryEncoder-81"><span class="linenos">81</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">embeddings</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TCTColBERTQueryEncoder-71"><a href="#TCTColBERTQueryEncoder-71"><span class="linenos">71</span></a><span class="k">class</span> <span class="nc">TCTColBERTQueryEncoder</span><span class="p">(</span><span class="n">TransformerEncoder</span><span class="p">):</span>
+</span><span id="TCTColBERTQueryEncoder-72"><a href="#TCTColBERTQueryEncoder-72"><span class="linenos">72</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder for pre-trained TCT-ColBERT models.</span>
+</span><span id="TCTColBERTQueryEncoder-73"><a href="#TCTColBERTQueryEncoder-73"><span class="linenos">73</span></a>
+</span><span id="TCTColBERTQueryEncoder-74"><a href="#TCTColBERTQueryEncoder-74"><span class="linenos">74</span></a><span class="sd">    Adapted from Pyserini:</span>
+</span><span id="TCTColBERTQueryEncoder-75"><a href="#TCTColBERTQueryEncoder-75"><span class="linenos">75</span></a><span class="sd">    https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72</span>
+</span><span id="TCTColBERTQueryEncoder-76"><a href="#TCTColBERTQueryEncoder-76"><span class="linenos">76</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="TCTColBERTQueryEncoder-77"><a href="#TCTColBERTQueryEncoder-77"><span class="linenos">77</span></a>
+</span><span id="TCTColBERTQueryEncoder-78"><a href="#TCTColBERTQueryEncoder-78"><span class="linenos">78</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="TCTColBERTQueryEncoder-79"><a href="#TCTColBERTQueryEncoder-79"><span class="linenos">79</span></a>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">36</span>
+</span><span id="TCTColBERTQueryEncoder-80"><a href="#TCTColBERTQueryEncoder-80"><span class="linenos">80</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
+</span><span id="TCTColBERTQueryEncoder-81"><a href="#TCTColBERTQueryEncoder-81"><span class="linenos">81</span></a>            <span class="p">[</span><span class="s2">&quot;[CLS] [Q] &quot;</span> <span class="o">+</span> <span class="n">q</span> <span class="o">+</span> <span class="s2">&quot;[MASK]&quot;</span> <span class="o">*</span> <span class="n">max_length</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">],</span>
+</span><span id="TCTColBERTQueryEncoder-82"><a href="#TCTColBERTQueryEncoder-82"><span class="linenos">82</span></a>            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+</span><span id="TCTColBERTQueryEncoder-83"><a href="#TCTColBERTQueryEncoder-83"><span class="linenos">83</span></a>            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="TCTColBERTQueryEncoder-84"><a href="#TCTColBERTQueryEncoder-84"><span class="linenos">84</span></a>            <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="TCTColBERTQueryEncoder-85"><a href="#TCTColBERTQueryEncoder-85"><span class="linenos">85</span></a>            <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
+</span><span id="TCTColBERTQueryEncoder-86"><a href="#TCTColBERTQueryEncoder-86"><span class="linenos">86</span></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span>
+</span><span id="TCTColBERTQueryEncoder-87"><a href="#TCTColBERTQueryEncoder-87"><span class="linenos">87</span></a>        <span class="p">)</span>
+</span><span id="TCTColBERTQueryEncoder-88"><a href="#TCTColBERTQueryEncoder-88"><span class="linenos">88</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span><span id="TCTColBERTQueryEncoder-89"><a href="#TCTColBERTQueryEncoder-89"><span class="linenos">89</span></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
+</span><span id="TCTColBERTQueryEncoder-90"><a href="#TCTColBERTQueryEncoder-90"><span class="linenos">90</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">last_hidden_state</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+</span><span id="TCTColBERTQueryEncoder-91"><a href="#TCTColBERTQueryEncoder-91"><span class="linenos">91</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">embeddings</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Query encoder for pre-trained TCT-ColBERT models.</p>
 
 <p>Adapted from Pyserini:
-<a href="https://github.com/castorini/pyserini/blob/70d79b420316d20302faaa000e08daa2416ed6e9/pyserini/dsearch/_dsearcher.py#L102">https://github.com/castorini/pyserini/blob/70d79b420316d20302faaa000e08daa2416ed6e9/pyserini/dsearch/_dsearcher.py#L102</a></p>
+<a href="https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72">https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72</a></p>
 </div>
 
 
-                            <div id="TCTColBERTQueryEncoder.encode" class="classattr">
-                                        <input id="TCTColBERTQueryEncoder.encode-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">encode</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
-
-                <label class="view-source-button" for="TCTColBERTQueryEncoder.encode-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#TCTColBERTQueryEncoder.encode"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="TCTColBERTQueryEncoder.encode-67"><a href="#TCTColBERTQueryEncoder.encode-67"><span class="linenos">67</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="TCTColBERTQueryEncoder.encode-68"><a href="#TCTColBERTQueryEncoder.encode-68"><span class="linenos">68</span></a>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">36</span>
-</span><span id="TCTColBERTQueryEncoder.encode-69"><a href="#TCTColBERTQueryEncoder.encode-69"><span class="linenos">69</span></a>        <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;[CLS] [Q] &quot;</span> <span class="o">+</span> <span class="n">q</span> <span class="o">+</span> <span class="s2">&quot;[MASK]&quot;</span> <span class="o">*</span> <span class="n">max_length</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">queries</span><span class="p">]</span>
-</span><span id="TCTColBERTQueryEncoder.encode-70"><a href="#TCTColBERTQueryEncoder.encode-70"><span class="linenos">70</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
-</span><span id="TCTColBERTQueryEncoder.encode-71"><a href="#TCTColBERTQueryEncoder.encode-71"><span class="linenos">71</span></a>            <span class="n">queries</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder.encode-72"><a href="#TCTColBERTQueryEncoder.encode-72"><span class="linenos">72</span></a>            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder.encode-73"><a href="#TCTColBERTQueryEncoder.encode-73"><span class="linenos">73</span></a>            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder.encode-74"><a href="#TCTColBERTQueryEncoder.encode-74"><span class="linenos">74</span></a>            <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder.encode-75"><a href="#TCTColBERTQueryEncoder.encode-75"><span class="linenos">75</span></a>            <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
-</span><span id="TCTColBERTQueryEncoder.encode-76"><a href="#TCTColBERTQueryEncoder.encode-76"><span class="linenos">76</span></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span>
-</span><span id="TCTColBERTQueryEncoder.encode-77"><a href="#TCTColBERTQueryEncoder.encode-77"><span class="linenos">77</span></a>        <span class="p">)</span>
-</span><span id="TCTColBERTQueryEncoder.encode-78"><a href="#TCTColBERTQueryEncoder.encode-78"><span class="linenos">78</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-</span><span id="TCTColBERTQueryEncoder.encode-79"><a href="#TCTColBERTQueryEncoder.encode-79"><span class="linenos">79</span></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
-</span><span id="TCTColBERTQueryEncoder.encode-80"><a href="#TCTColBERTQueryEncoder.encode-80"><span class="linenos">80</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">last_hidden_state</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-</span><span id="TCTColBERTQueryEncoder.encode-81"><a href="#TCTColBERTQueryEncoder.encode-81"><span class="linenos">81</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">embeddings</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">:,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Encode a list of queries.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>queries (Sequence[str]):</strong>  The queries to encode.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>np.ndarray: The query representations.</p>
-</blockquote>
-</div>
-
-
-                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="#TransformerQueryEncoder">TransformerQueryEncoder</a></dt>
-                                <dd id="TCTColBERTQueryEncoder.__init__" class="function"><a href="#TransformerQueryEncoder.__init__">TransformerQueryEncoder</a></dd>
-                <dd id="TCTColBERTQueryEncoder.model" class="variable"><a href="#TransformerQueryEncoder.model">model</a></dd>
-                <dd id="TCTColBERTQueryEncoder.tokenizer" class="variable"><a href="#TransformerQueryEncoder.tokenizer">tokenizer</a></dd>
-                <dd id="TCTColBERTQueryEncoder.device" class="variable"><a href="#TransformerQueryEncoder.device">device</a></dd>
-                <dd id="TCTColBERTQueryEncoder.tokenizer_args" class="variable"><a href="#TransformerQueryEncoder.tokenizer_args">tokenizer_args</a></dd>
+                                    <div><dt><a href="#TransformerEncoder">TransformerEncoder</a></dt>
+                                <dd id="TCTColBERTQueryEncoder.__init__" class="function"><a href="#TransformerEncoder.__init__">TransformerEncoder</a></dd>
+                <dd id="TCTColBERTQueryEncoder.model" class="variable"><a href="#TransformerEncoder.model">model</a></dd>
+                <dd id="TCTColBERTQueryEncoder.tokenizer" class="variable"><a href="#TransformerEncoder.tokenizer">tokenizer</a></dd>
+                <dd id="TCTColBERTQueryEncoder.device" class="variable"><a href="#TransformerEncoder.device">device</a></dd>
+                <dd id="TCTColBERTQueryEncoder.tokenizer_args" class="variable"><a href="#TransformerEncoder.tokenizer_args">tokenizer_args</a></dd>
 
             </div>
                                 </dl>
                             </div>
                 </section>
-                <section id="LambdaQueryEncoder">
-                            <input id="LambdaQueryEncoder-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                <section id="TCTColBERTDocumentEncoder">
+                            <input id="TCTColBERTDocumentEncoder-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">LambdaQueryEncoder</span><wbr>(<span class="base"><a href="#QueryEncoder">QueryEncoder</a></span>):
+    <span class="name">TCTColBERTDocumentEncoder</span><wbr>(<span class="base"><a href="#TransformerEncoder">TransformerEncoder</a></span>):
 
-                <label class="view-source-button" for="LambdaQueryEncoder-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="TCTColBERTDocumentEncoder-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#LambdaQueryEncoder"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LambdaQueryEncoder-84"><a href="#LambdaQueryEncoder-84"><span class="linenos">84</span></a><span class="k">class</span> <span class="nc">LambdaQueryEncoder</span><span class="p">(</span><span class="n">QueryEncoder</span><span class="p">):</span>
-</span><span id="LambdaQueryEncoder-85"><a href="#LambdaQueryEncoder-85"><span class="linenos">85</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Query encoder adapter class for arbitrary encoding functions.&quot;&quot;&quot;</span>
-</span><span id="LambdaQueryEncoder-86"><a href="#LambdaQueryEncoder-86"><span class="linenos">86</span></a>
-</span><span id="LambdaQueryEncoder-87"><a href="#LambdaQueryEncoder-87"><span class="linenos">87</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="LambdaQueryEncoder-88"><a href="#LambdaQueryEncoder-88"><span class="linenos">88</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
-</span><span id="LambdaQueryEncoder-89"><a href="#LambdaQueryEncoder-89"><span class="linenos">89</span></a>
-</span><span id="LambdaQueryEncoder-90"><a href="#LambdaQueryEncoder-90"><span class="linenos">90</span></a><span class="sd">        Args:</span>
-</span><span id="LambdaQueryEncoder-91"><a href="#LambdaQueryEncoder-91"><span class="linenos">91</span></a><span class="sd">            func (Callable[[str], np.ndarray]): Function to encode a single query.</span>
-</span><span id="LambdaQueryEncoder-92"><a href="#LambdaQueryEncoder-92"><span class="linenos">92</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="LambdaQueryEncoder-93"><a href="#LambdaQueryEncoder-93"><span class="linenos">93</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="LambdaQueryEncoder-94"><a href="#LambdaQueryEncoder-94"><span class="linenos">94</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
-</span><span id="LambdaQueryEncoder-95"><a href="#LambdaQueryEncoder-95"><span class="linenos">95</span></a>
-</span><span id="LambdaQueryEncoder-96"><a href="#LambdaQueryEncoder-96"><span class="linenos">96</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="LambdaQueryEncoder-97"><a href="#LambdaQueryEncoder-97"><span class="linenos">97</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="n">queries</span><span class="p">)))</span>
+    <a class="headerlink" href="#TCTColBERTDocumentEncoder"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="TCTColBERTDocumentEncoder-94"><a href="#TCTColBERTDocumentEncoder-94"><span class="linenos"> 94</span></a><span class="k">class</span> <span class="nc">TCTColBERTDocumentEncoder</span><span class="p">(</span><span class="n">TransformerEncoder</span><span class="p">):</span>
+</span><span id="TCTColBERTDocumentEncoder-95"><a href="#TCTColBERTDocumentEncoder-95"><span class="linenos"> 95</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Document encoder for pre-trained TCT-ColBERT models.</span>
+</span><span id="TCTColBERTDocumentEncoder-96"><a href="#TCTColBERTDocumentEncoder-96"><span class="linenos"> 96</span></a>
+</span><span id="TCTColBERTDocumentEncoder-97"><a href="#TCTColBERTDocumentEncoder-97"><span class="linenos"> 97</span></a><span class="sd">    Adapted from Pyserini:</span>
+</span><span id="TCTColBERTDocumentEncoder-98"><a href="#TCTColBERTDocumentEncoder-98"><span class="linenos"> 98</span></a><span class="sd">    https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27</span>
+</span><span id="TCTColBERTDocumentEncoder-99"><a href="#TCTColBERTDocumentEncoder-99"><span class="linenos"> 99</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="TCTColBERTDocumentEncoder-100"><a href="#TCTColBERTDocumentEncoder-100"><span class="linenos">100</span></a>
+</span><span id="TCTColBERTDocumentEncoder-101"><a href="#TCTColBERTDocumentEncoder-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">_mean_pooling</span><span class="p">(</span><span class="n">last_hidden_state</span><span class="p">,</span> <span class="n">attention_mask</span><span class="p">):</span>
+</span><span id="TCTColBERTDocumentEncoder-102"><a href="#TCTColBERTDocumentEncoder-102"><span class="linenos">102</span></a>        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="n">last_hidden_state</span>
+</span><span id="TCTColBERTDocumentEncoder-103"><a href="#TCTColBERTDocumentEncoder-103"><span class="linenos">103</span></a>        <span class="n">input_mask_expanded</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="TCTColBERTDocumentEncoder-104"><a href="#TCTColBERTDocumentEncoder-104"><span class="linenos">104</span></a>            <span class="n">attention_mask</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">token_embeddings</span><span class="o">.</span><span class="n">size</span><span class="p">())</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+</span><span id="TCTColBERTDocumentEncoder-105"><a href="#TCTColBERTDocumentEncoder-105"><span class="linenos">105</span></a>        <span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-106"><a href="#TCTColBERTDocumentEncoder-106"><span class="linenos">106</span></a>        <span class="n">sum_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">token_embeddings</span> <span class="o">*</span> <span class="n">input_mask_expanded</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-107"><a href="#TCTColBERTDocumentEncoder-107"><span class="linenos">107</span></a>        <span class="n">sum_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">input_mask_expanded</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">min</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-108"><a href="#TCTColBERTDocumentEncoder-108"><span class="linenos">108</span></a>        <span class="k">return</span> <span class="n">sum_embeddings</span> <span class="o">/</span> <span class="n">sum_mask</span>
+</span><span id="TCTColBERTDocumentEncoder-109"><a href="#TCTColBERTDocumentEncoder-109"><span class="linenos">109</span></a>
+</span><span id="TCTColBERTDocumentEncoder-110"><a href="#TCTColBERTDocumentEncoder-110"><span class="linenos">110</span></a>    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">texts</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="TCTColBERTDocumentEncoder-111"><a href="#TCTColBERTDocumentEncoder-111"><span class="linenos">111</span></a>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">512</span>
+</span><span id="TCTColBERTDocumentEncoder-112"><a href="#TCTColBERTDocumentEncoder-112"><span class="linenos">112</span></a>        <span class="n">inputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">(</span>
+</span><span id="TCTColBERTDocumentEncoder-113"><a href="#TCTColBERTDocumentEncoder-113"><span class="linenos">113</span></a>            <span class="p">[</span><span class="s2">&quot;[CLS] [D] &quot;</span> <span class="o">+</span> <span class="n">text</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">],</span>
+</span><span id="TCTColBERTDocumentEncoder-114"><a href="#TCTColBERTDocumentEncoder-114"><span class="linenos">114</span></a>            <span class="n">max_length</span><span class="o">=</span><span class="n">max_length</span><span class="p">,</span>
+</span><span id="TCTColBERTDocumentEncoder-115"><a href="#TCTColBERTDocumentEncoder-115"><span class="linenos">115</span></a>            <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="TCTColBERTDocumentEncoder-116"><a href="#TCTColBERTDocumentEncoder-116"><span class="linenos">116</span></a>            <span class="n">add_special_tokens</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+</span><span id="TCTColBERTDocumentEncoder-117"><a href="#TCTColBERTDocumentEncoder-117"><span class="linenos">117</span></a>            <span class="n">return_tensors</span><span class="o">=</span><span class="s2">&quot;pt&quot;</span><span class="p">,</span>
+</span><span id="TCTColBERTDocumentEncoder-118"><a href="#TCTColBERTDocumentEncoder-118"><span class="linenos">118</span></a>            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer_args</span>
+</span><span id="TCTColBERTDocumentEncoder-119"><a href="#TCTColBERTDocumentEncoder-119"><span class="linenos">119</span></a>        <span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-120"><a href="#TCTColBERTDocumentEncoder-120"><span class="linenos">120</span></a>        <span class="n">inputs</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-121"><a href="#TCTColBERTDocumentEncoder-121"><span class="linenos">121</span></a>        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">inputs</span><span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-122"><a href="#TCTColBERTDocumentEncoder-122"><span class="linenos">122</span></a>        <span class="n">token_embeddings</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="s2">&quot;last_hidden_state&quot;</span><span class="p">][:,</span> <span class="mi">4</span><span class="p">:,</span> <span class="p">:]</span>
+</span><span id="TCTColBERTDocumentEncoder-123"><a href="#TCTColBERTDocumentEncoder-123"><span class="linenos">123</span></a>        <span class="n">input_mask_expanded</span> <span class="o">=</span> <span class="p">(</span>
+</span><span id="TCTColBERTDocumentEncoder-124"><a href="#TCTColBERTDocumentEncoder-124"><span class="linenos">124</span></a>            <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;attention_mask&quot;</span><span class="p">][:,</span> <span class="mi">4</span><span class="p">:]</span>
+</span><span id="TCTColBERTDocumentEncoder-125"><a href="#TCTColBERTDocumentEncoder-125"><span class="linenos">125</span></a>            <span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-126"><a href="#TCTColBERTDocumentEncoder-126"><span class="linenos">126</span></a>            <span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">token_embeddings</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+</span><span id="TCTColBERTDocumentEncoder-127"><a href="#TCTColBERTDocumentEncoder-127"><span class="linenos">127</span></a>            <span class="o">.</span><span class="n">float</span><span class="p">()</span>
+</span><span id="TCTColBERTDocumentEncoder-128"><a href="#TCTColBERTDocumentEncoder-128"><span class="linenos">128</span></a>        <span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-129"><a href="#TCTColBERTDocumentEncoder-129"><span class="linenos">129</span></a>        <span class="n">sum_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">token_embeddings</span> <span class="o">*</span> <span class="n">input_mask_expanded</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-130"><a href="#TCTColBERTDocumentEncoder-130"><span class="linenos">130</span></a>        <span class="n">sum_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">input_mask_expanded</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="nb">min</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+</span><span id="TCTColBERTDocumentEncoder-131"><a href="#TCTColBERTDocumentEncoder-131"><span class="linenos">131</span></a>        <span class="n">embeddings</span> <span class="o">=</span> <span class="n">sum_embeddings</span> <span class="o">/</span> <span class="n">sum_mask</span>
+</span><span id="TCTColBERTDocumentEncoder-132"><a href="#TCTColBERTDocumentEncoder-132"><span class="linenos">132</span></a>        <span class="k">return</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Query encoder adapter class for arbitrary encoding functions.</p>
+            <div class="docstring"><p>Document encoder for pre-trained TCT-ColBERT models.</p>
+
+<p>Adapted from Pyserini:
+<a href="https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27">https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27</a></p>
 </div>
 
 
-                            <div id="LambdaQueryEncoder.__init__" class="classattr">
-                                        <input id="LambdaQueryEncoder.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="name">LambdaQueryEncoder</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span></span>)</span>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#TransformerEncoder">TransformerEncoder</a></dt>
+                                <dd id="TCTColBERTDocumentEncoder.__init__" class="function"><a href="#TransformerEncoder.__init__">TransformerEncoder</a></dd>
+                <dd id="TCTColBERTDocumentEncoder.model" class="variable"><a href="#TransformerEncoder.model">model</a></dd>
+                <dd id="TCTColBERTDocumentEncoder.tokenizer" class="variable"><a href="#TransformerEncoder.tokenizer">tokenizer</a></dd>
+                <dd id="TCTColBERTDocumentEncoder.device" class="variable"><a href="#TransformerEncoder.device">device</a></dd>
+                <dd id="TCTColBERTDocumentEncoder.tokenizer_args" class="variable"><a href="#TransformerEncoder.tokenizer_args">tokenizer_args</a></dd>
 
-                <label class="view-source-button" for="LambdaQueryEncoder.__init__-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#LambdaQueryEncoder.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LambdaQueryEncoder.__init__-87"><a href="#LambdaQueryEncoder.__init__-87"><span class="linenos">87</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="LambdaQueryEncoder.__init__-88"><a href="#LambdaQueryEncoder.__init__-88"><span class="linenos">88</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
-</span><span id="LambdaQueryEncoder.__init__-89"><a href="#LambdaQueryEncoder.__init__-89"><span class="linenos">89</span></a>
-</span><span id="LambdaQueryEncoder.__init__-90"><a href="#LambdaQueryEncoder.__init__-90"><span class="linenos">90</span></a><span class="sd">        Args:</span>
-</span><span id="LambdaQueryEncoder.__init__-91"><a href="#LambdaQueryEncoder.__init__-91"><span class="linenos">91</span></a><span class="sd">            func (Callable[[str], np.ndarray]): Function to encode a single query.</span>
-</span><span id="LambdaQueryEncoder.__init__-92"><a href="#LambdaQueryEncoder.__init__-92"><span class="linenos">92</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="LambdaQueryEncoder.__init__-93"><a href="#LambdaQueryEncoder.__init__-93"><span class="linenos">93</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</span><span id="LambdaQueryEncoder.__init__-94"><a href="#LambdaQueryEncoder.__init__-94"><span class="linenos">94</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Constructor.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>func (Callable[[str], np.ndarray]):</strong>  Function to encode a single query.</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="LambdaQueryEncoder.encode" class="classattr">
-                                        <input id="LambdaQueryEncoder.encode-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">encode</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>:</span></span>
-
-                <label class="view-source-button" for="LambdaQueryEncoder.encode-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#LambdaQueryEncoder.encode"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="LambdaQueryEncoder.encode-96"><a href="#LambdaQueryEncoder.encode-96"><span class="linenos">96</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="LambdaQueryEncoder.encode-97"><a href="#LambdaQueryEncoder.encode-97"><span class="linenos">97</span></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_func</span><span class="p">,</span> <span class="n">queries</span><span class="p">)))</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Encode a list of queries.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>queries (Sequence[str]):</strong>  The queries to encode.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>np.ndarray: The query representations.</p>
-</blockquote>
-</div>
-
-
+            </div>
+                                </dl>
                             </div>
                 </section>
     </main>
