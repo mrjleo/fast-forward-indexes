@@ -278,7 +278,6 @@ class Ranking(object):
 
         return Ranking(
             pd.concat(q_dfs_out).reset_index(),
-            name=self.name,
             dtype=self._df.dtypes["score"],
             copy=False,
             is_sorted=True,
