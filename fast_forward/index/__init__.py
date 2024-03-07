@@ -6,7 +6,7 @@ from typing import Iterable, List, Sequence, Set, Tuple, Union
 
 import numpy as np
 
-from fast_forward.encoder import QueryEncoder
+from fast_forward.encoder import Encoder
 from fast_forward.ranking import Ranking
 
 LOGGER = logging.getLogger(__name__)
@@ -26,14 +26,14 @@ class Index(abc.ABC):
 
     def __init__(
         self,
-        query_encoder: QueryEncoder = None,
+        query_encoder: Encoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
     ) -> None:
         """Constructor.
 
         Args:
-            query_encoder (QueryEncoder, optional): The query encoder to use. Defaults to None.
+            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Retrieval mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
@@ -64,22 +64,22 @@ class Index(abc.ABC):
         return np.concatenate(result)
 
     @property
-    def query_encoder(self) -> QueryEncoder:
+    def query_encoder(self) -> Encoder:
         """Return the query encoder.
 
         Returns:
-            QueryEncoder: The encoder.
+            Encoder: The encoder.
         """
         return self._query_encoder
 
     @query_encoder.setter
-    def query_encoder(self, encoder: QueryEncoder) -> None:
+    def query_encoder(self, encoder: Encoder) -> None:
         """Set the query encoder.
 
         Args:
-            encoder (QueryEncoder): The encoder.
+            encoder (Encoder): The encoder.
         """
-        assert encoder is None or isinstance(encoder, QueryEncoder)
+        assert encoder is None or isinstance(encoder, Encoder)
         self._query_encoder = encoder
 
     @property
