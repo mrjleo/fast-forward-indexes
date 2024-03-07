@@ -296,7 +296,7 @@ class Index(abc.ABC):
         LOGGER.info("computed scores in %s seconds", perf_counter() - t0)
         return Ranking(
             new_df,
-            name=ranking.name,
+            name="fast-forward",
             dtype=ranking._df.dtypes["score"],
             copy=False,
             is_sorted=False,
