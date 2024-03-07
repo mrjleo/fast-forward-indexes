@@ -82,7 +82,7 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
             truncation=True,
             add_special_tokens=False,
             return_tensors="pt",
-            **self.tokenizer_args
+            **self.tokenizer_args,
         )
         inputs.to(self.device)
         outputs = self.model(**inputs)
@@ -111,10 +111,11 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
         inputs = self.tokenizer(
             ["[CLS] [D] " + text for text in texts],
             max_length=max_length,
+            padding=True,
             truncation=True,
             add_special_tokens=False,
             return_tensors="pt",
-            **self.tokenizer_args
+            **self.tokenizer_args,
         )
         inputs.to(self.device)
         outputs = self.model(**inputs)

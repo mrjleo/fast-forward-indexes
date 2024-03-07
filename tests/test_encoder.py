@@ -24,7 +24,7 @@ class TestTCTColBERTEncoder(unittest.TestCase):
         self.assertEqual(out.shape, (2, 768))
 
     def test_doc_encoder(self):
-        out = self.doc_encoder(["test doc 1", "test doc 2"])
+        out = self.doc_encoder(["test doc 1", "test doc 11"])
         self.assertEqual(out.shape, (2, 768))
 
 
