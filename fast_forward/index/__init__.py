@@ -369,9 +369,16 @@ class Index(abc.ABC):
 
         Raises:
             ValueError: When the ranking has no queries attached.
+            ValueError: When early stopping is enabled but arguments are missing.
         """
         if not ranking.has_queries:
             raise ValueError("Input ranking has no queries attached.")
+
+        if early_stopping is not None and (
+            early_stopping_alpha is None or early_stopping_intervals is None
+        ):
+            raise ValueError("Early stopping requires alpha ind intervals.")
+
         t0 = perf_counter()
 
         # get all unique queries and query IDs and map to unique numbers (0 to m)
