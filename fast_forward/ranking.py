@@ -1,5 +1,4 @@
 import logging
-from heapq import heappop, heappush
 from pathlib import Path
 from typing import Dict, Iterator, Set, Union
 
@@ -206,82 +205,27 @@ class Ranking(object):
         self,
         other: "Ranking",
         alpha: float,
-        cutoff: int = None,
-        early_stopping: bool = False,
     ) -> "Ranking":
         """Interpolate as `score = self.score * alpha + other.score * (1 - alpha)`.
 
         Args:
             other (Ranking): Ranking to interpolate with.
             alpha (float): Interpolation parameter.
-            cutoff (int, optional): Cut-off depth. Defaults to None.
-            early_stopping (bool, optional): Use early stopping (requires cut-off depth). Defaults to None.
 
         Returns:
             Ranking: The resulting ranking.
         """
-
-        if early_stopping and cutoff is None:
-            LOGGER.warning("no cut-off depth provided, disabling early stopping")
-            early_stopping = False
-
         # preserves order by score
         new_df = self._df.merge(other._df, on=["q_id", "id"], suffixes=[None, "_other"])
-        if not early_stopping:
-            new_df["score"] = (
-                alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
-            )
-            result = Ranking(
-                new_df,
-                name=self.name,
-                dtype=self._df.dtypes["score"],
-                copy=False,
-                is_sorted=False,
-            )
-            if cutoff is not None:
-                return result.cut(cutoff)
-            return result
-
-        def _es(q_df):
-            heap = []
-            min_relevant_score = float("-inf")
-            max_score_other = float("-inf")
-            for id, score, score_other in zip(
-                q_df["id"], q_df["score"], q_df["score_other"]
-            ):
-                if len(heap) >= cutoff:
-                    # check if approximated max possible score is too low to make a difference
-                    min_relevant_score, min_relevant_id = heappop(heap)
-                    max_possible_score = alpha * score + (1 - alpha) * max_score_other
-
-                    # early stopping
-                    if max_possible_score <= min_relevant_score:
-                        heappush(heap, (min_relevant_score, min_relevant_id))
-                        break
-
-                max_score_other = max(max_score_other, score_other)
-                next_score = alpha * score + (1 - alpha) * score_other
-                if next_score > min_relevant_score:
-                    heappush(heap, (next_score, id))
-                else:
-                    heappush(heap, (min_relevant_score, min_relevant_id))
-            return reversed([heappop(heap) for _ in range(len(heap))])
-
-        q_dfs_out = []
-        for q_id in self.q_ids:
-            q_df = new_df[self._df["q_id"] == q_id]
-            q_df_out = pd.DataFrame(_es(q_df), columns=["score", "id"])
-            q_df_out["q_id"] = q_id
-            if "query" in q_df.columns:
-                q_df_out["query"] = q_df["query"].values[0]
-            q_dfs_out.append(q_df_out)
-
-        return Ranking(
-            pd.concat(q_dfs_out).reset_index(),
+        new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
+        result = Ranking(
+            new_df,
+            name=self.name,
             dtype=self._df.dtypes["score"],
             copy=False,
-            is_sorted=True,
+            is_sorted=False,
         )
+        return result
 
     def to_ir_measures_df(self) -> pd.DataFrame:
         """Return the ranking as a data frame suitable for the ir-measures library.

@@ -5,6 +5,7 @@ from time import perf_counter
 from typing import Iterable, List, Sequence, Set, Tuple, Union
 
 import numpy as np
+import pandas as pd
 
 from fast_forward.encoder import Encoder
 from fast_forward.ranking import Ranking
@@ -225,36 +226,25 @@ class Index(abc.ABC):
         """
         pass
 
-    def __call__(self, ranking: Ranking) -> Ranking:
-        """Compute scores for a ranking.
+    def _compute_scores(
+        self, df: pd.DataFrame, query_vectors: np.ndarray
+    ) -> pd.DataFrame:
+        """Computes scores for a data frame.
+        The input data frame needs a "q_no" column with unique query numbers.
 
         Args:
-            ranking (Ranking): The ranking to compute scores for. Must have queries attached.
+            df (pd.DataFrame): Input data frame.
+            query_vectors (np.ndarray): All query vectors indexed by "q_no".
 
         Returns:
-            Ranking: Ranking with the computed scores.
-
-        Raises:
-            ValueError: When the ranking has no queries attached.
+            pd.DataFrame: Data frame with computed scores.
         """
-        if not ranking.has_queries:
-            raise ValueError("Input ranking has no queries attached.")
-
-        t0 = perf_counter()
-        new_df = ranking._df.copy(deep=False)
-
         # map doc/passage IDs to unique numbers (0 to n)
-        id_df = new_df[["id"]].drop_duplicates().reset_index(drop=True)
+        id_df = df[["id"]].drop_duplicates().reset_index(drop=True)
         id_df["id_no"] = id_df.index
-        new_df = new_df.merge(id_df, on="id", suffixes=[None, "_"])
 
-        # get all unique queries and query IDs and map to unique numbers (0 to m)
-        query_df = new_df[["q_id", "query"]].drop_duplicates().reset_index(drop=True)
-        query_df["q_no"] = query_df.index
-        new_df = new_df.merge(query_df, on="q_id", suffixes=[None, "_"])
-
-        # batch encode queries
-        query_vectors = self.encode_queries(list(query_df["query"]))
+        # attach doc/passage numbers to data frame
+        df = df.merge(id_df, on="id", suffixes=[None, "_"]).reset_index(drop=True)
 
         # get all required vectors from the FF index
         vectors, id_to_vec_idxs = self._get_vectors(id_df["id"].to_list())
@@ -264,7 +254,7 @@ class Index(abc.ABC):
         select_vectors = []
         select_scores = []
         c = 0
-        for id_no, q_no in zip(new_df["id_no"], new_df["q_no"]):
+        for id_no, q_no in zip(df["id_no"], df["q_no"]):
             vec_idxs = id_to_vec_idxs[id_no]
             select_vectors.extend(vec_idxs)
             select_scores.append(list(range(c, c + len(vec_idxs))))
@@ -290,12 +280,129 @@ class Index(abc.ABC):
                 return np.nan
             return op(scores[select_scores[i]])
 
-        # insert scores in the correct rows
-        new_df["score"] = new_df.index.map(_mapfunc)
+        # insert FF scores in the correct rows
+        df["ff_score"] = df.index.map(_mapfunc)
+        return df
+
+    def _early_stopping(
+        self,
+        df: pd.DataFrame,
+        query_vectors: np.ndarray,
+        cutoff: int,
+        alpha: float,
+        intervals: Iterable[int],
+    ) -> pd.DataFrame:
+        """Compute scores with early stopping for a data frame.
+        The input data frame needs a "q_no" column with unique query numbers.
+
+        Args:
+            df (pd.DataFrame): Input data frame.
+            query_vectors (np.ndarray): All query vectors indexed by "q_no".
+            cutoff (int): Cut-off depth for early stopping.
+            alpha (float): Interpolation parameter.
+            intervals (Iterable[int]): Intervals do compute scores at.
+
+        Returns:
+            pd.DataFrame: Data frame with computed scores.
+        """
+
+        # remaining query IDs that do not meet the early stopping criterion yet
+        q_ids_left = pd.unique(df["q_id"])
+
+        # data frame for computed scores
+        scores_df = None
+
+        # a and b are the interval for which the scores are computed in each step
+        a = 0
+        for b in intervals:
+
+            # take the next chunk with b-a docs/passages for each query
+            chunk = df.loc[df["q_id"].isin(q_ids_left)].groupby("q_id").nth(range(a, b))
+
+            # stop if no pairs are left
+            if len(chunk) == 0:
+                break
+
+            # compute scores for the chunk and concat with scores_df
+            out = self._compute_scores(chunk, query_vectors)[["orig_index", "ff_score"]]
+            scores_df = out if scores_df is None else pd.concat([scores_df, out])
+
+            # join computed scores with other scores and compute interpolated scores
+            tmp_result = scores_df.join(
+                chunk, on="orig_index", lsuffix=None, rsuffix="_"
+            )
+            tmp_result["es_score"] = (
+                alpha * tmp_result["score"] + (1 - alpha) * tmp_result["ff_score"]
+            )
+
+            # identify which queries still do not meet the early stopping criterion
+            q_ids_left = (
+                tmp_result.groupby("q_id")
+                .filter(
+                    lambda g: g["es_score"].nlargest(cutoff).iat[-1]
+                    < alpha * g["score"].iat[-1] + (1 - alpha) * g["ff_score"].max()
+                )["q_id"]
+                .drop_duplicates()
+                .to_list()
+            )
+
+            a = b
+        return scores_df.join(df, on="orig_index", lsuffix=None, rsuffix="_")
+
+    def __call__(
+        self,
+        ranking: Ranking,
+        early_stopping: int = None,
+        early_stopping_alpha: float = None,
+        early_stopping_intervals: Iterable[int] = None,
+    ) -> Ranking:
+        """Compute scores for a ranking.
+
+        Args:
+            ranking (Ranking): The ranking to compute scores for. Must have queries attached.
+            early_stopping (int, optional): Perform early stopping at this cut-off depth. Defaults to None.
+            early_stopping_alpha (float, optional): Interpolation parameter for early stopping. Defaults to None.
+            early_stopping_intervals (Iterable[int], optional): Intervals for early stopping. Defaults to None.
+
+        Returns:
+            Ranking: Ranking with the computed scores.
+
+        Raises:
+            ValueError: When the ranking has no queries attached.
+        """
+        if not ranking.has_queries:
+            raise ValueError("Input ranking has no queries attached.")
+        t0 = perf_counter()
+
+        # get all unique queries and query IDs and map to unique numbers (0 to m)
+        query_df = (
+            ranking._df[["q_id", "query"]].drop_duplicates().reset_index(drop=True)
+        )
+        query_df["q_no"] = query_df.index
+
+        # attach query numbers to data frame
+        df = ranking._df.merge(query_df, on="q_id", suffixes=[None, "_"])
+
+        # batch encode queries
+        query_vectors = self.encode_queries(list(query_df["query"]))
+
+        if early_stopping is not None:
+            # early stopping splits the data frame, hence we need to keep track of the original index
+            df["orig_index"] = df.index
+            result = self._early_stopping(
+                df,
+                query_vectors,
+                early_stopping,
+                early_stopping_alpha,
+                early_stopping_intervals,
+            )
+        else:
+            result = self._compute_scores(df, query_vectors)
+        result["score"] = result["ff_score"]
 
         LOGGER.info("computed scores in %s seconds", perf_counter() - t0)
         return Ranking(
-            new_df,
+            result,
             name="fast-forward",
             dtype=ranking._df.dtypes["score"],
             copy=False,

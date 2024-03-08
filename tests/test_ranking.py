@@ -85,20 +85,6 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
 
-    def test_early_stopping(self):
-        r = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
-        df = r._df.copy()
-        df["score"] = [4.0, 5.0, 3.0, 2.0, 4.0, 3.0, 2.0]
-        df["score"] = r._df["score"].astype(np.float32)
-        r2 = Ranking(df)
-
-        for cutoff in (1, 2, 3):
-            res_es = r.interpolate(r2, 0.5, cutoff, early_stopping=True)
-            self.assertEqual(
-                r.interpolate(r2, 0.5, early_stopping=False).cut(cutoff), res_es
-            )
-            self.assertTrue(res_es.has_queries)
-
     def test_ir_measures_df(self):
         r = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
         df = r.to_ir_measures_df()
