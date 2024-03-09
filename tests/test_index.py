@@ -187,6 +187,15 @@ class TestIndex(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.doc_psg_index(ranking_no_queries)
 
+        with self.assertRaises(ValueError):
+            self.doc_psg_index(
+                DUMMY_DOC_RANKING, early_stopping=10, early_stopping_alpha=None
+            )
+        with self.assertRaises(ValueError):
+            self.doc_psg_index(
+                DUMMY_DOC_RANKING, early_stopping=10, early_stopping_intervals=None
+            )
+
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged
         create_coalesced_index(self.doc_index, self.coalesced_indexes[0], 0.3)
