@@ -41,6 +41,15 @@ class FFScore(pt.Transformer):
             suffixes=["_0", None],
         )
 
+    def __repr__(self) -> str:
+        """Return a string representation.
+        The representation is unique w.r.t. the index and its query encoder.
+
+        Returns:
+            str: The representation.
+        """
+        return f"{self.__class__.__name__}({id(self._index)}, {id(self._index._query_encoder)})"
+
 
 class FFInterpolate(pt.Transformer):
     """PyTerrier transformer that interpolates scores computed by `FFScore`."""
@@ -56,7 +65,8 @@ class FFInterpolate(pt.Transformer):
         super().__init__()
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Interpolate the scores for all query-document pairs in the data frame as alpha * score_0 + (1 - alpha) * score.
+        """Interpolate the scores for all query-document pairs in the data frame as
+        alpha * score_0 + (1 - alpha) * score.
 
         Args:
             df (pd.DataFrame): The PyTerrier data frame.
