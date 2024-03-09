@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 from fast_forward import InMemoryIndex, Mode, OnDiskIndex, Ranking
 from fast_forward.encoder import LambdaEncoder
@@ -195,6 +196,57 @@ class TestIndex(unittest.TestCase):
             self.doc_psg_index(
                 DUMMY_DOC_RANKING, early_stopping=10, early_stopping_intervals=None
             )
+
+    def test_early_stopping(self):
+        vectors = np.stack([[1, 0], [1, 1]] * 10)
+        psg_ids = [f"p{i}" for i in range(20)]
+        index = InMemoryIndex(
+            2, LambdaEncoder(lambda q: np.array([10, 10])), mode=Mode.PASSAGE
+        )
+        index.add(vectors, psg_ids=psg_ids)
+        r = Ranking(
+            pd.DataFrame(
+                [
+                    {"q_id": q, "query": q, "id": f"p{i}", "score": i}
+                    for i in range(20)
+                    for q in ("q1", "q2")
+                ]
+            )
+        )
+        self.assertEqual(
+            index(
+                r,
+                early_stopping=5,
+                early_stopping_alpha=0.5,
+                early_stopping_intervals=(2, 5, 10, 20),
+            ),
+            Ranking(
+                pd.DataFrame(
+                    [
+                        {"q_id": "q2", "id": "p19", "score": 20.0},
+                        {"q_id": "q2", "id": "p17", "score": 20.0},
+                        {"q_id": "q2", "id": "p15", "score": 20.0},
+                        {"q_id": "q2", "id": "p13", "score": 20.0},
+                        {"q_id": "q2", "id": "p11", "score": 20.0},
+                        {"q_id": "q2", "id": "p18", "score": 10.0},
+                        {"q_id": "q2", "id": "p16", "score": 10.0},
+                        {"q_id": "q2", "id": "p14", "score": 10.0},
+                        {"q_id": "q2", "id": "p12", "score": 10.0},
+                        {"q_id": "q2", "id": "p10", "score": 10.0},
+                        {"q_id": "q1", "id": "p19", "score": 20.0},
+                        {"q_id": "q1", "id": "p17", "score": 20.0},
+                        {"q_id": "q1", "id": "p15", "score": 20.0},
+                        {"q_id": "q1", "id": "p13", "score": 20.0},
+                        {"q_id": "q1", "id": "p11", "score": 20.0},
+                        {"q_id": "q1", "id": "p18", "score": 10.0},
+                        {"q_id": "q1", "id": "p16", "score": 10.0},
+                        {"q_id": "q1", "id": "p14", "score": 10.0},
+                        {"q_id": "q1", "id": "p12", "score": 10.0},
+                        {"q_id": "q1", "id": "p10", "score": 10.0},
+                    ]
+                )
+            ),
+        )
 
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged
