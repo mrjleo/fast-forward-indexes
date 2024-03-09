@@ -1,9 +1,25 @@
 from typing import Callable
 
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 
 from fast_forward.index import Index, Mode
+from fast_forward.ranking import Ranking
+
+
+def to_ir_measures(ranking: Ranking) -> pd.DataFrame:
+    """Return a ranking as a data frame suitable for the ir-measures library.
+
+    Args:
+        ranking (Ranking): The input ranking.
+
+    Returns:
+        pd.DataFrame: The data frame.
+    """
+    return ranking._df[["q_id", "id", "score"]].rename(
+        columns={"q_id": "query_id", "id": "doc_id"}
+    )
 
 
 def cos_dist(a: np.ndarray, b: np.ndarray) -> np.ndarray:

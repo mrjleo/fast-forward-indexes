@@ -227,16 +227,6 @@ class Ranking(object):
         )
         return result
 
-    def to_ir_measures_df(self) -> pd.DataFrame:
-        """Return the ranking as a data frame suitable for the ir-measures library.
-
-        Returns:
-            pd.DataFrame: The data frame.
-        """
-        return self._df[["q_id", "id", "score"]].rename(
-            columns={"q_id": "query_id", "id": "doc_id"}
-        )
-
     def save(
         self,
         target: Path,
