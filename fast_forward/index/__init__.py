@@ -305,16 +305,17 @@ class Index(abc.ABC):
         Returns:
             pd.DataFrame: Data frame with computed scores.
         """
-
         # remaining query IDs that do not meet the early stopping criterion yet
         q_ids_left = pd.unique(df["q_id"])
 
         # data frame for computed scores
-        scores_df = None
+        scores_so_far = None
 
         # a and b are the interval for which the scores are computed in each step
         a = 0
         for b in intervals:
+            if b < cutoff:
+                continue
 
             # take the next chunk with b-a docs/passages for each query
             chunk = df.loc[df["q_id"].isin(q_ids_left)].groupby("q_id").nth(range(a, b))
@@ -323,31 +324,37 @@ class Index(abc.ABC):
             if len(chunk) == 0:
                 break
 
-            # compute scores for the chunk and concat with scores_df
+            # compute scores for the chunk and join
             out = self._compute_scores(chunk, query_vectors)[["orig_index", "ff_score"]]
-            scores_df = out if scores_df is None else pd.concat([scores_df, out])
+            chunk_scores = chunk.merge(out, on="orig_index", suffixes=[None, "_"])
 
-            # join computed scores with other scores and compute interpolated scores
-            tmp_result = scores_df.join(
-                chunk, on="orig_index", lsuffix=None, rsuffix="_"
+            # compute interpolated scores
+            chunk_scores["int_score"] = (
+                alpha * chunk_scores["score"] + (1 - alpha) * chunk_scores["ff_score"]
             )
-            tmp_result["es_score"] = (
-                alpha * tmp_result["score"] + (1 - alpha) * tmp_result["ff_score"]
-            )
+
+            if scores_so_far is None:
+                scores_so_far = chunk_scores
+            else:
+                scores_so_far = pd.concat(
+                    [scores_so_far, chunk_scores],
+                    axis=0,
+                )
 
             # identify which queries still do not meet the early stopping criterion
             q_ids_left = (
-                tmp_result.groupby("q_id")
+                scores_so_far.groupby("q_id")
                 .filter(
-                    lambda g: g["es_score"].nlargest(cutoff).iat[-1]
+                    lambda g: g["int_score"].nlargest(cutoff).iat[-1]
                     < alpha * g["score"].iat[-1] + (1 - alpha) * g["ff_score"].max()
                 )["q_id"]
                 .drop_duplicates()
                 .to_list()
             )
+            LOGGER.info("depth %s: %s queries left", b, len(q_ids_left))
 
             a = b
-        return scores_df.join(df, on="orig_index", lsuffix=None, rsuffix="_")
+        return scores_so_far.join(df, on="orig_index", lsuffix=None, rsuffix="_")
 
     def __call__(
         self,
