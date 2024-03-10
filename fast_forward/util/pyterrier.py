@@ -74,6 +74,6 @@ class FFInterpolate(pt.Transformer):
         Returns:
             pd.DataFrame: A new data frame with the interpolated scores.
         """
-        new_df = df[["qid", "docno"]].copy()
+        new_df = df[["qid", "docno", "query"]].copy()
         new_df["score"] = self.alpha * df["score_0"] + (1 - self.alpha) * df["score"]
         return new_df
