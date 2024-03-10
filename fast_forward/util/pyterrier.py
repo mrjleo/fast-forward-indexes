@@ -66,7 +66,7 @@ class FFInterpolate(pt.Transformer):
 
     def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """Interpolate the scores for all query-document pairs in the data frame as
-        alpha * score_0 + (1 - alpha) * score.
+        `alpha * score_0 + (1 - alpha) * score`.
 
         Args:
             df (pd.DataFrame): The PyTerrier data frame.

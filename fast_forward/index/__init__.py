@@ -185,7 +185,7 @@ class Index(abc.ABC):
         psg_ids: Sequence[str] = None,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
-        Only one of doc_ids and psg_ids may be None.
+        Only one of `doc_ids` and `psg_ids` may be None.
 
         Args:
             vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.

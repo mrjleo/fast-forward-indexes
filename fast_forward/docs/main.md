@@ -71,7 +71,7 @@ first_stage_ranking.interpolate(out, 0.1).save(Path("/path/to/output/run.tsv"))
 ## How to...
 
 - [create and use Fast-Forward indexes?](fast_forward/index.html)
-- [index a document collection?](fast_forward/indexer.html)
+- [index a collection?](fast_forward/indexer.html)
 - [create custom encoders?](fast_forward/encoder.html#custom-encoders)
 - [read, manipulate, and save rankings?](fast_forward/ranking.html)
 - [use Fast-Forward indexes with PyTerrier?](fast_forward/util.html#pyterrier-transformers)
