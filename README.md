@@ -14,7 +14,7 @@ pip install fast-forward-indexes
 
 ## Getting Started
 
-Using a Fast-Forward index is as simple as providing a TREC run with sparse scores:
+Using a Fast-Forward index is as simple as providing a TREC run with retrieval scores:
 
 ```python
 from pathlib import Path
