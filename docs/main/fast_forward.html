@@ -25,14 +25,9 @@
             <ul>
   <li><a href="#features">Features</a></li>
   <li><a href="#installation">Installation</a></li>
-  <li><a href="#getting-started">Getting started</a></li>
-  <li><a href="#guides">Guides</a>
+  <li><a href="#getting-started">Getting started</a>
   <ul>
-    <li><a href="#creating-an-index">Creating an index</a></li>
-    <li><a href="#using-an-index">Using an index</a></li>
-    <li><a href="#retrieval-modes">Retrieval modes</a></li>
-    <li><a href="#custom-query-encoders">Custom query encoders</a></li>
-    <li><a href="#sequential-coalescing">Sequential coalescing</a></li>
+    <li><a href="#how-to">How to...</a></li>
   </ul></li>
 </ul>
 
@@ -72,10 +67,10 @@ fast_forward    </h1>
 
 <ul>
 <li>Efficient look-up-based computation of semantic ranking scores</li>
-<li>Interpolation of lexical (sparse) and semantic (dense) scores</li>
+<li>Interpolation of lexical (retrieval) and semantic (re-ranking) scores</li>
 <li>Passage- and document-level ranking, including MaxP, FirstP, and AverageP</li>
-<li>_Early stopping_ of interpolation based on approximated scores</li>
-<li>Index compression via _sequential coalescing_</li>
+<li>Early stopping for limiting index look-ups</li>
+<li>Index compression via sequential coalescing</li>
 </ul>
 
 <h1 id="installation">Installation</h1>
@@ -140,86 +135,15 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </code></pre>
 </div>
 
-<h1 id="guides">Guides</h1>
-
-<p>This section contains guides for the most important features.</p>
-
-<h2 id="creating-an-index">Creating an index</h2>
-
-<p>Creating a Fast-Forward index is simple. The following snippet illustrates how to create a <code><a href="fast_forward/index/disk.html#OnDiskIndex">fast_forward.index.disk.OnDiskIndex</a></code> object (given a <code>fast_forward.encoder.QueryEncoder</code>, <code>my_query_encoder</code>) and add some representations to it:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_index.h5&quot;</span><span class="p">),</span> <span class="mi">768</span><span class="p">,</span> <span class="n">my_query_encoder</span><span class="p">)</span>
-<span class="n">my_index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-    <span class="n">my_vectors</span><span class="p">,</span>  <span class="c1"># shape (3, 768)</span>
-    <span class="n">doc_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;d1&quot;</span><span class="p">,</span> <span class="s2">&quot;d1&quot;</span><span class="p">,</span> <span class="s2">&quot;d2&quot;</span><span class="p">],</span>
-    <span class="n">psg_ids</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;d1_p1&quot;</span><span class="p">,</span> <span class="s2">&quot;d1_p2&quot;</span><span class="p">,</span> <span class="s2">&quot;d2_p1&quot;</span><span class="p">]</span>
-<span class="p">)</span>
-</code></pre>
-</div>
-
-<p>Here, <code>my_vectors</code> is a Numpy array of shape <code>(3, dim)</code>. The first two vectors correspond to two passages of the document <code>d1</code>, the third vector corresponds to <code>d2</code>, which has only a single passage. It is also possible to provide either only document IDs or only passage IDs.</p>
-
-<p>The index can then be subsequently loaded back using <code><a href="fast_forward/index/disk.html#OnDiskIndex.load">fast_forward.index.disk.OnDiskIndex.load</a></code>.</p>
-
-<h2 id="using-an-index">Using an index</h2>
-
-<p>The usage of a Fast-Forward index is handled by <code>fast_forward.index.Index.__call__</code>. It requires a ranking (typically from a sparse retriever) with the corresponding queries:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/sparse/run.tsv&quot;</span><span class="p">),</span> <span class="n">queries</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">my_index</span><span class="p">(</span><span class="n">ranking</span><span class="p">)</span>
-</code></pre>
-</div>
-
-<p>Here, <code>queries</code> is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, <code>result</code>, has the semantic scores for the query-document (or query-passage) pairs. The individual scores (i.e., retrieval and re-ranking) can be interpolated using <code>Ranking.interpolate</code>:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">interpolated_ranking</span> <span class="o">=</span> <span class="n">ranking</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-</code></pre>
-</div>
-
-<h2 id="retrieval-modes">Retrieval modes</h2>
-
-<p>Each index has a retrieval mode (<code><a href="fast_forward/index.html#Mode">fast_forward.index.Mode</a></code>). The active mode influences the way scores are computed (<code>fast_forward.index.Index.__call__</code>). For example, consider the <a href="#creating-an-index">example index from earlier</a>. Setting the mode to <code><a href="fast_forward/index.html#Mode.PASSAGE">fast_forward.index.Mode.PASSAGE</a></code> will cause the index to compute scores on the passage level (and expect passage IDs in the input ranking):</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">my_index</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span>
-</code></pre>
-</div>
-
-<p>Similarly, the index can return document IDs, where the score of a document computes as</p>
+<h2 id="how-to">How to...</h2>
 
 <ul>
-<li>the highest score of its passages (<code><a href="fast_forward/index.html#Mode.MAXP">fast_forward.index.Mode.MAXP</a></code>),</li>
-<li>the score of the its first passage (<code><a href="fast_forward/index.html#Mode.FIRSTP">fast_forward.index.Mode.FIRSTP</a></code>) or</li>
-<li>the average score of all its passages (<code><a href="fast_forward/index.html#Mode.AVEP">fast_forward.index.Mode.AVEP</a></code>).</li>
+<li><a href="fast_forward/index.html">create and use Fast-Forward indexes?</a></li>
+<li><a href="fast_forward/indexer.html">index a document collection?</a></li>
+<li><a href="fast_forward/encoder.html#custom-encoders">create custom encoders?</a></li>
+<li><a href="fast_forward/ranking.html">read, manipulate, and save rankings?</a></li>
+<li><a href="fast_forward/util.html#pyterrier-transformers">use Fast-Forward indexes with PyTerrier?</a></li>
 </ul>
-
-<h2 id="custom-query-encoders">Custom query encoders</h2>
-
-<p>Custom query encoders can easily be implemented. The preferred way to do this is by subclassing <code>fast_forward.encoder.QueryEncoder</code> and overriding the <code>fast_forward.encoder.QueryEncoder.encode</code> method. This allows the new query encoder to make use of batch encoding.</p>
-
-<p>Alternatively, one can use the <code>fast_forward.encoder.LambdaQueryEncoder</code> class, which wraps a function that encodes a single query. The following example shows how to do this with a <a href="https://github.com/castorini/pyserini">Pyserini</a> query encoder:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">pyserini_encoder</span> <span class="o">=</span> <span class="n">pyserini</span><span class="o">.</span><span class="n">dsearch</span><span class="o">.</span><span class="n">AnceQueryEncoder</span><span class="p">(</span><span class="s2">&quot;castorini/ance-msmarco-passage&quot;</span><span class="p">)</span>
-<span class="n">my_encoder</span> <span class="o">=</span> <span class="n">LambdaQueryEncoder</span><span class="p">(</span><span class="n">pyserini_encoder</span><span class="o">.</span><span class="n">encode</span><span class="p">)</span>
-</code></pre>
-</div>
-
-<p>Note that this method is usually less efficient, as the queries are encoded one by one rather than in batches.</p>
-
-<h2 id="sequential-coalescing">Sequential coalescing</h2>
-
-<p>The sequential coalescing algorithm is a compression technique for indexes with multiple representations per document. It is implemented as <code><a href="fast_forward/util.html#create_coalesced_index">fast_forward.util.create_coalesced_index</a></code>. Example usage:</p>
-
-<div class="pdoc-code codehilite">
-<pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/index.h5&quot;</span><span class="p">))</span>
-<span class="n">coalesced_index</span> <span class="o">=</span> <span class="n">InMemoryIndex</span><span class="p">(</span><span class="mi">768</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">)</span>
-<span class="n">create_coalesced_index</span><span class="p">(</span><span class="n">my_index</span><span class="p">,</span> <span class="n">coalesced_index</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">)</span>
-</code></pre>
-</div>
 </div>
 
                         <input id="mod-fast_forward-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
