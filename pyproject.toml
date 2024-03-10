@@ -21,6 +21,11 @@ dependencies = [
     "tqdm",
     "h5py>=3.0.0",
 ]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+]
 
 [project.optional-dependencies]
 pyterrier = ["python-terrier>=0.10.0"]
