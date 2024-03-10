@@ -89,7 +89,7 @@
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;PyTerrier transformer that computes scores using a Fast-Forward index.&quot;&quot;&quot;</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an FFScore transformer.</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">        Args:</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">            index (Index): The Fast-Forward index.</span>
@@ -135,7 +135,7 @@
 </span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;PyTerrier transformer that interpolates scores computed by `FFScore`.&quot;&quot;&quot;</span>
 </span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>
 </span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an FFInterpolate transformer.</span>
 </span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
 </span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="sd">        Args:</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="sd">            alpha (float): The interpolation parameter.</span>
@@ -146,7 +146,7 @@
 </span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>
 </span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate the scores for all query-document pairs in the data frame as</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a><span class="sd">        alpha * score_0 + (1 - alpha) * score.</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a><span class="sd">        `alpha * score_0 + (1 - alpha) * score`.</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>
 </span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="sd">        Args:</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a><span class="sd">            df (pd.DataFrame): The PyTerrier data frame.</span>
@@ -176,7 +176,7 @@
 </span><span id="FFScore-10"><a href="#FFScore-10"><span class="linenos">10</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;PyTerrier transformer that computes scores using a Fast-Forward index.&quot;&quot;&quot;</span>
 </span><span id="FFScore-11"><a href="#FFScore-11"><span class="linenos">11</span></a>
 </span><span id="FFScore-12"><a href="#FFScore-12"><span class="linenos">12</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="FFScore-13"><a href="#FFScore-13"><span class="linenos">13</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="FFScore-13"><a href="#FFScore-13"><span class="linenos">13</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an FFScore transformer.</span>
 </span><span id="FFScore-14"><a href="#FFScore-14"><span class="linenos">14</span></a>
 </span><span id="FFScore-15"><a href="#FFScore-15"><span class="linenos">15</span></a><span class="sd">        Args:</span>
 </span><span id="FFScore-16"><a href="#FFScore-16"><span class="linenos">16</span></a><span class="sd">            index (Index): The Fast-Forward index.</span>
@@ -234,7 +234,7 @@
     </div>
     <a class="headerlink" href="#FFScore.__init__"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="FFScore.__init__-12"><a href="#FFScore.__init__-12"><span class="linenos">12</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="FFScore.__init__-13"><a href="#FFScore.__init__-13"><span class="linenos">13</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="FFScore.__init__-13"><a href="#FFScore.__init__-13"><span class="linenos">13</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an FFScore transformer.</span>
 </span><span id="FFScore.__init__-14"><a href="#FFScore.__init__-14"><span class="linenos">14</span></a>
 </span><span id="FFScore.__init__-15"><a href="#FFScore.__init__-15"><span class="linenos">15</span></a><span class="sd">        Args:</span>
 </span><span id="FFScore.__init__-16"><a href="#FFScore.__init__-16"><span class="linenos">16</span></a><span class="sd">            index (Index): The Fast-Forward index.</span>
@@ -244,7 +244,7 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Constructor.</p>
+            <div class="docstring"><p>Create an FFScore transformer.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -344,7 +344,7 @@ The previous scores are moved to the "score_0" column.</p>
 </span><span id="FFInterpolate-56"><a href="#FFInterpolate-56"><span class="linenos">56</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;PyTerrier transformer that interpolates scores computed by `FFScore`.&quot;&quot;&quot;</span>
 </span><span id="FFInterpolate-57"><a href="#FFInterpolate-57"><span class="linenos">57</span></a>
 </span><span id="FFInterpolate-58"><a href="#FFInterpolate-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="FFInterpolate-59"><a href="#FFInterpolate-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="FFInterpolate-59"><a href="#FFInterpolate-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an FFInterpolate transformer.</span>
 </span><span id="FFInterpolate-60"><a href="#FFInterpolate-60"><span class="linenos">60</span></a>
 </span><span id="FFInterpolate-61"><a href="#FFInterpolate-61"><span class="linenos">61</span></a><span class="sd">        Args:</span>
 </span><span id="FFInterpolate-62"><a href="#FFInterpolate-62"><span class="linenos">62</span></a><span class="sd">            alpha (float): The interpolation parameter.</span>
@@ -355,7 +355,7 @@ The previous scores are moved to the "score_0" column.</p>
 </span><span id="FFInterpolate-67"><a href="#FFInterpolate-67"><span class="linenos">67</span></a>
 </span><span id="FFInterpolate-68"><a href="#FFInterpolate-68"><span class="linenos">68</span></a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="FFInterpolate-69"><a href="#FFInterpolate-69"><span class="linenos">69</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate the scores for all query-document pairs in the data frame as</span>
-</span><span id="FFInterpolate-70"><a href="#FFInterpolate-70"><span class="linenos">70</span></a><span class="sd">        alpha * score_0 + (1 - alpha) * score.</span>
+</span><span id="FFInterpolate-70"><a href="#FFInterpolate-70"><span class="linenos">70</span></a><span class="sd">        `alpha * score_0 + (1 - alpha) * score`.</span>
 </span><span id="FFInterpolate-71"><a href="#FFInterpolate-71"><span class="linenos">71</span></a>
 </span><span id="FFInterpolate-72"><a href="#FFInterpolate-72"><span class="linenos">72</span></a><span class="sd">        Args:</span>
 </span><span id="FFInterpolate-73"><a href="#FFInterpolate-73"><span class="linenos">73</span></a><span class="sd">            df (pd.DataFrame): The PyTerrier data frame.</span>
@@ -384,7 +384,7 @@ The previous scores are moved to the "score_0" column.</p>
     </div>
     <a class="headerlink" href="#FFInterpolate.__init__"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="FFInterpolate.__init__-58"><a href="#FFInterpolate.__init__-58"><span class="linenos">58</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="FFInterpolate.__init__-59"><a href="#FFInterpolate.__init__-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="FFInterpolate.__init__-59"><a href="#FFInterpolate.__init__-59"><span class="linenos">59</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an FFInterpolate transformer.</span>
 </span><span id="FFInterpolate.__init__-60"><a href="#FFInterpolate.__init__-60"><span class="linenos">60</span></a>
 </span><span id="FFInterpolate.__init__-61"><a href="#FFInterpolate.__init__-61"><span class="linenos">61</span></a><span class="sd">        Args:</span>
 </span><span id="FFInterpolate.__init__-62"><a href="#FFInterpolate.__init__-62"><span class="linenos">62</span></a><span class="sd">            alpha (float): The interpolation parameter.</span>
@@ -395,7 +395,7 @@ The previous scores are moved to the "score_0" column.</p>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Constructor.</p>
+            <div class="docstring"><p>Create an FFInterpolate transformer.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -430,7 +430,7 @@ The previous scores are moved to the "score_0" column.</p>
     <a class="headerlink" href="#FFInterpolate.transform"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="FFInterpolate.transform-68"><a href="#FFInterpolate.transform-68"><span class="linenos">68</span></a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="FFInterpolate.transform-69"><a href="#FFInterpolate.transform-69"><span class="linenos">69</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate the scores for all query-document pairs in the data frame as</span>
-</span><span id="FFInterpolate.transform-70"><a href="#FFInterpolate.transform-70"><span class="linenos">70</span></a><span class="sd">        alpha * score_0 + (1 - alpha) * score.</span>
+</span><span id="FFInterpolate.transform-70"><a href="#FFInterpolate.transform-70"><span class="linenos">70</span></a><span class="sd">        `alpha * score_0 + (1 - alpha) * score`.</span>
 </span><span id="FFInterpolate.transform-71"><a href="#FFInterpolate.transform-71"><span class="linenos">71</span></a>
 </span><span id="FFInterpolate.transform-72"><a href="#FFInterpolate.transform-72"><span class="linenos">72</span></a><span class="sd">        Args:</span>
 </span><span id="FFInterpolate.transform-73"><a href="#FFInterpolate.transform-73"><span class="linenos">73</span></a><span class="sd">            df (pd.DataFrame): The PyTerrier data frame.</span>
@@ -445,7 +445,7 @@ The previous scores are moved to the "score_0" column.</p>
 
 
             <div class="docstring"><p>Interpolate the scores for all query-document pairs in the data frame as
-alpha * score_0 + (1 - alpha) * score.</p>
+<code>alpha * score_0 + (1 - alpha) * score</code>.</p>
 
 <h6 id="arguments">Arguments:</h6>
 

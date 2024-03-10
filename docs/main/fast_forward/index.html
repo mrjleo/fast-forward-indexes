@@ -239,7 +239,7 @@
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span><span class="p">,</span>
 </span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a><span class="sd">        Args:</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="sd">            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.</span>
@@ -277,7 +277,7 @@
 </span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the query encoder.</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>
 </span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a><span class="sd">        Returns:</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">            Encoder: The encoder.</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">            Encoder: The query encoder.</span>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_encoder</span>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
@@ -286,26 +286,26 @@
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the query encoder.</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        Args:</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">            encoder (Encoder): The encoder.</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">            encoder (Encoder): The query encoder.</span>
 </span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="k">assert</span> <span class="n">encoder</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">Encoder</span><span class="p">)</span>
 </span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_query_encoder</span> <span class="o">=</span> <span class="n">encoder</span>
 </span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="nd">@property</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mode</span><span class="p">:</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the indexing mode.</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ranking mode.</span>
 </span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">        Returns:</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">            Mode: The mode.</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">            Mode: The ranking mode.</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span>
 </span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>    <span class="nd">@mode</span><span class="o">.</span><span class="n">setter</span>
 </span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the indexing mode.</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the ranking mode.</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
 </span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        Args:</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">            mode (Mode): The indexing mode.</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">            mode (Mode): The ranking mode.</span>
 </span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">Mode</span><span class="p">)</span>
 </span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
@@ -361,7 +361,7 @@
 </span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of vectors in the index.</span>
 </span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
 </span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">        Returns:</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">            int: The number of vectors.</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">            int: The index size.</span>
 </span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>        <span class="k">pass</span>
 </span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>
@@ -372,11 +372,11 @@
 </span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
 </span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
 </span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index. Each vector is guaranteed to</span>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a><span class="sd">        have either a document or passage ID associated.</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a><span class="sd">        Each vector is guaranteed to have either a document or passage ID associated.</span>
 </span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>
 </span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="sd">        Args:</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">            vectors (np.ndarray): The representations, shape (num_vectors, dim).</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
 </span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a><span class="sd">            doc_ids (Union[Sequence[str], None]): The corresponding document IDs (may be duplicate).</span>
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a><span class="sd">            psg_ids (Union[Sequence[str], None]): The corresponding passage IDs (must be unique).</span>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a><span class="sd">        &quot;&quot;&quot;</span>
@@ -388,11 +388,11 @@
 </span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index. Only one of `doc_ids` and `psg_ids`</span>
-</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="sd">        may be None.</span>
+</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
+</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="sd">        Only one of `doc_ids` and `psg_ids` may be None.</span>
 </span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>
 </span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a><span class="sd">        Args:</span>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">            vectors (np.ndarray): The representations, shape (num_vectors, dim).</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
 </span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">            doc_id (Sequence[str], optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a><span class="sd">            psg_id (Sequence[str], optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>
@@ -508,7 +508,7 @@
 </span><span id="L-304"><a href="#L-304"><span class="linenos">304</span></a><span class="sd">            query_vectors (np.ndarray): All query vectors indexed by &quot;q_no&quot;.</span>
 </span><span id="L-305"><a href="#L-305"><span class="linenos">305</span></a><span class="sd">            cutoff (int): Cut-off depth for early stopping.</span>
 </span><span id="L-306"><a href="#L-306"><span class="linenos">306</span></a><span class="sd">            alpha (float): Interpolation parameter.</span>
-</span><span id="L-307"><a href="#L-307"><span class="linenos">307</span></a><span class="sd">            intervals (Iterable[int]): Intervals do compute scores at.</span>
+</span><span id="L-307"><a href="#L-307"><span class="linenos">307</span></a><span class="sd">            intervals (Iterable[int]): Depths to compute scores at.</span>
 </span><span id="L-308"><a href="#L-308"><span class="linenos">308</span></a>
 </span><span id="L-309"><a href="#L-309"><span class="linenos">309</span></a><span class="sd">        Returns:</span>
 </span><span id="L-310"><a href="#L-310"><span class="linenos">310</span></a><span class="sd">            pd.DataFrame: Data frame with computed scores.</span>
@@ -748,7 +748,7 @@
 </span><span id="Index-36"><a href="#Index-36"><span class="linenos"> 36</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span><span class="p">,</span>
 </span><span id="Index-37"><a href="#Index-37"><span class="linenos"> 37</span></a>        <span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
 </span><span id="Index-38"><a href="#Index-38"><span class="linenos"> 38</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Index-39"><a href="#Index-39"><span class="linenos"> 39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="Index-39"><a href="#Index-39"><span class="linenos"> 39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
 </span><span id="Index-40"><a href="#Index-40"><span class="linenos"> 40</span></a>
 </span><span id="Index-41"><a href="#Index-41"><span class="linenos"> 41</span></a><span class="sd">        Args:</span>
 </span><span id="Index-42"><a href="#Index-42"><span class="linenos"> 42</span></a><span class="sd">            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.</span>
@@ -786,7 +786,7 @@
 </span><span id="Index-74"><a href="#Index-74"><span class="linenos"> 74</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the query encoder.</span>
 </span><span id="Index-75"><a href="#Index-75"><span class="linenos"> 75</span></a>
 </span><span id="Index-76"><a href="#Index-76"><span class="linenos"> 76</span></a><span class="sd">        Returns:</span>
-</span><span id="Index-77"><a href="#Index-77"><span class="linenos"> 77</span></a><span class="sd">            Encoder: The encoder.</span>
+</span><span id="Index-77"><a href="#Index-77"><span class="linenos"> 77</span></a><span class="sd">            Encoder: The query encoder.</span>
 </span><span id="Index-78"><a href="#Index-78"><span class="linenos"> 78</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index-79"><a href="#Index-79"><span class="linenos"> 79</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_encoder</span>
 </span><span id="Index-80"><a href="#Index-80"><span class="linenos"> 80</span></a>
@@ -795,26 +795,26 @@
 </span><span id="Index-83"><a href="#Index-83"><span class="linenos"> 83</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the query encoder.</span>
 </span><span id="Index-84"><a href="#Index-84"><span class="linenos"> 84</span></a>
 </span><span id="Index-85"><a href="#Index-85"><span class="linenos"> 85</span></a><span class="sd">        Args:</span>
-</span><span id="Index-86"><a href="#Index-86"><span class="linenos"> 86</span></a><span class="sd">            encoder (Encoder): The encoder.</span>
+</span><span id="Index-86"><a href="#Index-86"><span class="linenos"> 86</span></a><span class="sd">            encoder (Encoder): The query encoder.</span>
 </span><span id="Index-87"><a href="#Index-87"><span class="linenos"> 87</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index-88"><a href="#Index-88"><span class="linenos"> 88</span></a>        <span class="k">assert</span> <span class="n">encoder</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">Encoder</span><span class="p">)</span>
 </span><span id="Index-89"><a href="#Index-89"><span class="linenos"> 89</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_query_encoder</span> <span class="o">=</span> <span class="n">encoder</span>
 </span><span id="Index-90"><a href="#Index-90"><span class="linenos"> 90</span></a>
 </span><span id="Index-91"><a href="#Index-91"><span class="linenos"> 91</span></a>    <span class="nd">@property</span>
 </span><span id="Index-92"><a href="#Index-92"><span class="linenos"> 92</span></a>    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mode</span><span class="p">:</span>
-</span><span id="Index-93"><a href="#Index-93"><span class="linenos"> 93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the indexing mode.</span>
+</span><span id="Index-93"><a href="#Index-93"><span class="linenos"> 93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ranking mode.</span>
 </span><span id="Index-94"><a href="#Index-94"><span class="linenos"> 94</span></a>
 </span><span id="Index-95"><a href="#Index-95"><span class="linenos"> 95</span></a><span class="sd">        Returns:</span>
-</span><span id="Index-96"><a href="#Index-96"><span class="linenos"> 96</span></a><span class="sd">            Mode: The mode.</span>
+</span><span id="Index-96"><a href="#Index-96"><span class="linenos"> 96</span></a><span class="sd">            Mode: The ranking mode.</span>
 </span><span id="Index-97"><a href="#Index-97"><span class="linenos"> 97</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index-98"><a href="#Index-98"><span class="linenos"> 98</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span>
 </span><span id="Index-99"><a href="#Index-99"><span class="linenos"> 99</span></a>
 </span><span id="Index-100"><a href="#Index-100"><span class="linenos">100</span></a>    <span class="nd">@mode</span><span class="o">.</span><span class="n">setter</span>
 </span><span id="Index-101"><a href="#Index-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Index-102"><a href="#Index-102"><span class="linenos">102</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the indexing mode.</span>
+</span><span id="Index-102"><a href="#Index-102"><span class="linenos">102</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the ranking mode.</span>
 </span><span id="Index-103"><a href="#Index-103"><span class="linenos">103</span></a>
 </span><span id="Index-104"><a href="#Index-104"><span class="linenos">104</span></a><span class="sd">        Args:</span>
-</span><span id="Index-105"><a href="#Index-105"><span class="linenos">105</span></a><span class="sd">            mode (Mode): The indexing mode.</span>
+</span><span id="Index-105"><a href="#Index-105"><span class="linenos">105</span></a><span class="sd">            mode (Mode): The ranking mode.</span>
 </span><span id="Index-106"><a href="#Index-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index-107"><a href="#Index-107"><span class="linenos">107</span></a>        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">Mode</span><span class="p">)</span>
 </span><span id="Index-108"><a href="#Index-108"><span class="linenos">108</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
@@ -870,7 +870,7 @@
 </span><span id="Index-158"><a href="#Index-158"><span class="linenos">158</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of vectors in the index.</span>
 </span><span id="Index-159"><a href="#Index-159"><span class="linenos">159</span></a>
 </span><span id="Index-160"><a href="#Index-160"><span class="linenos">160</span></a><span class="sd">        Returns:</span>
-</span><span id="Index-161"><a href="#Index-161"><span class="linenos">161</span></a><span class="sd">            int: The number of vectors.</span>
+</span><span id="Index-161"><a href="#Index-161"><span class="linenos">161</span></a><span class="sd">            int: The index size.</span>
 </span><span id="Index-162"><a href="#Index-162"><span class="linenos">162</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index-163"><a href="#Index-163"><span class="linenos">163</span></a>        <span class="k">pass</span>
 </span><span id="Index-164"><a href="#Index-164"><span class="linenos">164</span></a>
@@ -881,11 +881,11 @@
 </span><span id="Index-169"><a href="#Index-169"><span class="linenos">169</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
 </span><span id="Index-170"><a href="#Index-170"><span class="linenos">170</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span>
 </span><span id="Index-171"><a href="#Index-171"><span class="linenos">171</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Index-172"><a href="#Index-172"><span class="linenos">172</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index. Each vector is guaranteed to</span>
-</span><span id="Index-173"><a href="#Index-173"><span class="linenos">173</span></a><span class="sd">        have either a document or passage ID associated.</span>
+</span><span id="Index-172"><a href="#Index-172"><span class="linenos">172</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
+</span><span id="Index-173"><a href="#Index-173"><span class="linenos">173</span></a><span class="sd">        Each vector is guaranteed to have either a document or passage ID associated.</span>
 </span><span id="Index-174"><a href="#Index-174"><span class="linenos">174</span></a>
 </span><span id="Index-175"><a href="#Index-175"><span class="linenos">175</span></a><span class="sd">        Args:</span>
-</span><span id="Index-176"><a href="#Index-176"><span class="linenos">176</span></a><span class="sd">            vectors (np.ndarray): The representations, shape (num_vectors, dim).</span>
+</span><span id="Index-176"><a href="#Index-176"><span class="linenos">176</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
 </span><span id="Index-177"><a href="#Index-177"><span class="linenos">177</span></a><span class="sd">            doc_ids (Union[Sequence[str], None]): The corresponding document IDs (may be duplicate).</span>
 </span><span id="Index-178"><a href="#Index-178"><span class="linenos">178</span></a><span class="sd">            psg_ids (Union[Sequence[str], None]): The corresponding passage IDs (must be unique).</span>
 </span><span id="Index-179"><a href="#Index-179"><span class="linenos">179</span></a><span class="sd">        &quot;&quot;&quot;</span>
@@ -897,11 +897,11 @@
 </span><span id="Index-185"><a href="#Index-185"><span class="linenos">185</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index-186"><a href="#Index-186"><span class="linenos">186</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index-187"><a href="#Index-187"><span class="linenos">187</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Index-188"><a href="#Index-188"><span class="linenos">188</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index. Only one of `doc_ids` and `psg_ids`</span>
-</span><span id="Index-189"><a href="#Index-189"><span class="linenos">189</span></a><span class="sd">        may be None.</span>
+</span><span id="Index-188"><a href="#Index-188"><span class="linenos">188</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
+</span><span id="Index-189"><a href="#Index-189"><span class="linenos">189</span></a><span class="sd">        Only one of `doc_ids` and `psg_ids` may be None.</span>
 </span><span id="Index-190"><a href="#Index-190"><span class="linenos">190</span></a>
 </span><span id="Index-191"><a href="#Index-191"><span class="linenos">191</span></a><span class="sd">        Args:</span>
-</span><span id="Index-192"><a href="#Index-192"><span class="linenos">192</span></a><span class="sd">            vectors (np.ndarray): The representations, shape (num_vectors, dim).</span>
+</span><span id="Index-192"><a href="#Index-192"><span class="linenos">192</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
 </span><span id="Index-193"><a href="#Index-193"><span class="linenos">193</span></a><span class="sd">            doc_id (Sequence[str], optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
 </span><span id="Index-194"><a href="#Index-194"><span class="linenos">194</span></a><span class="sd">            psg_id (Sequence[str], optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
 </span><span id="Index-195"><a href="#Index-195"><span class="linenos">195</span></a>
@@ -1017,7 +1017,7 @@
 </span><span id="Index-305"><a href="#Index-305"><span class="linenos">305</span></a><span class="sd">            query_vectors (np.ndarray): All query vectors indexed by &quot;q_no&quot;.</span>
 </span><span id="Index-306"><a href="#Index-306"><span class="linenos">306</span></a><span class="sd">            cutoff (int): Cut-off depth for early stopping.</span>
 </span><span id="Index-307"><a href="#Index-307"><span class="linenos">307</span></a><span class="sd">            alpha (float): Interpolation parameter.</span>
-</span><span id="Index-308"><a href="#Index-308"><span class="linenos">308</span></a><span class="sd">            intervals (Iterable[int]): Intervals do compute scores at.</span>
+</span><span id="Index-308"><a href="#Index-308"><span class="linenos">308</span></a><span class="sd">            intervals (Iterable[int]): Depths to compute scores at.</span>
 </span><span id="Index-309"><a href="#Index-309"><span class="linenos">309</span></a>
 </span><span id="Index-310"><a href="#Index-310"><span class="linenos">310</span></a><span class="sd">        Returns:</span>
 </span><span id="Index-311"><a href="#Index-311"><span class="linenos">311</span></a><span class="sd">            pd.DataFrame: Data frame with computed scores.</span>
@@ -1160,7 +1160,7 @@
 </span><span id="Index.__init__-36"><a href="#Index.__init__-36"><span class="linenos">36</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span><span class="p">,</span>
 </span><span id="Index.__init__-37"><a href="#Index.__init__-37"><span class="linenos">37</span></a>        <span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
 </span><span id="Index.__init__-38"><a href="#Index.__init__-38"><span class="linenos">38</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Index.__init__-39"><a href="#Index.__init__-39"><span class="linenos">39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="Index.__init__-39"><a href="#Index.__init__-39"><span class="linenos">39</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
 </span><span id="Index.__init__-40"><a href="#Index.__init__-40"><span class="linenos">40</span></a>
 </span><span id="Index.__init__-41"><a href="#Index.__init__-41"><span class="linenos">41</span></a><span class="sd">        Args:</span>
 </span><span id="Index.__init__-42"><a href="#Index.__init__-42"><span class="linenos">42</span></a><span class="sd">            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.</span>
@@ -1174,7 +1174,7 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Constructor.</p>
+            <div class="docstring"><p>Create an index.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -1201,7 +1201,7 @@
 </span><span id="Index.query_encoder-74"><a href="#Index.query_encoder-74"><span class="linenos">74</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the query encoder.</span>
 </span><span id="Index.query_encoder-75"><a href="#Index.query_encoder-75"><span class="linenos">75</span></a>
 </span><span id="Index.query_encoder-76"><a href="#Index.query_encoder-76"><span class="linenos">76</span></a><span class="sd">        Returns:</span>
-</span><span id="Index.query_encoder-77"><a href="#Index.query_encoder-77"><span class="linenos">77</span></a><span class="sd">            Encoder: The encoder.</span>
+</span><span id="Index.query_encoder-77"><a href="#Index.query_encoder-77"><span class="linenos">77</span></a><span class="sd">            Encoder: The query encoder.</span>
 </span><span id="Index.query_encoder-78"><a href="#Index.query_encoder-78"><span class="linenos">78</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index.query_encoder-79"><a href="#Index.query_encoder-79"><span class="linenos">79</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_encoder</span>
 </span></pre></div>
@@ -1212,7 +1212,7 @@
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>Encoder: The encoder.</p>
+  <p>Encoder: The query encoder.</p>
 </blockquote>
 </div>
 
@@ -1229,21 +1229,21 @@
     <a class="headerlink" href="#Index.mode"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Index.mode-91"><a href="#Index.mode-91"><span class="linenos">91</span></a>    <span class="nd">@property</span>
 </span><span id="Index.mode-92"><a href="#Index.mode-92"><span class="linenos">92</span></a>    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mode</span><span class="p">:</span>
-</span><span id="Index.mode-93"><a href="#Index.mode-93"><span class="linenos">93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the indexing mode.</span>
+</span><span id="Index.mode-93"><a href="#Index.mode-93"><span class="linenos">93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ranking mode.</span>
 </span><span id="Index.mode-94"><a href="#Index.mode-94"><span class="linenos">94</span></a>
 </span><span id="Index.mode-95"><a href="#Index.mode-95"><span class="linenos">95</span></a><span class="sd">        Returns:</span>
-</span><span id="Index.mode-96"><a href="#Index.mode-96"><span class="linenos">96</span></a><span class="sd">            Mode: The mode.</span>
+</span><span id="Index.mode-96"><a href="#Index.mode-96"><span class="linenos">96</span></a><span class="sd">            Mode: The ranking mode.</span>
 </span><span id="Index.mode-97"><a href="#Index.mode-97"><span class="linenos">97</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index.mode-98"><a href="#Index.mode-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return the indexing mode.</p>
+            <div class="docstring"><p>Return the ranking mode.</p>
 
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>Mode: The mode.</p>
+  <p>Mode: The ranking mode.</p>
 </blockquote>
 </div>
 
@@ -1417,11 +1417,11 @@
 </span><span id="Index.add-185"><a href="#Index.add-185"><span class="linenos">185</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index.add-186"><a href="#Index.add-186"><span class="linenos">186</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index.add-187"><a href="#Index.add-187"><span class="linenos">187</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Index.add-188"><a href="#Index.add-188"><span class="linenos">188</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index. Only one of `doc_ids` and `psg_ids`</span>
-</span><span id="Index.add-189"><a href="#Index.add-189"><span class="linenos">189</span></a><span class="sd">        may be None.</span>
+</span><span id="Index.add-188"><a href="#Index.add-188"><span class="linenos">188</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
+</span><span id="Index.add-189"><a href="#Index.add-189"><span class="linenos">189</span></a><span class="sd">        Only one of `doc_ids` and `psg_ids` may be None.</span>
 </span><span id="Index.add-190"><a href="#Index.add-190"><span class="linenos">190</span></a>
 </span><span id="Index.add-191"><a href="#Index.add-191"><span class="linenos">191</span></a><span class="sd">        Args:</span>
-</span><span id="Index.add-192"><a href="#Index.add-192"><span class="linenos">192</span></a><span class="sd">            vectors (np.ndarray): The representations, shape (num_vectors, dim).</span>
+</span><span id="Index.add-192"><a href="#Index.add-192"><span class="linenos">192</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
 </span><span id="Index.add-193"><a href="#Index.add-193"><span class="linenos">193</span></a><span class="sd">            doc_id (Sequence[str], optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
 </span><span id="Index.add-194"><a href="#Index.add-194"><span class="linenos">194</span></a><span class="sd">            psg_id (Sequence[str], optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
 </span><span id="Index.add-195"><a href="#Index.add-195"><span class="linenos">195</span></a>
@@ -1448,13 +1448,13 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Add vector representations and corresponding IDs to the index. Only one of <code><a href="#Index.doc_ids">doc_ids</a></code> and <code><a href="#Index.psg_ids">psg_ids</a></code>
-may be None.</p>
+            <div class="docstring"><p>Add vector representations and corresponding IDs to the index.
+Only one of <code><a href="#Index.doc_ids">doc_ids</a></code> and <code><a href="#Index.psg_ids">psg_ids</a></code> may be None.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>vectors (np.ndarray):</strong>  The representations, shape (num_vectors, dim).</li>
+<li><strong>vectors (np.ndarray):</strong>  The representations, shape <code>(num_vectors, dim)</code>.</li>
 <li><strong>doc_id (Sequence[str], optional):</strong>  The corresponding document IDs (may be duplicate). Defaults to None.</li>
 <li><strong>psg_id (Sequence[str], optional):</strong>  The corresponding passage IDs (must be unique). Defaults to None.</li>
 </ul>

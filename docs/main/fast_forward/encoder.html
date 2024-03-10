@@ -153,7 +153,7 @@
 </span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a transformer encoder.</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a><span class="sd">        Args:</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
@@ -179,7 +179,7 @@
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder adapter class for arbitrary encoding functions.&quot;&quot;&quot;</span>
 </span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>
 </span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a lambda encoder.</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">        Args:</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.</span>
@@ -299,7 +299,7 @@
 </span><span id="TransformerEncoder-34"><a href="#TransformerEncoder-34"><span class="linenos">34</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="TransformerEncoder-35"><a href="#TransformerEncoder-35"><span class="linenos">35</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
 </span><span id="TransformerEncoder-36"><a href="#TransformerEncoder-36"><span class="linenos">36</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="TransformerEncoder-37"><a href="#TransformerEncoder-37"><span class="linenos">37</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="TransformerEncoder-37"><a href="#TransformerEncoder-37"><span class="linenos">37</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a transformer encoder.</span>
 </span><span id="TransformerEncoder-38"><a href="#TransformerEncoder-38"><span class="linenos">38</span></a>
 </span><span id="TransformerEncoder-39"><a href="#TransformerEncoder-39"><span class="linenos">39</span></a><span class="sd">        Args:</span>
 </span><span id="TransformerEncoder-40"><a href="#TransformerEncoder-40"><span class="linenos">40</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
@@ -339,7 +339,7 @@
             <div class="pdoc-code codehilite"><pre><span></span><span id="TransformerEncoder.__init__-34"><a href="#TransformerEncoder.__init__-34"><span class="linenos">34</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="TransformerEncoder.__init__-35"><a href="#TransformerEncoder.__init__-35"><span class="linenos">35</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">tokenizer_args</span>
 </span><span id="TransformerEncoder.__init__-36"><a href="#TransformerEncoder.__init__-36"><span class="linenos">36</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="TransformerEncoder.__init__-37"><a href="#TransformerEncoder.__init__-37"><span class="linenos">37</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="TransformerEncoder.__init__-37"><a href="#TransformerEncoder.__init__-37"><span class="linenos">37</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a transformer encoder.</span>
 </span><span id="TransformerEncoder.__init__-38"><a href="#TransformerEncoder.__init__-38"><span class="linenos">38</span></a>
 </span><span id="TransformerEncoder.__init__-39"><a href="#TransformerEncoder.__init__-39"><span class="linenos">39</span></a><span class="sd">        Args:</span>
 </span><span id="TransformerEncoder.__init__-40"><a href="#TransformerEncoder.__init__-40"><span class="linenos">40</span></a><span class="sd">            model (Union[str, Path]): Pre-trained transformer model (name or path).</span>
@@ -356,7 +356,7 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Constructor.</p>
+            <div class="docstring"><p>Create a transformer encoder.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -429,7 +429,7 @@
 </span><span id="LambdaEncoder-60"><a href="#LambdaEncoder-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Encoder adapter class for arbitrary encoding functions.&quot;&quot;&quot;</span>
 </span><span id="LambdaEncoder-61"><a href="#LambdaEncoder-61"><span class="linenos">61</span></a>
 </span><span id="LambdaEncoder-62"><a href="#LambdaEncoder-62"><span class="linenos">62</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="LambdaEncoder-63"><a href="#LambdaEncoder-63"><span class="linenos">63</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="LambdaEncoder-63"><a href="#LambdaEncoder-63"><span class="linenos">63</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a lambda encoder.</span>
 </span><span id="LambdaEncoder-64"><a href="#LambdaEncoder-64"><span class="linenos">64</span></a>
 </span><span id="LambdaEncoder-65"><a href="#LambdaEncoder-65"><span class="linenos">65</span></a><span class="sd">        Args:</span>
 </span><span id="LambdaEncoder-66"><a href="#LambdaEncoder-66"><span class="linenos">66</span></a><span class="sd">            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.</span>
@@ -457,7 +457,7 @@
     </div>
     <a class="headerlink" href="#LambdaEncoder.__init__"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="LambdaEncoder.__init__-62"><a href="#LambdaEncoder.__init__-62"><span class="linenos">62</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="LambdaEncoder.__init__-63"><a href="#LambdaEncoder.__init__-63"><span class="linenos">63</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="LambdaEncoder.__init__-63"><a href="#LambdaEncoder.__init__-63"><span class="linenos">63</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a lambda encoder.</span>
 </span><span id="LambdaEncoder.__init__-64"><a href="#LambdaEncoder.__init__-64"><span class="linenos">64</span></a>
 </span><span id="LambdaEncoder.__init__-65"><a href="#LambdaEncoder.__init__-65"><span class="linenos">65</span></a><span class="sd">        Args:</span>
 </span><span id="LambdaEncoder.__init__-66"><a href="#LambdaEncoder.__init__-66"><span class="linenos">66</span></a><span class="sd">            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.</span>
@@ -467,7 +467,7 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Constructor.</p>
+            <div class="docstring"><p>Create a lambda encoder.</p>
 
 <h6 id="arguments">Arguments:</h6>
 

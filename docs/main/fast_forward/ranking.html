@@ -281,7 +281,7 @@
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">            key (object): The query ID.</span>
 </span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>
 </span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">        Returns:</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">            bool: Wherther the query ID has associated document/passage IDs.</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">            bool: Whether the query ID has associated document/passage IDs.</span>
 </span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_ids</span>
 </span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>
@@ -304,7 +304,7 @@
 </span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>        <span class="k">return</span> <span class="n">df1</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">df2</span><span class="p">[</span><span class="n">cols</span><span class="p">])</span>
 </span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>
 </span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the run a string representation of this ranking.</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of this ranking.</span>
 </span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>
 </span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">        Returns:</span>
 </span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="sd">            str: The string representation.</span>
@@ -321,7 +321,7 @@
 </span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a><span class="sd">            ValueError: When the queries are incomplete.</span>
 </span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>
 </span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a><span class="sd">        Returns:</span>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a><span class="sd">            Ranking: The resulting ranking.</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a><span class="sd">            Ranking: The ranking with queries attached.</span>
 </span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>        <span class="k">return</span> <span class="n">Ranking</span><span class="p">(</span>
 </span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">,</span>
@@ -333,10 +333,10 @@
 </span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>        <span class="p">)</span>
 </span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>
 </span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
-</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-k scoring documents/passages.</span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-`k` scoring documents/passages.</span>
 </span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>
 </span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a><span class="sd">        Args:</span>
-</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">            cutoff (int): Number of best scores per query to keep (k).</span>
+</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a><span class="sd">            cutoff (int): Number of best scores per query to keep (`k`).</span>
 </span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>
 </span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a><span class="sd">        Returns:</span>
 </span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a><span class="sd">            Ranking: The resulting ranking.</span>
@@ -589,7 +589,7 @@
 </span><span id="Ranking-138"><a href="#Ranking-138"><span class="linenos">138</span></a><span class="sd">            key (object): The query ID.</span>
 </span><span id="Ranking-139"><a href="#Ranking-139"><span class="linenos">139</span></a>
 </span><span id="Ranking-140"><a href="#Ranking-140"><span class="linenos">140</span></a><span class="sd">        Returns:</span>
-</span><span id="Ranking-141"><a href="#Ranking-141"><span class="linenos">141</span></a><span class="sd">            bool: Wherther the query ID has associated document/passage IDs.</span>
+</span><span id="Ranking-141"><a href="#Ranking-141"><span class="linenos">141</span></a><span class="sd">            bool: Whether the query ID has associated document/passage IDs.</span>
 </span><span id="Ranking-142"><a href="#Ranking-142"><span class="linenos">142</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-143"><a href="#Ranking-143"><span class="linenos">143</span></a>        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_ids</span>
 </span><span id="Ranking-144"><a href="#Ranking-144"><span class="linenos">144</span></a>
@@ -612,7 +612,7 @@
 </span><span id="Ranking-161"><a href="#Ranking-161"><span class="linenos">161</span></a>        <span class="k">return</span> <span class="n">df1</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">df2</span><span class="p">[</span><span class="n">cols</span><span class="p">])</span>
 </span><span id="Ranking-162"><a href="#Ranking-162"><span class="linenos">162</span></a>
 </span><span id="Ranking-163"><a href="#Ranking-163"><span class="linenos">163</span></a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="Ranking-164"><a href="#Ranking-164"><span class="linenos">164</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the run a string representation of this ranking.</span>
+</span><span id="Ranking-164"><a href="#Ranking-164"><span class="linenos">164</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of this ranking.</span>
 </span><span id="Ranking-165"><a href="#Ranking-165"><span class="linenos">165</span></a>
 </span><span id="Ranking-166"><a href="#Ranking-166"><span class="linenos">166</span></a><span class="sd">        Returns:</span>
 </span><span id="Ranking-167"><a href="#Ranking-167"><span class="linenos">167</span></a><span class="sd">            str: The string representation.</span>
@@ -629,7 +629,7 @@
 </span><span id="Ranking-178"><a href="#Ranking-178"><span class="linenos">178</span></a><span class="sd">            ValueError: When the queries are incomplete.</span>
 </span><span id="Ranking-179"><a href="#Ranking-179"><span class="linenos">179</span></a>
 </span><span id="Ranking-180"><a href="#Ranking-180"><span class="linenos">180</span></a><span class="sd">        Returns:</span>
-</span><span id="Ranking-181"><a href="#Ranking-181"><span class="linenos">181</span></a><span class="sd">            Ranking: The resulting ranking.</span>
+</span><span id="Ranking-181"><a href="#Ranking-181"><span class="linenos">181</span></a><span class="sd">            Ranking: The ranking with queries attached.</span>
 </span><span id="Ranking-182"><a href="#Ranking-182"><span class="linenos">182</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-183"><a href="#Ranking-183"><span class="linenos">183</span></a>        <span class="k">return</span> <span class="n">Ranking</span><span class="p">(</span>
 </span><span id="Ranking-184"><a href="#Ranking-184"><span class="linenos">184</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">,</span>
@@ -641,10 +641,10 @@
 </span><span id="Ranking-190"><a href="#Ranking-190"><span class="linenos">190</span></a>        <span class="p">)</span>
 </span><span id="Ranking-191"><a href="#Ranking-191"><span class="linenos">191</span></a>
 </span><span id="Ranking-192"><a href="#Ranking-192"><span class="linenos">192</span></a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
-</span><span id="Ranking-193"><a href="#Ranking-193"><span class="linenos">193</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-k scoring documents/passages.</span>
+</span><span id="Ranking-193"><a href="#Ranking-193"><span class="linenos">193</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-`k` scoring documents/passages.</span>
 </span><span id="Ranking-194"><a href="#Ranking-194"><span class="linenos">194</span></a>
 </span><span id="Ranking-195"><a href="#Ranking-195"><span class="linenos">195</span></a><span class="sd">        Args:</span>
-</span><span id="Ranking-196"><a href="#Ranking-196"><span class="linenos">196</span></a><span class="sd">            cutoff (int): Number of best scores per query to keep (k).</span>
+</span><span id="Ranking-196"><a href="#Ranking-196"><span class="linenos">196</span></a><span class="sd">            cutoff (int): Number of best scores per query to keep (`k`).</span>
 </span><span id="Ranking-197"><a href="#Ranking-197"><span class="linenos">197</span></a>
 </span><span id="Ranking-198"><a href="#Ranking-198"><span class="linenos">198</span></a><span class="sd">        Returns:</span>
 </span><span id="Ranking-199"><a href="#Ranking-199"><span class="linenos">199</span></a><span class="sd">            Ranking: The resulting ranking.</span>
@@ -938,7 +938,7 @@
 </span><span id="Ranking.attach_queries-178"><a href="#Ranking.attach_queries-178"><span class="linenos">178</span></a><span class="sd">            ValueError: When the queries are incomplete.</span>
 </span><span id="Ranking.attach_queries-179"><a href="#Ranking.attach_queries-179"><span class="linenos">179</span></a>
 </span><span id="Ranking.attach_queries-180"><a href="#Ranking.attach_queries-180"><span class="linenos">180</span></a><span class="sd">        Returns:</span>
-</span><span id="Ranking.attach_queries-181"><a href="#Ranking.attach_queries-181"><span class="linenos">181</span></a><span class="sd">            Ranking: The resulting ranking.</span>
+</span><span id="Ranking.attach_queries-181"><a href="#Ranking.attach_queries-181"><span class="linenos">181</span></a><span class="sd">            Ranking: The ranking with queries attached.</span>
 </span><span id="Ranking.attach_queries-182"><a href="#Ranking.attach_queries-182"><span class="linenos">182</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking.attach_queries-183"><a href="#Ranking.attach_queries-183"><span class="linenos">183</span></a>        <span class="k">return</span> <span class="n">Ranking</span><span class="p">(</span>
 </span><span id="Ranking.attach_queries-184"><a href="#Ranking.attach_queries-184"><span class="linenos">184</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">,</span>
@@ -968,7 +968,7 @@
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>Ranking: The resulting ranking.</p>
+  <p>Ranking: The ranking with queries attached.</p>
 </blockquote>
 </div>
 
@@ -986,10 +986,10 @@
     </div>
     <a class="headerlink" href="#Ranking.cut"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.cut-192"><a href="#Ranking.cut-192"><span class="linenos">192</span></a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
-</span><span id="Ranking.cut-193"><a href="#Ranking.cut-193"><span class="linenos">193</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-k scoring documents/passages.</span>
+</span><span id="Ranking.cut-193"><a href="#Ranking.cut-193"><span class="linenos">193</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-`k` scoring documents/passages.</span>
 </span><span id="Ranking.cut-194"><a href="#Ranking.cut-194"><span class="linenos">194</span></a>
 </span><span id="Ranking.cut-195"><a href="#Ranking.cut-195"><span class="linenos">195</span></a><span class="sd">        Args:</span>
-</span><span id="Ranking.cut-196"><a href="#Ranking.cut-196"><span class="linenos">196</span></a><span class="sd">            cutoff (int): Number of best scores per query to keep (k).</span>
+</span><span id="Ranking.cut-196"><a href="#Ranking.cut-196"><span class="linenos">196</span></a><span class="sd">            cutoff (int): Number of best scores per query to keep (`k`).</span>
 </span><span id="Ranking.cut-197"><a href="#Ranking.cut-197"><span class="linenos">197</span></a>
 </span><span id="Ranking.cut-198"><a href="#Ranking.cut-198"><span class="linenos">198</span></a><span class="sd">        Returns:</span>
 </span><span id="Ranking.cut-199"><a href="#Ranking.cut-199"><span class="linenos">199</span></a><span class="sd">            Ranking: The resulting ranking.</span>
@@ -1004,12 +1004,12 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>For each query, remove all but the top-k scoring documents/passages.</p>
+            <div class="docstring"><p>For each query, remove all but the top-<code>k</code> scoring documents/passages.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>cutoff (int):</strong>  Number of best scores per query to keep (k).</li>
+<li><strong>cutoff (int):</strong>  Number of best scores per query to keep (<code>k</code>).</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>

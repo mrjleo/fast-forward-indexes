@@ -78,7 +78,7 @@
 
 <h1 id="pyterrier-transformers">PyTerrier transformers</h1>
 
-<p>Fast-Forward indexes can seamlessly be integrated into <a href="https://pyterrier.readthedocs.io/en/latest/">PyTerrier</a> pipelines using the transformers provided in <code><a href="util/pyterrier.html">fast_forward.util.pyterrier</a></code>. Specifically, a re-ranking pipeline might look like this, given that <code>my_index</code> is a Fast-Forward index of the MS MARCO passage corpus.</p>
+<p>Fast-Forward indexes can seamlessly be integrated into <a href="https://pyterrier.readthedocs.io/en/latest/">PyTerrier</a> pipelines using the transformers provided in <code><a href="util/pyterrier.html">fast_forward.util.pyterrier</a></code>. Specifically, a re-ranking pipeline might look like this, given that <code>my_index</code> is a Fast-Forward index of the MS MARCO passage corpus:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">bm25</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">BatchRetrieve</span><span class="o">.</span><span class="n">from_dataset</span><span class="p">(</span>

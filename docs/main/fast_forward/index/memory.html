@@ -82,7 +82,7 @@
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="k">class</span> <span class="nc">InMemoryIndex</span><span class="p">(</span><span class="n">Index</span><span class="p">):</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast-Forward index that is held in memory.&quot;&quot;&quot;</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast-Forward index that is held entirely in memory.&quot;&quot;&quot;</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>        <span class="bp">self</span><span class="p">,</span>
@@ -94,7 +94,7 @@
 </span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>        <span class="n">alloc_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a>        <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>
 </span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">        Args:</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a><span class="sd">            dim (int): Vector dimension.</span>
@@ -258,7 +258,7 @@
     </div>
     <a class="headerlink" href="#InMemoryIndex"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="InMemoryIndex-14"><a href="#InMemoryIndex-14"><span class="linenos"> 14</span></a><span class="k">class</span> <span class="nc">InMemoryIndex</span><span class="p">(</span><span class="n">Index</span><span class="p">):</span>
-</span><span id="InMemoryIndex-15"><a href="#InMemoryIndex-15"><span class="linenos"> 15</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast-Forward index that is held in memory.&quot;&quot;&quot;</span>
+</span><span id="InMemoryIndex-15"><a href="#InMemoryIndex-15"><span class="linenos"> 15</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fast-Forward index that is held entirely in memory.&quot;&quot;&quot;</span>
 </span><span id="InMemoryIndex-16"><a href="#InMemoryIndex-16"><span class="linenos"> 16</span></a>
 </span><span id="InMemoryIndex-17"><a href="#InMemoryIndex-17"><span class="linenos"> 17</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="InMemoryIndex-18"><a href="#InMemoryIndex-18"><span class="linenos"> 18</span></a>        <span class="bp">self</span><span class="p">,</span>
@@ -270,7 +270,7 @@
 </span><span id="InMemoryIndex-24"><a href="#InMemoryIndex-24"><span class="linenos"> 24</span></a>        <span class="n">alloc_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span>
 </span><span id="InMemoryIndex-25"><a href="#InMemoryIndex-25"><span class="linenos"> 25</span></a>        <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
 </span><span id="InMemoryIndex-26"><a href="#InMemoryIndex-26"><span class="linenos"> 26</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="InMemoryIndex-27"><a href="#InMemoryIndex-27"><span class="linenos"> 27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="InMemoryIndex-27"><a href="#InMemoryIndex-27"><span class="linenos"> 27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
 </span><span id="InMemoryIndex-28"><a href="#InMemoryIndex-28"><span class="linenos"> 28</span></a>
 </span><span id="InMemoryIndex-29"><a href="#InMemoryIndex-29"><span class="linenos"> 29</span></a><span class="sd">        Args:</span>
 </span><span id="InMemoryIndex-30"><a href="#InMemoryIndex-30"><span class="linenos"> 30</span></a><span class="sd">            dim (int): Vector dimension.</span>
@@ -409,7 +409,7 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Fast-Forward index that is held in memory.</p>
+            <div class="docstring"><p>Fast-Forward index that is held entirely in memory.</p>
 </div>
 
 
@@ -433,7 +433,7 @@
 </span><span id="InMemoryIndex.__init__-24"><a href="#InMemoryIndex.__init__-24"><span class="linenos">24</span></a>        <span class="n">alloc_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span>
 </span><span id="InMemoryIndex.__init__-25"><a href="#InMemoryIndex.__init__-25"><span class="linenos">25</span></a>        <span class="n">dtype</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
 </span><span id="InMemoryIndex.__init__-26"><a href="#InMemoryIndex.__init__-26"><span class="linenos">26</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="InMemoryIndex.__init__-27"><a href="#InMemoryIndex.__init__-27"><span class="linenos">27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor.</span>
+</span><span id="InMemoryIndex.__init__-27"><a href="#InMemoryIndex.__init__-27"><span class="linenos">27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
 </span><span id="InMemoryIndex.__init__-28"><a href="#InMemoryIndex.__init__-28"><span class="linenos">28</span></a>
 </span><span id="InMemoryIndex.__init__-29"><a href="#InMemoryIndex.__init__-29"><span class="linenos">29</span></a><span class="sd">        Args:</span>
 </span><span id="InMemoryIndex.__init__-30"><a href="#InMemoryIndex.__init__-30"><span class="linenos">30</span></a><span class="sd">            dim (int): Vector dimension.</span>
@@ -456,7 +456,7 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Constructor.</p>
+            <div class="docstring"><p>Create an index.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
