@@ -137,7 +137,7 @@ class Ranking(object):
             key (object): The query ID.
 
         Returns:
-            bool: Wherther the query ID has associated document/passage IDs.
+            bool: Whether the query ID has associated document/passage IDs.
         """
         return key in self._q_ids
 
@@ -160,7 +160,7 @@ class Ranking(object):
         return df1[cols].equals(df2[cols])
 
     def __repr__(self) -> str:
-        """Return the run a string representation of this ranking.
+        """Return a string representation of this ranking.
 
         Returns:
             str: The string representation.
@@ -177,7 +177,7 @@ class Ranking(object):
             ValueError: When the queries are incomplete.
 
         Returns:
-            Ranking: The resulting ranking.
+            Ranking: The ranking with queries attached.
         """
         return Ranking(
             self._df,
@@ -189,10 +189,10 @@ class Ranking(object):
         )
 
     def cut(self, cutoff: int) -> "Ranking":
-        """For each query, remove all but the top-k scoring documents/passages.
+        """For each query, remove all but the top-`k` scoring documents/passages.
 
         Args:
-            cutoff (int): Number of best scores per query to keep (k).
+            cutoff (int): Number of best scores per query to keep (`k`).
 
         Returns:
             Ranking: The resulting ranking.

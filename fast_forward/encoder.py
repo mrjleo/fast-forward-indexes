@@ -33,7 +33,7 @@ class TransformerEncoder(Encoder):
     def __init__(
         self, model: Union[str, Path], device: str = "cpu", **tokenizer_args
     ) -> None:
-        """Constructor.
+        """Create a transformer encoder.
 
         Args:
             model (Union[str, Path]): Pre-trained transformer model (name or path).
@@ -59,7 +59,7 @@ class LambdaEncoder(Encoder):
     """Encoder adapter class for arbitrary encoding functions."""
 
     def __init__(self, f: Callable[[str], np.ndarray]) -> None:
-        """Constructor.
+        """Create a lambda encoder.
 
         Args:
             f (Callable[[str], np.ndarray]): Function to encode a single piece of text.

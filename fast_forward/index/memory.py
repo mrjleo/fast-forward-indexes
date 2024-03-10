@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class InMemoryIndex(Index):
-    """Fast-Forward index that is held in memory."""
+    """Fast-Forward index that is held entirely in memory."""
 
     def __init__(
         self,
@@ -23,7 +23,7 @@ class InMemoryIndex(Index):
         alloc_size: int = 2**14,
         dtype: np.dtype = np.float32,
     ) -> None:
-        """Constructor.
+        """Create an index.
 
         Args:
             dim (int): Vector dimension.

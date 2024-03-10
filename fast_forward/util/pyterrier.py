@@ -9,7 +9,7 @@ class FFScore(pt.Transformer):
     """PyTerrier transformer that computes scores using a Fast-Forward index."""
 
     def __init__(self, index: Index) -> None:
-        """Constructor.
+        """Create an FFScore transformer.
 
         Args:
             index (Index): The Fast-Forward index.
@@ -55,7 +55,7 @@ class FFInterpolate(pt.Transformer):
     """PyTerrier transformer that interpolates scores computed by `FFScore`."""
 
     def __init__(self, alpha: float) -> None:
-        """Constructor.
+        """Create an FFInterpolate transformer.
 
         Args:
             alpha (float): The interpolation parameter.

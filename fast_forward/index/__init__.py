@@ -35,7 +35,7 @@ class Index(abc.ABC):
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
     ) -> None:
-        """Constructor.
+        """Create an index.
 
         Args:
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
@@ -73,7 +73,7 @@ class Index(abc.ABC):
         """Return the query encoder.
 
         Returns:
-            Encoder: The encoder.
+            Encoder: The query encoder.
         """
         return self._query_encoder
 
@@ -82,26 +82,26 @@ class Index(abc.ABC):
         """Set the query encoder.
 
         Args:
-            encoder (Encoder): The encoder.
+            encoder (Encoder): The query encoder.
         """
         assert encoder is None or isinstance(encoder, Encoder)
         self._query_encoder = encoder
 
     @property
     def mode(self) -> Mode:
-        """Return the indexing mode.
+        """Return the ranking mode.
 
         Returns:
-            Mode: The mode.
+            Mode: The ranking mode.
         """
         return self._mode
 
     @mode.setter
     def mode(self, mode: Mode) -> None:
-        """Set the indexing mode.
+        """Set the ranking mode.
 
         Args:
-            mode (Mode): The indexing mode.
+            mode (Mode): The ranking mode.
         """
         assert isinstance(mode, Mode)
         self._mode = mode
@@ -157,7 +157,7 @@ class Index(abc.ABC):
         """The number of vectors in the index.
 
         Returns:
-            int: The number of vectors.
+            int: The index size.
         """
         pass
 
@@ -168,11 +168,11 @@ class Index(abc.ABC):
         doc_ids: Union[Sequence[str], None],
         psg_ids: Union[Sequence[str], None],
     ) -> None:
-        """Add vector representations and corresponding IDs to the index. Each vector is guaranteed to
-        have either a document or passage ID associated.
+        """Add vector representations and corresponding IDs to the index.
+        Each vector is guaranteed to have either a document or passage ID associated.
 
         Args:
-            vectors (np.ndarray): The representations, shape (num_vectors, dim).
+            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
             doc_ids (Union[Sequence[str], None]): The corresponding document IDs (may be duplicate).
             psg_ids (Union[Sequence[str], None]): The corresponding passage IDs (must be unique).
         """
@@ -184,11 +184,11 @@ class Index(abc.ABC):
         doc_ids: Sequence[str] = None,
         psg_ids: Sequence[str] = None,
     ) -> None:
-        """Add vector representations and corresponding IDs to the index. Only one of `doc_ids` and `psg_ids`
-        may be None.
+        """Add vector representations and corresponding IDs to the index.
+        Only one of doc_ids and psg_ids may be None.
 
         Args:
-            vectors (np.ndarray): The representations, shape (num_vectors, dim).
+            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
             doc_id (Sequence[str], optional): The corresponding document IDs (may be duplicate). Defaults to None.
             psg_id (Sequence[str], optional): The corresponding passage IDs (must be unique). Defaults to None.
 
@@ -304,7 +304,7 @@ class Index(abc.ABC):
             query_vectors (np.ndarray): All query vectors indexed by "q_no".
             cutoff (int): Cut-off depth for early stopping.
             alpha (float): Interpolation parameter.
-            intervals (Iterable[int]): Intervals do compute scores at.
+            intervals (Iterable[int]): Depths to compute scores at.
 
         Returns:
             pd.DataFrame: Data frame with computed scores.

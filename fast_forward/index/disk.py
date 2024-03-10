@@ -16,7 +16,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class OnDiskIndex(Index):
-    """Fast-Forward index that is read from disk.
+    """Fast-Forward index that is read on-demand from disk.
 
     Uses HDF5 via h5py under the hood. The buffer (ds_buffer_size) works around a h5py limitation.
     More information: https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing
@@ -37,11 +37,11 @@ class OnDiskIndex(Index):
         overwrite: bool = False,
         ds_buffer_size: int = 2**10,
     ) -> None:
-        """Constructor.
+        """Create an index.
 
         Args:
             index_file (Path): Index file to create (or overwrite).
-            dim (int): Vector dimension.
+            dim (int): Vector dimensionality.
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.

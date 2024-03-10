@@ -19,7 +19,7 @@ class Indexer(object):
         Args:
             index (Index): The index to add the collection to.
             encoder (Encoder): Document/passage encoder.
-            batch_size (int, optional): Btach size for encoding. Defaults to 32.
+            batch_size (int, optional): Batch size for encoding. Defaults to 32.
         """
         self._index = index
         self._encoder = encoder
