@@ -1,3 +1,7 @@
+"""
+.. include:: docs/indexer.md
+"""
+
 from typing import Dict, Iterable
 
 from tqdm import tqdm

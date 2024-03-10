@@ -1,3 +1,7 @@
+"""
+.. include:: docs/ranking.md
+"""
+
 import logging
 from pathlib import Path
 from typing import Dict, Iterator, Set, Union

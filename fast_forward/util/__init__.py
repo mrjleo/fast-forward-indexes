@@ -1,3 +1,7 @@
+"""
+.. include:: ../docs/util.md
+"""
+
 from typing import Callable
 
 import numpy as np

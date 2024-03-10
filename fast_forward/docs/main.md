@@ -5,10 +5,10 @@ This is the implementation of [Fast-Forward indexes](https://dl.acm.org/doi/abs/
 # Features
 
 - Efficient look-up-based computation of semantic ranking scores
-- Interpolation of lexical (sparse) and semantic (dense) scores
+- Interpolation of lexical (retrieval) and semantic (re-ranking) scores
 - Passage- and document-level ranking, including MaxP, FirstP, and AverageP
-- _Early stopping_ of interpolation based on approximated scores
-- Index compression via _sequential coalescing_
+- Early stopping for limiting index look-ups
+- Index compression via sequential coalescing
 
 # Installation
 
@@ -68,75 +68,10 @@ out = ff_index(first_stage_ranking)
 first_stage_ranking.interpolate(out, 0.1).save(Path("/path/to/output/run.tsv"))
 ```
 
-# Guides
+## How to...
 
-This section contains guides for the most important features.
-
-## Creating an index
-
-Creating a Fast-Forward index is simple. The following snippet illustrates how to create a `fast_forward.index.disk.OnDiskIndex` object (given a `fast_forward.encoder.QueryEncoder`, `my_query_encoder`) and add some representations to it:
-
-```python
-my_index = OnDiskIndex(Path("my_index.h5"), 768, my_query_encoder)
-my_index.add(
-    my_vectors,  # shape (3, 768)
-    doc_ids=["d1", "d1", "d2"],
-    psg_ids=["d1_p1", "d1_p2", "d2_p1"]
-)
-```
-
-Here, `my_vectors` is a Numpy array of shape `(3, dim)`. The first two vectors correspond to two passages of the document `d1`, the third vector corresponds to `d2`, which has only a single passage. It is also possible to provide either only document IDs or only passage IDs.
-
-The index can then be subsequently loaded back using `fast_forward.index.disk.OnDiskIndex.load`.
-
-## Using an index
-
-The usage of a Fast-Forward index is handled by `fast_forward.index.Index.__call__`. It requires a ranking (typically from a sparse retriever) with the corresponding queries:
-
-```python
-ranking = Ranking.from_file(Path("/path/to/sparse/run.tsv"), queries)
-result = my_index(ranking)
-```
-
-Here, `queries` is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, `result`, has the semantic scores for the query-document (or query-passage) pairs. The individual scores (i.e., retrieval and re-ranking) can be interpolated using `Ranking.interpolate`:
-
-```python
-interpolated_ranking = ranking.interpolate(result, 0.1)
-```
-
-## Retrieval modes
-
-Each index has a retrieval mode (`fast_forward.index.Mode`). The active mode influences the way scores are computed (`fast_forward.index.Index.__call__`). For example, consider the [example index from earlier](#creating-an-index). Setting the mode to `fast_forward.index.Mode.PASSAGE` will cause the index to compute scores on the passage level (and expect passage IDs in the input ranking):
-
-```python
-my_index.mode = Mode.PASSAGE
-```
-
-Similarly, the index can return document IDs, where the score of a document computes as
-
-- the highest score of its passages (`fast_forward.index.Mode.MAXP`),
-- the score of the its first passage (`fast_forward.index.Mode.FIRSTP`) or
-- the average score of all its passages (`fast_forward.index.Mode.AVEP`).
-
-## Custom query encoders
-
-Custom query encoders can easily be implemented. The preferred way to do this is by subclassing `fast_forward.encoder.QueryEncoder` and overriding the `fast_forward.encoder.QueryEncoder.encode` method. This allows the new query encoder to make use of batch encoding.
-
-Alternatively, one can use the `fast_forward.encoder.LambdaQueryEncoder` class, which wraps a function that encodes a single query. The following example shows how to do this with a [Pyserini](https://github.com/castorini/pyserini) query encoder:
-
-```python
-pyserini_encoder = pyserini.dsearch.AnceQueryEncoder("castorini/ance-msmarco-passage")
-my_encoder = LambdaQueryEncoder(pyserini_encoder.encode)
-```
-
-Note that this method is usually less efficient, as the queries are encoded one by one rather than in batches.
-
-## Sequential coalescing
-
-The sequential coalescing algorithm is a compression technique for indexes with multiple representations per document. It is implemented as `fast_forward.util.create_coalesced_index`. Example usage:
-
-```python
-my_index = OnDiskIndex.load(Path("/path/to/index.h5"))
-coalesced_index = InMemoryIndex(768, mode=Mode.MAXP)
-create_coalesced_index(my_index, coalesced_index, 0.3)
-```
+- [create and use Fast-Forward indexes?](fast_forward/index.html)
+- [index a document collection?](fast_forward/indexer.html)
+- [create custom encoders?](fast_forward/encoder.html#custom-encoders)
+- [read, manipulate, and save rankings?](fast_forward/ranking.html)
+- [use Fast-Forward indexes with PyTerrier?](fast_forward/util.html#pyterrier-transformers)

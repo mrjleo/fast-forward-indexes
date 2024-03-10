@@ -1,3 +1,7 @@
+"""
+.. include:: docs/encoder.md
+"""
+
 import abc
 from pathlib import Path
 from typing import Callable, Sequence, Union

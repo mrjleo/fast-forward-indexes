@@ -1,3 +1,7 @@
+"""
+.. include:: ../docs/index.md
+"""
+
 import abc
 import logging
 from enum import Enum
