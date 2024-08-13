@@ -213,6 +213,34 @@ class TestIndex(unittest.TestCase):
                 ]
             )
         )
+
+        result_expected = Ranking(
+            pd.DataFrame(
+                [
+                    {"q_id": "q2", "id": "p19", "score": 20.0},
+                    {"q_id": "q2", "id": "p17", "score": 20.0},
+                    {"q_id": "q2", "id": "p15", "score": 20.0},
+                    {"q_id": "q2", "id": "p13", "score": 20.0},
+                    {"q_id": "q2", "id": "p11", "score": 20.0},
+                    {"q_id": "q2", "id": "p18", "score": 10.0},
+                    {"q_id": "q2", "id": "p16", "score": 10.0},
+                    {"q_id": "q2", "id": "p14", "score": 10.0},
+                    {"q_id": "q2", "id": "p12", "score": 10.0},
+                    {"q_id": "q2", "id": "p10", "score": 10.0},
+                    {"q_id": "q1", "id": "p19", "score": 20.0},
+                    {"q_id": "q1", "id": "p17", "score": 20.0},
+                    {"q_id": "q1", "id": "p15", "score": 20.0},
+                    {"q_id": "q1", "id": "p13", "score": 20.0},
+                    {"q_id": "q1", "id": "p11", "score": 20.0},
+                    {"q_id": "q1", "id": "p18", "score": 10.0},
+                    {"q_id": "q1", "id": "p16", "score": 10.0},
+                    {"q_id": "q1", "id": "p14", "score": 10.0},
+                    {"q_id": "q1", "id": "p12", "score": 10.0},
+                    {"q_id": "q1", "id": "p10", "score": 10.0},
+                ]
+            )
+        )
+
         self.assertEqual(
             index(
                 r,
@@ -220,32 +248,18 @@ class TestIndex(unittest.TestCase):
                 early_stopping_alpha=0.5,
                 early_stopping_intervals=(2, 5, 10, 20),
             ),
-            Ranking(
-                pd.DataFrame(
-                    [
-                        {"q_id": "q2", "id": "p19", "score": 20.0},
-                        {"q_id": "q2", "id": "p17", "score": 20.0},
-                        {"q_id": "q2", "id": "p15", "score": 20.0},
-                        {"q_id": "q2", "id": "p13", "score": 20.0},
-                        {"q_id": "q2", "id": "p11", "score": 20.0},
-                        {"q_id": "q2", "id": "p18", "score": 10.0},
-                        {"q_id": "q2", "id": "p16", "score": 10.0},
-                        {"q_id": "q2", "id": "p14", "score": 10.0},
-                        {"q_id": "q2", "id": "p12", "score": 10.0},
-                        {"q_id": "q2", "id": "p10", "score": 10.0},
-                        {"q_id": "q1", "id": "p19", "score": 20.0},
-                        {"q_id": "q1", "id": "p17", "score": 20.0},
-                        {"q_id": "q1", "id": "p15", "score": 20.0},
-                        {"q_id": "q1", "id": "p13", "score": 20.0},
-                        {"q_id": "q1", "id": "p11", "score": 20.0},
-                        {"q_id": "q1", "id": "p18", "score": 10.0},
-                        {"q_id": "q1", "id": "p16", "score": 10.0},
-                        {"q_id": "q1", "id": "p14", "score": 10.0},
-                        {"q_id": "q1", "id": "p12", "score": 10.0},
-                        {"q_id": "q1", "id": "p10", "score": 10.0},
-                    ]
-                )
+            result_expected,
+        )
+
+        # order of intervals should make no difference
+        self.assertEqual(
+            index(
+                r,
+                early_stopping=5,
+                early_stopping_alpha=0.5,
+                early_stopping_intervals=(5, 2, 20, 10),
             ),
+            result_expected,
         )
 
     def test_coalescing(self):

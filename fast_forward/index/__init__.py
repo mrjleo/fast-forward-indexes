@@ -315,9 +315,9 @@ class Index(abc.ABC):
         # data frame for computed scores
         scores_so_far = None
 
-        # a and b are the interval for which the scores are computed in each step
+        # [a, b] is the interval for which the scores are computed in each step
         a = 0
-        for b in intervals:
+        for b in sorted(intervals):
             if b < cutoff:
                 continue
 
