@@ -51,8 +51,8 @@ class TransformerEncoder(Encoder):
     def __call__(self, texts: Sequence[str]) -> np.ndarray:
         inputs = self.tokenizer(texts, return_tensors="pt", **self.tokenizer_args)
         inputs.to(self.device)
-        embeddings = self.model(**inputs).pooler_output.detach().cpu().numpy()
-        return embeddings
+        with torch.no_grad():
+            return self.model(**inputs).pooler_output.detach().cpu().numpy()
 
 
 class LambdaEncoder(Encoder):
@@ -89,9 +89,9 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
             **self.tokenizer_args,
         )
         inputs.to(self.device)
-        outputs = self.model(**inputs)
-        embeddings = outputs.last_hidden_state.detach().cpu().numpy()
-        return np.average(embeddings[:, 4:, :], axis=-2)
+        with torch.no_grad():
+            embeddings = self.model(**inputs).last_hidden_state.detach().cpu().numpy()
+            return np.average(embeddings[:, 4:, :], axis=-2)
 
 
 class TCTColBERTDocumentEncoder(TransformerEncoder):
@@ -113,15 +113,16 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
             **self.tokenizer_args,
         )
         inputs.to(self.device)
-        outputs = self.model(**inputs)
-        token_embeddings = outputs["last_hidden_state"][:, 4:, :]
-        input_mask_expanded = (
-            inputs["attention_mask"][:, 4:]
-            .unsqueeze(-1)
-            .expand(token_embeddings.size())
-            .float()
-        )
-        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
-        sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
-        embeddings = sum_embeddings / sum_mask
-        return embeddings.detach().cpu().numpy()
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            token_embeddings = outputs["last_hidden_state"][:, 4:, :]
+            input_mask_expanded = (
+                inputs["attention_mask"][:, 4:]
+                .unsqueeze(-1)
+                .expand(token_embeddings.size())
+                .float()
+            )
+            sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+            sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+            embeddings = sum_embeddings / sum_mask
+            return embeddings.detach().cpu().numpy()
