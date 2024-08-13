@@ -6,6 +6,9 @@ on:
     tags: ["v*.*.*"]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   make_docs:
     name: Create and push docs (${{ github.ref_name }})
@@ -36,7 +39,7 @@ jobs:
         with:
           FOLDER: .
       - name: Push to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs
