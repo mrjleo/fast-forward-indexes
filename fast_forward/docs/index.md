@@ -26,7 +26,7 @@ Here, `my_vectors` is a Numpy array of shape `(3, 768)`, `768` being the dimensi
 
 The index can then be subsequently loaded back using `fast_forward.index.disk.OnDiskIndex.load`.
 
-## Using an index
+# Using an index
 
 Index can be used to compute semantic re-ranking scores by calling them directly. It requires a `fast_forward.ranking.Ranking` (typically, this comes from a sparse retriever) with the corresponding queries:
 
