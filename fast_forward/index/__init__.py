@@ -18,7 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Mode(Enum):
-    """Enum used to set the retrieval mode of an index."""
+    """Enum used to set the ranking mode of an index."""
 
     PASSAGE = 1
     MAXP = 2
@@ -39,7 +39,7 @@ class Index(abc.ABC):
 
         Args:
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
-            mode (Mode, optional): Retrieval mode. Defaults to Mode.PASSAGE.
+            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
         super().__init__()
