@@ -309,6 +309,9 @@ class Index(abc.ABC):
         Returns:
             pd.DataFrame: Data frame with computed scores.
         """
+        # early stopping splits the data frame, hence we need to keep track of the original index
+        df["orig_index"] = df.index
+
         # remaining query IDs that do not meet the early stopping criterion yet
         q_ids_left = pd.unique(df["q_id"])
 
@@ -403,8 +406,6 @@ class Index(abc.ABC):
         query_vectors = self.encode_queries(list(query_df["query"]))
 
         if early_stopping is not None:
-            # early stopping splits the data frame, hence we need to keep track of the original index
-            df["orig_index"] = df.index
             result = self._early_stopping(
                 df,
                 query_vectors,
