@@ -312,9 +312,6 @@ class Index(abc.ABC):
         # early stopping splits the data frame, hence we need to keep track of the original index
         df["orig_index"] = df.index
 
-        # remaining query IDs that do not meet the early stopping criterion yet
-        q_ids_left = pd.unique(df["q_id"])
-
         # data frame for computed scores
         scores_so_far = None
 
@@ -323,6 +320,23 @@ class Index(abc.ABC):
         for b in intervals:
             if b < cutoff:
                 continue
+
+            # identify queries which do not meet the early stopping criterion
+            if a == 0:
+                # first iteration: take all queries
+                q_ids_left = pd.unique(df["q_id"])
+            else:
+                # subsequent iterations: compute ES criterion
+                q_ids_left = (
+                    scores_so_far.groupby("q_id")
+                    .filter(
+                        lambda g: g["int_score"].nlargest(cutoff).iat[-1]
+                        < alpha * g["score"].iat[-1] + (1 - alpha) * g["ff_score"].max()
+                    )["q_id"]
+                    .drop_duplicates()
+                    .to_list()
+                )
+            LOGGER.info("depth %s: %s queries left", b, len(q_ids_left))
 
             # take the next chunk with b-a docs/passages for each query
             chunk = df.loc[df["q_id"].isin(q_ids_left)].groupby("q_id").nth(range(a, b))
@@ -347,18 +361,6 @@ class Index(abc.ABC):
                     [scores_so_far, chunk_scores],
                     axis=0,
                 )
-
-            # identify which queries still do not meet the early stopping criterion
-            q_ids_left = (
-                scores_so_far.groupby("q_id")
-                .filter(
-                    lambda g: g["int_score"].nlargest(cutoff).iat[-1]
-                    < alpha * g["score"].iat[-1] + (1 - alpha) * g["ff_score"].max()
-                )["q_id"]
-                .drop_duplicates()
-                .to_list()
-            )
-            LOGGER.info("depth %s: %s queries left", b, len(q_ids_left))
 
             a = b
         return scores_so_far.join(df, on="orig_index", lsuffix=None, rsuffix="_")
