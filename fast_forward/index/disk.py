@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, List, Sequence, Set, Tuple, Union
+from typing import Iterable, List, Optional, Sequence, Set, Tuple
 
 import h5py
 import numpy as np
@@ -157,10 +157,25 @@ class OnDiskIndex(Index):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Union[Sequence[str], None],
-        psg_ids: Union[Sequence[str], None],
+        doc_ids: Sequence[Optional[str]],
+        psg_ids: Sequence[Optional[str]],
     ) -> None:
         with h5py.File(self._index_file, "a") as fp:
+
+            # check all IDs first before adding anything
+            doc_id_size = fp["doc_ids"].dtype.itemsize
+            for doc_id in doc_ids:
+                if doc_id is not None and len(doc_id) > doc_id_size:
+                    raise RuntimeError(
+                        f"Document ID {doc_id} is longer than the maximum ({doc_id_size} characters)."
+                    )
+            psg_id_size = fp["psg_ids"].dtype.itemsize
+            for psg_id in psg_ids:
+                if psg_id is not None and len(psg_id) > psg_id_size:
+                    raise RuntimeError(
+                        f"Passage ID {psg_id} is longer than the maximum ({psg_id_size} characters)."
+                    )
+
             num_new_vecs = vectors.shape[0]
             capacity = fp["vectors"].shape[0]
 
@@ -176,38 +191,23 @@ class OnDiskIndex(Index):
                 fp["doc_ids"].resize(new_size, axis=0)
                 fp["psg_ids"].resize(new_size, axis=0)
 
-            # check all IDs first before adding anything
-            doc_id_size = fp["doc_ids"].dtype.itemsize
-            psg_id_size = fp["psg_ids"].dtype.itemsize
-            add_doc_ids, add_psg_ids = [], []
-            if doc_ids is not None:
-                for i, doc_id in enumerate(doc_ids):
-                    if len(doc_id) > doc_id_size:
-                        raise RuntimeError(
-                            f"Document ID {doc_id} is longer than the maximum ({doc_id_size} characters)."
-                        )
-                    add_doc_ids.append((doc_id, cur_num_vectors + i))
-            if psg_ids is not None:
-                for i, psg_id in enumerate(psg_ids):
-                    if len(psg_id) > psg_id_size:
-                        raise RuntimeError(
-                            f"Passage ID {psg_id} is longer than the maximum ({psg_id_size} characters)."
-                        )
-                    add_psg_ids.append((psg_id, cur_num_vectors + i))
+            # add new document IDs to index and in-memory mappings
+            doc_id_idxs, non_null_doc_ids = [], []
+            for i, doc_id in enumerate(doc_ids):
+                if doc_id is not None:
+                    self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
+                    doc_id_idxs.append(cur_num_vectors + i)
+                    non_null_doc_ids.append(doc_id)
+            fp["doc_ids"][doc_id_idxs] = non_null_doc_ids
 
-            # add new IDs to index and in-memory mappings
-            if doc_ids is not None:
-                for doc_id, idx in add_doc_ids:
-                    self._doc_id_to_idx[doc_id].append(idx)
-                fp["doc_ids"][
-                    cur_num_vectors : cur_num_vectors + num_new_vecs
-                ] = doc_ids
-            if psg_ids is not None:
-                for psg_id, idx in add_psg_ids:
-                    self._psg_id_to_idx[psg_id] = idx
-                fp["psg_ids"][
-                    cur_num_vectors : cur_num_vectors + num_new_vecs
-                ] = psg_ids
+            # add new passage IDs to index and in-memory mappings
+            psg_id_idxs, non_null_psg_ids = [], []
+            for i, psg_id in enumerate(psg_ids):
+                if psg_id is not None:
+                    self._psg_id_to_idx[psg_id] = cur_num_vectors + i
+                    psg_id_idxs.append(cur_num_vectors + i)
+                    non_null_psg_ids.append(psg_id)
+            fp["psg_ids"][psg_id_idxs] = non_null_psg_ids
 
             # add new vectors
             fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors

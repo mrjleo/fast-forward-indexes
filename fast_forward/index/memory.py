@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Iterable, List, Sequence, Set, Tuple, Union
+from typing import Iterable, List, Optional, Sequence, Set, Tuple
 
 import numpy as np
 
@@ -62,8 +62,8 @@ class InMemoryIndex(Index):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Union[Sequence[str], None],
-        psg_ids: Union[Sequence[str], None],
+        doc_ids: Sequence[Optional[str]],
+        psg_ids: Sequence[Optional[str]],
     ) -> None:
         # if this is the first call to _add, no shards exist
         if len(self._shards) == 0:
@@ -72,15 +72,21 @@ class InMemoryIndex(Index):
             )
 
         # assign passage and document IDs
-        if doc_ids is not None:
-            for j, doc_id in enumerate(doc_ids, len(self)):
-                self._doc_id_to_idx[doc_id].append(j)
-        if psg_ids is not None:
-            for j, psg_id in enumerate(psg_ids, len(self)):
-                if psg_id not in self._psg_id_to_idx:
-                    self._psg_id_to_idx[psg_id] = j
-                else:
-                    LOGGER.error("passage ID %s already exists", psg_id)
+        j = len(self)
+        for doc_id in doc_ids:
+            if doc_id is None:
+                continue
+            self._doc_id_to_idx[doc_id].append(j)
+            j += 1
+
+        j = len(self)
+        for psg_id in psg_ids:
+            if psg_id is None:
+                continue
+            if psg_id in self._psg_id_to_idx:
+                raise RuntimeError(f"Passage ID {psg_id} already exists.")
+            self._psg_id_to_idx[psg_id] = j
+            j += 1
 
         # add vectors to shards
         added = 0

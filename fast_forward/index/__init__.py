@@ -6,7 +6,7 @@ import abc
 import logging
 from enum import Enum
 from time import perf_counter
-from typing import Iterable, List, Sequence, Set, Tuple, Union
+from typing import Iterable, List, Optional, Sequence, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -165,51 +165,65 @@ class Index(abc.ABC):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Union[Sequence[str], None],
-        psg_ids: Union[Sequence[str], None],
+        doc_ids: Sequence[Optional[str]],
+        psg_ids: Sequence[Optional[str]],
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
-        Each vector is guaranteed to have either a document or passage ID associated.
+
+        Document IDs may have duplicates, passage IDs are assumed to be unique.
 
         Args:
             vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
-            doc_ids (Union[Sequence[str], None]): The corresponding document IDs (may be duplicate).
-            psg_ids (Union[Sequence[str], None]): The corresponding passage IDs (must be unique).
+            doc_ids (Sequence[Optional[str]]): The corresponding document IDs.
+            psg_ids (Sequence[Optional[str]]): The corresponding passage IDs.
         """
         pass
 
     def add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[str] = None,
-        psg_ids: Sequence[str] = None,
+        doc_ids: Sequence[Optional[str]] = None,
+        psg_ids: Sequence[Optional[str]] = None,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
-        Only one of `doc_ids` and `psg_ids` may be None.
+
+        Only one of `doc_ids` and `psg_ids` may be None. Individual IDs in the sequence may also be None,
+        but each vector must have at least one associated ID.
+
+        Document IDs may have duplicates, passage IDs must be unique.
 
         Args:
             vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
-            doc_id (Sequence[str], optional): The corresponding document IDs (may be duplicate). Defaults to None.
-            psg_id (Sequence[str], optional): The corresponding passage IDs (must be unique). Defaults to None.
+            doc_id (Sequence[Optional[str]], optional): The corresponding document IDs (may be duplicate). Defaults to None.
+            psg_id (Sequence[Optional[str]], optional): The corresponding passage IDs (must be unique). Defaults to None.
 
         Raises:
             ValueError: When there are no document IDs and no passage IDs.
-            ValueError: When vector and index dimensionalities don't match.
+            ValueError: When the number of IDs does not match the number of vectors.
+            ValueError: When the vector and index dimensionalities don't match.
+            ValueError: When a vector has neither a document nor a passage ID.
             RuntimeError: When items can't be added to the index for any reason.
         """
         if doc_ids is None and psg_ids is None:
             raise ValueError("At least one of doc_ids and psg_ids must be provided.")
 
         num_vectors, dim = vectors.shape
-        if doc_ids is not None:
-            assert num_vectors == len(doc_ids)
-        if psg_ids is not None:
-            assert num_vectors == len(psg_ids)
+
+        if doc_ids is None:
+            doc_ids = [None] * num_vectors
+        if psg_ids is None:
+            psg_ids = [None] * num_vectors
+        if not len(doc_ids) == len(psg_ids) == num_vectors:
+            raise ValueError("Number of IDs does not match number of vectors.")
 
         if dim != self.dim:
             raise ValueError(
                 f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
             )
+
+        for doc_id, psg_id in zip(doc_ids, psg_ids):
+            if doc_id is None and psg_id is None:
+                raise ValueError("Vector has neither document nor passage ID.")
 
         self._add(vectors, doc_ids, psg_ids)
 
