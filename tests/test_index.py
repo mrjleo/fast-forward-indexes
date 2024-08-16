@@ -183,18 +183,44 @@ class TestIndex(unittest.TestCase):
         )
 
     def test_errors(self):
+        # no IDs
         with self.assertRaises(ValueError):
             self.index_no_enc.add(DUMMY_VECTORS, doc_ids=None, psg_ids=None)
+
+        # too few IDs
+        with self.assertRaises(ValueError):
+            self.index_no_enc.add(
+                DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS[:-2], psg_ids=None
+            )
+        with self.assertRaises(ValueError):
+            self.index_no_enc.add(
+                DUMMY_VECTORS, doc_ids=None, psg_ids=DUMMY_PSG_IDS[:-2]
+            )
+
+        # missing ID
+        with self.assertRaises(ValueError):
+            self.index_no_enc.add(
+                DUMMY_VECTORS,
+                doc_ids=[None] + DUMMY_DOC_IDS[1:],
+                psg_ids=[None] + DUMMY_PSG_IDS[1:],
+            )
+
+        # encoding without encoder
         with self.assertRaises(RuntimeError):
             self.index_no_enc.encode_queries(["test"])
+
+        # adding vectors with wrong dimension
         with self.assertRaises(ValueError):
             self.index_wrong_dim.add(
                 DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
             )
+
+        # ranking without queries
         ranking_no_queries = Ranking.from_run(DUMMY_DOC_RUN)
         with self.assertRaises(ValueError):
             self.doc_psg_index(ranking_no_queries)
 
+        # early stopping without required parameters
         with self.assertRaises(ValueError):
             self.doc_psg_index(
                 DUMMY_DOC_RANKING, early_stopping=10, early_stopping_alpha=None
