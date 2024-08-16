@@ -23,10 +23,10 @@ class TestIndexer(unittest.TestCase):
                 {"text": "456", "doc_id": "d1", "psg_id": "d1_p3"},
                 {"text": "567", "doc_id": "d2", "psg_id": "d2_p1"},
                 {"text": "678", "doc_id": "d3", "psg_id": "d3_p1"},
+                {"text": "890", "doc_id": "d4"},
+                {"text": "901", "psg_id": "d5_p1"},
             ]
         )
-        self.indexer.index_dicts([{"text": "890", "doc_id": "d4"}])
-        self.indexer.index_dicts([{"text": "901", "psg_id": "d5_p1"}])
         self.assertEqual(7, len(self.index))
         self.assertEqual(set(("d1", "d2", "d3", "d4")), self.index._get_doc_ids())
         self.assertEqual(
