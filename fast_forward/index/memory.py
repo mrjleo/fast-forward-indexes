@@ -28,7 +28,7 @@ class InMemoryIndex(Index):
         Args:
             dim (int): Vector dimension.
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
-            mode (Mode, optional): Indexing mode. Defaults to Mode.PASSAGE.
+            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
             alloc_size (int, optional): Size of shard allocated when index is full. Defaults to 2**14.
