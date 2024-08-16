@@ -72,21 +72,16 @@ class InMemoryIndex(Index):
             )
 
         # assign passage and document IDs
-        j = len(self)
-        for doc_id in doc_ids:
-            if doc_id is None:
-                continue
-            self._doc_id_to_idx[doc_id].append(j)
-            j += 1
+        for i, doc_id in enumerate(doc_ids, len(self)):
+            if doc_id is not None:
+                self._doc_id_to_idx[doc_id].append(i)
 
-        j = len(self)
-        for psg_id in psg_ids:
+        for i, psg_id in enumerate(psg_ids, len(self)):
             if psg_id is None:
                 continue
             if psg_id in self._psg_id_to_idx:
                 raise RuntimeError(f"Passage ID {psg_id} already exists.")
-            self._psg_id_to_idx[psg_id] = j
-            j += 1
+            self._psg_id_to_idx[psg_id] = i
 
         # add vectors to shards
         added = 0
