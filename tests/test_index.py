@@ -44,8 +44,20 @@ class TestIndex(unittest.TestCase):
         self.doc_psg_index.add(
             vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
         )
-        self.index_partial_ids.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
-        self.index_partial_ids.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
+
+        # some vectors have only a document ID, some have only a passage ID, some have both
+        self.index_partial_ids.add(
+            vectors=DUMMY_VECTORS,
+            doc_ids=[None, None] + DUMMY_DOC_IDS[2:],
+            psg_ids=DUMMY_PSG_IDS[:-2] + [None, None],
+        )
+        # vectors have only document IDs
+        self.index_partial_ids.add(vectors=DUMMY_VECTORS[:2], doc_ids=DUMMY_DOC_IDS[:2])
+        # vectors have only passage IDs
+        self.index_partial_ids.add(
+            vectors=DUMMY_VECTORS[-2:], psg_ids=DUMMY_PSG_IDS[-2:]
+        )
+
         self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
         self.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
@@ -57,7 +69,7 @@ class TestIndex(unittest.TestCase):
 
         self.assertEqual(set(DUMMY_DOC_IDS), self.index_partial_ids.doc_ids)
         self.assertEqual(set(DUMMY_PSG_IDS), self.index_partial_ids.psg_ids)
-        self.assertEqual(DUMMY_NUM * 2, len(self.index_partial_ids))
+        self.assertEqual(DUMMY_NUM + 4, len(self.index_partial_ids))
         self.assertEqual(DUMMY_DIM, self.index_partial_ids.dim)
 
         self.assertEqual(set(DUMMY_DOC_IDS), self.doc_index.doc_ids)
