@@ -6,7 +6,7 @@ import abc
 import logging
 from enum import Enum
 from time import perf_counter
-from typing import Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Iterable, Iterator, List, Optional, Sequence, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -24,6 +24,9 @@ class Mode(Enum):
     MAXP = 2
     FIRSTP = 3
     AVEP = 4
+
+
+IDSequence = Sequence[Optional[str]]
 
 
 class Index(abc.ABC):
@@ -441,3 +444,29 @@ class Index(abc.ABC):
             copy=False,
             is_sorted=False,
         )
+
+    @abc.abstractmethod
+    def batch_iter(
+        self, batch_size: int
+    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+        """Iterate over all vectors, document IDs, and passage IDs in batches.
+        IDs may be either strings or None.
+
+        Args:
+            batch_size (int): Batch size.
+
+        Yields:
+            Tuple[np.ndarray, IDSequence, IDSequence]: Batches of vectors, document IDs (if any), passage IDs (if any).
+        """
+        pass
+
+    def __iter__(
+        self,
+    ) -> Iterator[Tuple[np.ndarray, Optional[str], Optional[str]]]:
+        """Iterate over all vectors, document IDs, and passage IDs.
+
+        Yields:
+            Tuple[np.ndarray, Optional[str], Optional[str]]: Vector, document ID (if any), passage ID (if any).
+        """
+        for vectors, doc_ids, psg_ids in self.batch_iter(2**9):
+            yield from zip(vectors, doc_ids, psg_ids)

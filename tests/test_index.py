@@ -1,3 +1,4 @@
+import itertools
 import shutil
 import tempfile
 import unittest
@@ -316,6 +317,19 @@ class TestIndex(unittest.TestCase):
             for v1, v2 in zip(vectors_1, vectors_2):
                 self.assertTrue(np.array_equal(v1, v2))
 
+    def test_iter(self):
+        for index in self.iter_indexes:
+            index.add(DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS)
+            for batch_size in (1, 3, 5, 10):
+                vectors, doc_ids, psg_ids = zip(*index.batch_iter(batch_size))
+                np.testing.assert_equal(DUMMY_VECTORS, np.concatenate(vectors))
+                self.assertEqual(
+                    DUMMY_DOC_IDS, list(itertools.chain.from_iterable(doc_ids))
+                )
+                self.assertEqual(
+                    DUMMY_PSG_IDS, list(itertools.chain.from_iterable(psg_ids))
+                )
+
 
 class TestInMemoryIndex(TestIndex):
     __test__ = True
@@ -331,6 +345,10 @@ class TestInMemoryIndex(TestIndex):
         self.coalesced_indexes = [
             InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP),
             InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP),
+        ]
+        self.iter_indexes = [
+            InMemoryIndex(DUMMY_VECTORS.shape[1], init_size=2, alloc_size=2),
+            InMemoryIndex(DUMMY_VECTORS.shape[1], init_size=5),
         ]
         super().setUp()
 
@@ -391,6 +409,15 @@ class TestOnDiskIndex(TestIndex):
             OnDiskIndex(
                 self.temp_dir / "coalesced_index_2.h5", DUMMY_DIM, mode=Mode.MAXP
             ),
+        ]
+        self.iter_indexes = [
+            OnDiskIndex(
+                self.temp_dir / "iter_index_1.h5",
+                DUMMY_DIM,
+                init_size=2,
+                resize_min_val=2,
+            ),
+            OnDiskIndex(self.temp_dir / "iter_index_2.h5", DUMMY_DIM, init_size=5),
         ]
         super().setUp()
 

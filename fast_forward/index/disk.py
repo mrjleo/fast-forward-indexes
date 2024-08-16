@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Iterable, Iterator, List, Optional, Sequence, Set, Tuple
 
 import h5py
 import numpy as np
@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 import fast_forward
 from fast_forward.encoder import Encoder
-from fast_forward.index import Index, Mode
+from fast_forward.index import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
 
 LOGGER = logging.getLogger(__name__)
@@ -252,6 +252,23 @@ class OnDiskIndex(Index):
                 ]
             )
             return vectors, [id_to_idxs[id] for id in ids]
+
+    def batch_iter(
+        self, batch_size: int
+    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+        with h5py.File(self._index_file, "r") as fp:
+            num_vectors = fp.attrs["num_vectors"]
+            for i in range(0, num_vectors, batch_size):
+                j = min(i + batch_size, num_vectors)
+                doc_ids = fp["doc_ids"].asstr()[i:j]
+                doc_ids[doc_ids == ""] = None
+                psg_ids = fp["psg_ids"].asstr()[i:j]
+                psg_ids[psg_ids == ""] = None
+                yield (
+                    fp["vectors"][i:j],
+                    doc_ids.tolist(),
+                    psg_ids.tolist(),
+                )
 
     @classmethod
     def load(
