@@ -105,7 +105,6 @@ class TestIndex(unittest.TestCase):
     def test_maxp(self):
         self.doc_psg_index.mode = Mode.MAXP
         result = self.doc_psg_index(DUMMY_DOC_RANKING)
-        print(result)
         self.assertEqual(
             result,
             Ranking.from_run(
@@ -143,8 +142,6 @@ class TestIndex(unittest.TestCase):
         )
 
         self.doc_psg_index.mode = Mode.AVEP
-        print(expected)
-        print(self.doc_psg_index(DUMMY_DOC_RANKING))
         self.assertEqual(
             self.doc_psg_index(DUMMY_DOC_RANKING),
             expected,
@@ -163,8 +160,6 @@ class TestIndex(unittest.TestCase):
             }
         )
         self.doc_psg_index.mode = Mode.PASSAGE
-        print(self.doc_psg_index(DUMMY_PSG_RANKING))
-        print(expected)
         self.assertEqual(
             self.doc_psg_index(DUMMY_PSG_RANKING),
             expected,
@@ -281,7 +276,6 @@ class TestIndex(unittest.TestCase):
             vectors_2, _ = self.coalesced_indexes[1]._get_vectors([doc_id])
             self.assertEqual(len(vectors_1), len(vectors_2))
             for v1, v2 in zip(vectors_1, vectors_2):
-                print(v1, v2)
                 self.assertTrue(np.array_equal(v1, v2))
 
 
