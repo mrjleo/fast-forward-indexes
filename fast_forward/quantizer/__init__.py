@@ -108,7 +108,7 @@ class Quantizer(abc.ABC):
         return self._decode(codes)
 
     @abc.abstractmethod
-    def get_state(self) -> Dict[str, Union[str, np.ndarray]]:
+    def get_state(self) -> Dict[str, Union[bytes, np.ndarray]]:
         """Return a serialized representation of the quantizer that can be stored in the index.
 
         Returns:
@@ -118,7 +118,7 @@ class Quantizer(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def load(cls, state: Dict[str, Union[str, np.ndarray]]) -> "Quantizer":
+    def load(cls, state: Dict[str, Union[bytes, np.ndarray]]) -> "Quantizer":
         """Load a (trained) quantizer based on its serialized representation.
 
         Returns:
