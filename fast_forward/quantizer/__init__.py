@@ -17,7 +17,7 @@ class Quantizer(abc.ABC):
         """Set the quantizer as attached, preventing calls to `Quantizer.fit`."""
         if not self._trained:
             raise RuntimeError(
-                f"Call {self.__class__}.fit before attaching the quantizer to an index."
+                f"Call {self.__class__.__name__}.fit before attaching the quantizer to an index."
             )
         self._attached = True
 
@@ -82,7 +82,7 @@ class Quantizer(abc.ABC):
             np.ndarray: The codes corresponding to the vectors.
         """
         if not self._trained:
-            raise RuntimeError(f"Call {self.__class__}.fit first.")
+            raise RuntimeError(f"Call {self.__class__.__name__}.fit first.")
         return self._encode(vectors)
 
     @abc.abstractmethod
@@ -107,7 +107,7 @@ class Quantizer(abc.ABC):
             np.ndarray: The approximated vectors.
         """
         if not self._trained:
-            raise RuntimeError(f"Call {self.__class__}.fit first.")
+            raise RuntimeError(f"Call {self.__class__.__name__}.fit first.")
         return self._decode(codes)
 
     @abc.abstractmethod
