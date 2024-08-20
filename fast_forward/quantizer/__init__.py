@@ -1,6 +1,6 @@
 import abc
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Union
 
 import numpy as np
 
@@ -8,11 +8,14 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Quantizer(abc.ABC):
+    """Base class for quantizers."""
+
     _attached: bool = False
+    _trained: bool = False
 
     @abc.abstractmethod
     def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
-        """Fit the quantizer.
+        """Fit the quantizer (internal method).
 
         Args:
             vectors (np.ndarray): The training vectors.
@@ -37,20 +40,21 @@ class Quantizer(abc.ABC):
                 "Quantizers can only be fitted before they are attached to an index."
             )
         self._fit(vectors, **kwargs)
+        self._trained = True
 
     @property
     @abc.abstractmethod
-    def dtype(self) -> Optional[np.dtype]:
-        """The data type of the codes produced by this quantizer or None if the quantizer is not trained.
+    def dtype(self) -> np.dtype:
+        """The data type of the codes produced by this quantizer.
 
         Returns:
-            Optional[np.dtype]: The data type (if any).
+            np.dtype: The data type.
         """
         pass
 
     @abc.abstractmethod
-    def encode(self, vectors: np.ndarray) -> np.ndarray:
-        """Encode a batch of vectors.
+    def _encode(self, vectors: np.ndarray) -> np.ndarray:
+        """Encode vectors (internal method).
 
         Args:
             vectors (np.ndarray): The vectors to be encoded.
@@ -60,7 +64,31 @@ class Quantizer(abc.ABC):
         """
         pass
 
+    def encode(self, vectors: np.ndarray) -> np.ndarray:
+        """Encode a batch of vectors.
+
+        Args:
+            vectors (np.ndarray): The vectors to be encoded.
+
+        Returns:
+            np.ndarray: The codes corresponding to the vectors.
+        """
+        if not self._trained:
+            raise RuntimeError(f"Call {self.__class__}.fit first.")
+        return self._encode(vectors)
+
     @abc.abstractmethod
+    def _decode(self, codes: np.ndarray) -> np.ndarray:
+        """Reconstruct vectors (internal method).
+
+        Args:
+            codes (np.ndarray): The codes to be decoded.
+
+        Returns:
+            np.ndarray: The reconstructed vectors.
+        """
+        pass
+
     def decode(self, codes: np.ndarray) -> np.ndarray:
         """Decode a batch of codes to obtain approximate vector representations.
 
@@ -70,7 +98,9 @@ class Quantizer(abc.ABC):
         Returns:
             np.ndarray: The approximated vectors.
         """
-        pass
+        if not self._trained:
+            raise RuntimeError(f"Call {self.__class__}.fit first.")
+        return self._decode(codes)
 
     @abc.abstractmethod
     def get_state(self) -> Dict[str, Union[str, np.ndarray]]:
