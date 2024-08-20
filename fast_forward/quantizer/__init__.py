@@ -13,6 +13,14 @@ class Quantizer(abc.ABC):
     _attached: bool = False
     _trained: bool = False
 
+    def set_attached(self) -> None:
+        """Set the quantizer as attached, preventing calls to `Quantizer.fit`."""
+        if not self._trained:
+            raise RuntimeError(
+                f"Call {self.__class__}.fit before attaching the quantizer to an index."
+            )
+        self._attached = True
+
     @abc.abstractmethod
     def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         """Fit the quantizer (internal method).
