@@ -297,7 +297,7 @@ class Ranking(object):
         """
         df = pd.read_csv(
             f,
-            delim_whitespace=True,
+            sep=r"\s+",
             skipinitialspace=True,
             header=None,
             names=["q_id", "q0", "id", "rank", "score", "name"],
