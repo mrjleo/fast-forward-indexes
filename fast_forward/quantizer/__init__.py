@@ -1,10 +1,7 @@
 import abc
-import logging
 from typing import Any, Dict, Union
 
 import numpy as np
-
-LOGGER = logging.getLogger(__name__)
 
 
 class Quantizer(abc.ABC):
@@ -121,7 +118,7 @@ class Quantizer(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def load(state: Dict[str, Union[str, np.ndarray]]) -> "Quantizer":
+    def load(cls, state: Dict[str, Union[str, np.ndarray]]) -> "Quantizer":
         """Load a (trained) quantizer based on its serialized representation.
 
         Returns:
