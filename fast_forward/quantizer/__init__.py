@@ -1,6 +1,6 @@
 import abc
 import logging
-from typing import Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 import numpy as np
 
@@ -11,21 +11,23 @@ class Quantizer(abc.ABC):
     _attached: bool = False
 
     @abc.abstractmethod
-    def _fit(self, vectors: np.ndarray) -> None:
+    def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         """Fit the quantizer.
 
         Args:
             vectors (np.ndarray): The training vectors.
+            **kwargs (Any): Arguments specific to the quantizer.
         """
         pass
 
-    def fit(self, vectors: np.ndarray) -> None:
+    def fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         """Fit (train) the quantizer.
 
         Quantizers can only be trained before being attached to an index to avoid inconsistencies.
 
         Args:
             vectors (np.ndarray): The training vectors.
+            **kwargs (Any): Arguments specific to the quantizer.
 
         Raises:
             RuntimeError: When the quantizer is aready attached to an index.
@@ -34,7 +36,7 @@ class Quantizer(abc.ABC):
             raise RuntimeError(
                 "Quantizers can only be fitted before they are attached to an index."
             )
-        self._fit(vectors)
+        self._fit(vectors, **kwargs)
 
     @property
     @abc.abstractmethod
