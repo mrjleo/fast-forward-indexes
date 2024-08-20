@@ -1,5 +1,5 @@
 import abc
-from typing import Any, Dict, Union
+from typing import Any
 
 import numpy as np
 
@@ -106,22 +106,3 @@ class Quantizer(abc.ABC):
         if not self._trained:
             raise RuntimeError(f"Call {self.__class__.__name__}.fit first.")
         return self._decode(codes)
-
-    @abc.abstractmethod
-    def get_state(self) -> Dict[str, Union[bytes, np.ndarray]]:
-        """Return a serialized representation of the quantizer that can be stored in the index.
-
-        Returns:
-            Dict[str, Union[str, np.ndarray]]: Key-value pairs representing the state of the quantizer.
-        """
-        pass
-
-    @classmethod
-    @abc.abstractmethod
-    def load(cls, state: Dict[str, Union[bytes, np.ndarray]]) -> "Quantizer":
-        """Load a (trained) quantizer based on its serialized representation.
-
-        Returns:
-            Quantizer: The loaded qunatizer.
-        """
-        pass

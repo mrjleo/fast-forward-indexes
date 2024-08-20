@@ -1,5 +1,4 @@
-import pickle
-from typing import Any, Dict, Union
+from typing import Any
 
 import nanopq
 import numpy as np
@@ -39,13 +38,3 @@ class NanoPQQuantizer(Quantizer):
 
     def _decode(self, codes: np.ndarray) -> np.ndarray:
         return self._pq.decode(codes=codes)
-
-    def get_state(self) -> Dict[str, Union[bytes, np.ndarray]]:
-        return {"obj_pkl": pickle.dumps(self._pq)}
-
-    @classmethod
-    def load(cls, state: Dict[str, Union[bytes, np.ndarray]]) -> "NanoPQQuantizer":
-        quantizer = cls.__new__(cls)
-        super(NanoPQQuantizer, quantizer).__init__()
-        quantizer._pq = pickle.loads(state["obj_pkl"])
-        return quantizer
