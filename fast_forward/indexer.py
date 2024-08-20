@@ -27,6 +27,7 @@ class Indexer(object):
 
     def index_dicts(self, data: Iterable[Dict[str, str]]) -> None:
         """Index data from dictionaries.
+
         The dictionaries should have the key "text" and at least one of "doc_id" and "psg_id".
 
         Args:
@@ -35,22 +36,12 @@ class Indexer(object):
         texts, doc_ids, psg_ids = [], [], []
         for d in tqdm(data):
             texts.append(d["text"])
-            if "doc_id" in d:
-                doc_ids.append(d["doc_id"])
-            if "psg_id" in d:
-                psg_ids.append(d["psg_id"])
+            doc_ids.append(d.get("doc_id"))
+            psg_ids.append(d.get("psg_id"))
 
             if len(texts) == self._batch_size:
-                self._index.add(
-                    self._encoder(texts),
-                    doc_ids=doc_ids if len(doc_ids) > 0 else None,
-                    psg_ids=psg_ids if len(psg_ids) > 0 else None,
-                )
+                self._index.add(self._encoder(texts), doc_ids=doc_ids, psg_ids=psg_ids)
                 texts, doc_ids, psg_ids = [], [], []
 
         if len(texts) > 0:
-            self._index.add(
-                self._encoder(texts),
-                doc_ids=doc_ids if len(doc_ids) > 0 else None,
-                psg_ids=psg_ids if len(psg_ids) > 0 else None,
-            )
+            self._index.add(self._encoder(texts), doc_ids=doc_ids, psg_ids=psg_ids)
