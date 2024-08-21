@@ -1,7 +1,15 @@
 import abc
-from typing import Any
+import importlib
+import logging
+from typing import Any, Dict, Tuple, Union
 
 import numpy as np
+
+LOGGER = logging.getLogger(__name__)
+
+
+QuantizerAttributes = Dict[str, Union[str, bool, int, float]]
+QuantizerData = Dict[str, np.ndarray]
 
 
 class Quantizer(abc.ABC):
@@ -116,3 +124,67 @@ class Quantizer(abc.ABC):
         if not self._trained:
             raise RuntimeError(f"Call {self.__class__.__name__}.fit first.")
         return self._decode(codes)
+
+    @abc.abstractmethod
+    def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
+        """Return key-value pairs that represent the state of the quantizer (internal method).
+
+        This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).
+
+        Returns:
+            Tuple[QuantizerAttributes, QuantizerData]: Attributes and data of the quantizer.
+        """
+        pass
+
+    def serialize(
+        self,
+    ) -> Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]:
+        """Return a serialized representation of the quantizer that can be stored in the index.
+
+        Returns:
+            Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]: The serialized quantizer.
+        """
+        meta = {
+            "__module__": self.__class__.__module__,
+            "__name__": self.__class__.__name__,
+            "_trained": self._trained,
+        }
+        attributes, data = self._get_state()
+        return meta, attributes, data
+
+    @classmethod
+    @abc.abstractmethod
+    def _from_state(
+        cls, attributes: QuantizerAttributes, data: QuantizerData
+    ) -> "Quantizer":
+        """Instantiate a quantizer based on its state.
+
+        Args:
+            attributes (QuantizerAttributes): The quantizer attributes.
+            data (QuantizerData): The quantizer attributes.
+
+        Returns:
+            Quantizer: The resulting quantizer.
+        """
+        pass
+
+    @classmethod
+    def deserialize(
+        cls,
+        rep: Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData],
+    ) -> "Quantizer":
+        """Reconstruct a serialized quantizer.
+
+        Args:
+            rep (Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]): The serialized quantizer.
+
+        Returns:
+            Quantizer: The loaded quantizer.
+        """
+        meta, attributes, data = rep
+        LOGGER.debug("importing %s.%s", meta["__module__"], meta["__name__"])
+        quantizer_mod = importlib.import_module(meta["__module__"])
+        quantizer_cls = getattr(quantizer_mod, meta["__name__"])
+        quantizer = quantizer_cls._from_state(attributes, data)
+        quantizer._trained = meta["_trained"]
+        return quantizer
