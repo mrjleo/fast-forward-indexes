@@ -6,8 +6,8 @@ import numpy as np
 from fast_forward.quantizer import Quantizer
 
 
-class NanoPQQuantizer(Quantizer):
-    """Quantizer that uses the nanopq library.
+class NanoPQ(Quantizer):
+    """Product quantizer that uses the nanopq library.
 
     More information is available [here](https://nanopq.readthedocs.io/en/stable/source/api.html#nanopq.PQ).
     """
