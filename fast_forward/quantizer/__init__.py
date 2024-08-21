@@ -57,6 +57,16 @@ class Quantizer(abc.ABC):
         """
         pass
 
+    @property
+    @abc.abstractmethod
+    def dim(self) -> int:
+        """The dimension of the codes produced by this quantizer.
+
+        Returns:
+            np.dtype: The dimension.
+        """
+        pass
+
     @abc.abstractmethod
     def _encode(self, vectors: np.ndarray) -> np.ndarray:
         """Encode vectors (internal method).

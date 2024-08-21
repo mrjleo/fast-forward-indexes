@@ -33,6 +33,10 @@ class NanoPQQuantizer(Quantizer):
     def dtype(self) -> np.dtype:
         return self._pq.code_dtype
 
+    @property
+    def dim(self) -> int:
+        return self._pq.M
+
     def _encode(self, vectors: np.ndarray) -> np.ndarray:
         return self._pq.encode(vecs=vectors)
 
