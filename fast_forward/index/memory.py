@@ -16,31 +16,25 @@ class InMemoryIndex(Index):
 
     def __init__(
         self,
-        dim: int,
         query_encoder: Encoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
         alloc_size: int = 2**14,
-        dtype: np.dtype = np.float32,
     ) -> None:
         """Create an index.
 
         Args:
-            dim (int): Vector dimension.
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
             alloc_size (int, optional): Size of shard allocated when index is full. Defaults to 2**14.
-            dtype (np.dtype, optional): Vector dtype. Defaults to np.float32.
         """
         self._shards = []
         self._init_size = init_size
         self._alloc_size = alloc_size
-        self._dtype = dtype
         self._idx_in_cur_shard = 0
-        self._dim = dim
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
         super().__init__(query_encoder, mode, encoder_batch_size)
@@ -57,8 +51,10 @@ class InMemoryIndex(Index):
             )
 
     @property
-    def dim(self) -> int:
-        return self._dim
+    def dim(self) -> Optional[int]:
+        if len(self._shards) > 0:
+            return self._shards[0].shape[-1]
+        return None
 
     def _add(
         self,
@@ -69,7 +65,7 @@ class InMemoryIndex(Index):
         # if this is the first call to _add, no shards exist
         if len(self._shards) == 0:
             self._shards.append(
-                np.zeros((self._init_size, self._dim), dtype=self._dtype)
+                np.zeros((self._init_size, vectors.shape[-1]), dtype=vectors.dtype)
             )
 
         # assign passage and document IDs
@@ -88,12 +84,12 @@ class InMemoryIndex(Index):
         added = 0
         num_vectors = vectors.shape[0]
         while added < num_vectors:
-            cur_shard_size = self._shards[-1].shape[0]
+            cur_shard_size, dim = self._shards[-1].shape
 
             # if current shard is full, add a new one
             if self._idx_in_cur_shard == cur_shard_size:
                 LOGGER.debug("adding new shard")
-                self._shards.append(np.zeros((self._alloc_size, self._dim)))
+                self._shards.append(np.zeros((self._alloc_size, dim)))
                 self._idx_in_cur_shard = 0
                 cur_shard_size = self._alloc_size
 
@@ -172,7 +168,7 @@ class InMemoryIndex(Index):
             items_so_far += len(items)
 
         if len(result_vectors) == 0:
-            return np.array([], dtype=self._dtype), []
+            return np.array([]), []
         return np.concatenate(result_vectors), [result_ids[id] for id in ids]
 
     def batch_iter(

@@ -25,14 +25,12 @@ class OnDiskIndex(Index):
     def __init__(
         self,
         index_file: Path,
-        dim: int,
         query_encoder: Encoder = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
         resize_min_val: int = 2**10,
         hdf5_chunk_size: int = None,
-        dtype: np.dtype = np.float32,
         max_id_length: int = 8,
         overwrite: bool = False,
         ds_buffer_size: int = 2**10,
@@ -41,14 +39,12 @@ class OnDiskIndex(Index):
 
         Args:
             index_file (Path): Index file to create (or overwrite).
-            dim (int): Vector dimensionality.
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             init_size (int, optional): Initial size to allocate (number of vectors). Defaults to 2**14.
             resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
             hdf5_chunk_size (int, optional): Override chunk size used by HDF5. Defaults to None.
-            dtype (np.dtype, optional): Vector dtype. Defaults to np.float32.
             max_id_length (int, optional): Maximum length of document and passage IDs (number of characters). Defaults to 8.
             overwrite (bool, optional): Overwrite index file if it exists. Defaults to False.
             ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
@@ -61,44 +57,65 @@ class OnDiskIndex(Index):
 
         super().__init__(query_encoder, mode, encoder_batch_size)
         self._index_file = index_file.absolute()
-        self._resize_min_val = resize_min_val
-        self._ds_buffer_size = ds_buffer_size
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
+
+        self._init_size = init_size
+        self._resize_min_val = resize_min_val
+        self._hdf5_chunk_size = hdf5_chunk_size
+        self._max_id_length = max_id_length
+        self._ds_buffer_size = ds_buffer_size
 
         with h5py.File(self._index_file, "w") as fp:
             fp.attrs["num_vectors"] = 0
             fp.attrs["ff_version"] = fast_forward.__version__
-            fp.create_dataset(
-                "vectors",
-                (init_size, dim),
-                dtype,
-                maxshape=(None, dim),
-                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size, dim),
-            )
-            fp.create_dataset(
-                "doc_ids",
-                (init_size,),
-                f"S{max_id_length}",
-                maxshape=(None,),
-                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
-            )
-            fp.create_dataset(
-                "psg_ids",
-                (init_size,),
-                f"S{max_id_length}",
-                maxshape=(None,),
-                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
-            )
+
+    def _create_ds(self, fp: h5py.File, dim: int, dtype: np.dtype) -> None:
+        """Create the h5py datasets for vectors and IDs.
+
+        Args:
+            fp (h5py.File): Index file (write permissions).
+            dim (int): Dimension of the vectors.
+            dtype (np.dtype): Type of the vectors.
+        """
+        fp.create_dataset(
+            "vectors",
+            (self._init_size, dim),
+            dtype,
+            maxshape=(None, dim),
+            chunks=(
+                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size, dim)
+            ),
+        )
+        fp.create_dataset(
+            "doc_ids",
+            (self._init_size,),
+            f"S{self._max_id_length}",
+            maxshape=(None,),
+            chunks=(
+                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size,)
+            ),
+        )
+        fp.create_dataset(
+            "psg_ids",
+            (self._init_size,),
+            f"S{self._max_id_length}",
+            maxshape=(None,),
+            chunks=(
+                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size,)
+            ),
+        )
 
     def __len__(self) -> int:
         with h5py.File(self._index_file, "r") as fp:
             return fp.attrs["num_vectors"]
 
     @property
-    def dim(self) -> int:
+    def dim(self) -> Optional[int]:
         with h5py.File(self._index_file, "r") as fp:
-            return fp["vectors"].shape[1]
+            if "vectors" in fp:
+                return fp["vectors"].shape[1]
+            return None
 
     def to_memory(self, buffer_size=None) -> InMemoryIndex:
         """Load the index entirely into memory.
@@ -111,12 +128,10 @@ class OnDiskIndex(Index):
         """
         with h5py.File(self._index_file, "r") as fp:
             index = InMemoryIndex(
-                dim=self.dim,
                 query_encoder=self._query_encoder,
                 mode=self.mode,
                 encoder_batch_size=self._encoder_batch_size,
                 init_size=len(self),
-                dtype=fp["vectors"].dtype,
             )
 
             buffer_size = buffer_size or fp.attrs["num_vectors"]
@@ -161,6 +176,9 @@ class OnDiskIndex(Index):
         psg_ids: Sequence[Optional[str]],
     ) -> None:
         with h5py.File(self._index_file, "a") as fp:
+            # if this is the first call to _add, no datasets exist
+            if "vectors" not in fp:
+                self._create_ds(fp, vectors.shape[-1], vectors.dtype)
 
             # check all IDs first before adding anything
             doc_id_size = fp["doc_ids"].dtype.itemsize

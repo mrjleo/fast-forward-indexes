@@ -111,11 +111,11 @@ class Index(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def dim(self) -> int:
-        """Return the dimensionality of the vectors in the index.
+    def dim(self) -> Optional[int]:
+        """Return the dimensionality of the vectors in the index (or None if there are no vectors).
 
         Returns:
-            int: The dimensionality.
+            Optional[int]: The dimensionality (if any).
         """
         pass
 
@@ -219,7 +219,7 @@ class Index(abc.ABC):
         if not len(doc_ids) == len(psg_ids) == num_vectors:
             raise ValueError("Number of IDs does not match number of vectors.")
 
-        if dim != self.dim:
+        if self.dim is not None and dim != self.dim:
             raise ValueError(
                 f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
             )

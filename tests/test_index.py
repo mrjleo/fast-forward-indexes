@@ -211,9 +211,10 @@ class TestIndex(unittest.TestCase):
             self.index_no_enc.encode_queries(["test"])
 
         # adding vectors with wrong dimension
+        self.index_wrong_dim.add(np.array([[0, 0], [1, 1]]), doc_ids=["d1", "d2"])
         with self.assertRaises(ValueError):
             self.index_wrong_dim.add(
-                DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
+                np.array([[0, 0, 0], [1, 1, 1]]), doc_ids=["d3", "d4"]
             )
 
         # ranking without queries
@@ -235,7 +236,7 @@ class TestIndex(unittest.TestCase):
         vectors = np.stack([[1, 0], [1, 1]] * 10)
         psg_ids = [f"p{i}" for i in range(20)]
         index = InMemoryIndex(
-            2, LambdaEncoder(lambda q: np.array([10, 10])), mode=Mode.PASSAGE
+            LambdaEncoder(lambda q: np.array([10, 10])), mode=Mode.PASSAGE
         )
         index.add(vectors, psg_ids=psg_ids)
         r = Ranking(
@@ -335,25 +336,25 @@ class TestInMemoryIndex(TestIndex):
     __test__ = True
 
     def setUp(self):
-        self.index = InMemoryIndex(16, init_size=32, alloc_size=32)
-        self.doc_psg_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
-        self.index_partial_ids = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
-        self.doc_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
-        self.psg_index = InMemoryIndex(DUMMY_DIM, DUMMY_ENCODER)
-        self.index_no_enc = InMemoryIndex(DUMMY_DIM, query_encoder=None)
-        self.index_wrong_dim = InMemoryIndex(DUMMY_DIM + 1, query_encoder=None)
+        self.index = InMemoryIndex(init_size=32, alloc_size=32)
+        self.doc_psg_index = InMemoryIndex(DUMMY_ENCODER)
+        self.index_partial_ids = InMemoryIndex(DUMMY_ENCODER)
+        self.doc_index = InMemoryIndex(DUMMY_ENCODER)
+        self.psg_index = InMemoryIndex(DUMMY_ENCODER)
+        self.index_no_enc = InMemoryIndex(query_encoder=None)
+        self.index_wrong_dim = InMemoryIndex(query_encoder=None)
         self.coalesced_indexes = [
-            InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP),
-            InMemoryIndex(DUMMY_DIM, mode=Mode.MAXP),
+            InMemoryIndex(mode=Mode.MAXP),
+            InMemoryIndex(mode=Mode.MAXP),
         ]
         self.iter_indexes = [
-            InMemoryIndex(DUMMY_VECTORS.shape[1], init_size=2, alloc_size=2),
-            InMemoryIndex(DUMMY_VECTORS.shape[1], init_size=5),
+            InMemoryIndex(init_size=2, alloc_size=2),
+            InMemoryIndex(init_size=5),
         ]
         super().setUp()
 
     def test_consolidate(self):
-        index = InMemoryIndex(16, init_size=8, alloc_size=4)
+        index = InMemoryIndex(init_size=8, alloc_size=4)
         data = data = np.random.normal(size=(32, 16))
         psg_ids = [f"psg_{i}" for i in range(32)]
 
@@ -374,50 +375,41 @@ class TestOnDiskIndex(TestIndex):
     def setUp(self):
         self.temp_dir = Path(tempfile.mkdtemp())
         self.index = OnDiskIndex(
-            self.temp_dir / "index.h5", 16, init_size=32, resize_min_val=32
+            self.temp_dir / "index.h5", init_size=32, resize_min_val=32
         )
         self.doc_psg_index = OnDiskIndex(
             self.temp_dir / "doc_psg_index.h5",
-            DUMMY_DIM,
             DUMMY_ENCODER,
         )
         self.index_partial_ids = OnDiskIndex(
             self.temp_dir / "index_partial_ids.h5",
-            DUMMY_DIM,
             DUMMY_ENCODER,
         )
         self.doc_index = OnDiskIndex(
             self.temp_dir / "doc_index.h5",
-            DUMMY_DIM,
             DUMMY_ENCODER,
         )
         self.psg_index = OnDiskIndex(
             self.temp_dir / "psg_index.h5",
-            DUMMY_DIM,
             DUMMY_ENCODER,
         )
         self.index_no_enc = OnDiskIndex(
-            self.temp_dir / "index_no_enc.h5", DUMMY_DIM, query_encoder=None
+            self.temp_dir / "index_no_enc.h5", query_encoder=None
         )
         self.index_wrong_dim = OnDiskIndex(
-            self.temp_dir / "index_wrong_dim.h5", DUMMY_DIM + 1, query_encoder=None
+            self.temp_dir / "index_wrong_dim.h5", query_encoder=None
         )
         self.coalesced_indexes = [
-            OnDiskIndex(
-                self.temp_dir / "coalesced_index_1.h5", DUMMY_DIM, mode=Mode.MAXP
-            ),
-            OnDiskIndex(
-                self.temp_dir / "coalesced_index_2.h5", DUMMY_DIM, mode=Mode.MAXP
-            ),
+            OnDiskIndex(self.temp_dir / "coalesced_index_1.h5", mode=Mode.MAXP),
+            OnDiskIndex(self.temp_dir / "coalesced_index_2.h5", mode=Mode.MAXP),
         ]
         self.iter_indexes = [
             OnDiskIndex(
                 self.temp_dir / "iter_index_1.h5",
-                DUMMY_DIM,
                 init_size=2,
                 resize_min_val=2,
             ),
-            OnDiskIndex(self.temp_dir / "iter_index_2.h5", DUMMY_DIM, init_size=5),
+            OnDiskIndex(self.temp_dir / "iter_index_2.h5", init_size=5),
         ]
         super().setUp()
 
@@ -481,9 +473,7 @@ class TestOnDiskIndex(TestIndex):
                 _test_get_vectors(mem_index_buffered, index, ids)
 
     def test_max_id_length(self):
-        index = OnDiskIndex(
-            self.temp_dir / "max_id_length_index.h5", 16, max_id_length=3
-        )
+        index = OnDiskIndex(self.temp_dir / "max_id_length_index.h5", max_id_length=3)
         vectors = np.zeros(shape=(16, 16))
         doc_ids_ok = ["d1"] * 16
         psg_ids_ok = [f"p{i}" for i in range(16)]
@@ -505,7 +495,6 @@ class TestOnDiskIndex(TestIndex):
     def test_ds_buffer_size(self):
         index = OnDiskIndex(
             self.temp_dir / "ds_buffer_size_index.h5",
-            16,
             mode=Mode.PASSAGE,
             ds_buffer_size=5,
         )
