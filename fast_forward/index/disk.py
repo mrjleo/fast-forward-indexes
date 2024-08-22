@@ -11,6 +11,7 @@ import fast_forward
 from fast_forward.encoder import Encoder
 from fast_forward.index import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
+from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class OnDiskIndex(Index):
         self,
         index_file: Path,
         query_encoder: Encoder = None,
+        quantizer: Quantizer = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -40,6 +42,7 @@ class OnDiskIndex(Index):
         Args:
             index_file (Path): Index file to create (or overwrite).
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
+            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             init_size (int, optional): Initial size to allocate (number of vectors). Defaults to 2**14.
@@ -55,7 +58,12 @@ class OnDiskIndex(Index):
         if index_file.exists() and not overwrite:
             raise ValueError(f"File {index_file} exists.")
 
-        super().__init__(query_encoder, mode, encoder_batch_size)
+        super().__init__(
+            query_encoder=query_encoder,
+            quantizer=quantizer,
+            mode=mode,
+            encoder_batch_size=encoder_batch_size,
+        )
         self._index_file = index_file.absolute()
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
@@ -112,6 +120,8 @@ class OnDiskIndex(Index):
 
     @property
     def dim(self) -> Optional[int]:
+        if self._quantizer is not None:
+            return self._quantizer.dims[0]
         with h5py.File(self._index_file, "r") as fp:
             if "vectors" in fp:
                 return fp["vectors"].shape[1]
@@ -312,7 +322,12 @@ class OnDiskIndex(Index):
             OnDiskIndex: The index.
         """
         index = cls.__new__(cls)
-        super(OnDiskIndex, index).__init__(query_encoder, mode, encoder_batch_size)
+        super(OnDiskIndex, index).__init__(
+            query_encoder=query_encoder,
+            quantizer=None,
+            mode=mode,
+            encoder_batch_size=encoder_batch_size,
+        )
         index._index_file = index_file.absolute()
         index._resize_min_val = resize_min_val
         index._ds_buffer_size = ds_buffer_size

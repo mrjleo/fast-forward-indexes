@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 
 from fast_forward.encoder import Encoder
+from fast_forward.quantizer import Quantizer
 from fast_forward.ranking import Ranking
 
 LOGGER = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ class Index(abc.ABC):
     def __init__(
         self,
         query_encoder: Encoder = None,
+        quantizer: Quantizer = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
     ) -> None:
@@ -42,12 +44,14 @@ class Index(abc.ABC):
 
         Args:
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
+            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
         super().__init__()
         self.query_encoder = query_encoder
         self.mode = mode
+        self._quantizer = quantizer
         self._encoder_batch_size = encoder_batch_size
 
     def encode_queries(self, queries: Sequence[str]) -> np.ndarray:
@@ -112,7 +116,9 @@ class Index(abc.ABC):
     @property
     @abc.abstractmethod
     def dim(self) -> Optional[int]:
-        """Return the dimensionality of the vectors in the index (or None if there are no vectors).
+        """Return the dimensionality of the vectors in the index or None if there are no vectors.
+
+        If a quantizer is used, the dimension before qunatization is returned.
 
         Returns:
             Optional[int]: The dimensionality (if any).
@@ -173,10 +179,10 @@ class Index(abc.ABC):
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
 
-        Document IDs may have duplicates, passage IDs are assumed to be unique.
+        Document IDs may have duplicates, passage IDs are assumed to be unique. Vectors may be quantized.
 
         Args:
-            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
+            vectors (np.ndarray): The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.
             doc_ids (Sequence[Optional[str]]): The corresponding document IDs.
             psg_ids (Sequence[Optional[str]]): The corresponding passage IDs.
         """
@@ -228,7 +234,11 @@ class Index(abc.ABC):
             if doc_id is None and psg_id is None:
                 raise ValueError("Vector has neither document nor passage ID.")
 
-        self._add(vectors, doc_ids, psg_ids)
+        self._add(
+            vectors if self._quantizer is None else self._quantizer.encode(vectors),
+            doc_ids,
+            psg_ids,
+        )
 
     @abc.abstractmethod
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
@@ -238,6 +248,7 @@ class Index(abc.ABC):
 
         The integers will be used to get the corresponding representations from the array.
         The output of this function depends on the current mode.
+        If a quantizer is used, this function returns quantized vectors.
 
         Args:
             ids (Iterable[str]): The document/passage IDs to get the representations for.
@@ -269,6 +280,8 @@ class Index(abc.ABC):
 
         # get all required vectors from the FF index
         vectors, id_to_vec_idxs = self._get_vectors(id_df["id"].to_list())
+        if self._quantizer is not None:
+            vectors = self._quantizer.decode(vectors)
 
         # compute indices for query vectors and doc/passage vectors in current arrays
         select_query_vectors = []

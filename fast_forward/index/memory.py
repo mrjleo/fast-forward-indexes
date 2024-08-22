@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from fast_forward.encoder import Encoder
 from fast_forward.index import IDSequence, Index, Mode
+from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ class InMemoryIndex(Index):
     def __init__(
         self,
         query_encoder: Encoder = None,
+        quantizer: Quantizer = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -26,6 +28,7 @@ class InMemoryIndex(Index):
 
         Args:
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
+            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
@@ -37,7 +40,12 @@ class InMemoryIndex(Index):
         self._idx_in_cur_shard = 0
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
-        super().__init__(query_encoder, mode, encoder_batch_size)
+        super().__init__(
+            query_encoder=query_encoder,
+            quantizer=quantizer,
+            mode=mode,
+            encoder_batch_size=encoder_batch_size,
+        )
 
     def __len__(self) -> int:
         # account for the fact that the first shard might be larger
@@ -52,6 +60,8 @@ class InMemoryIndex(Index):
 
     @property
     def dim(self) -> Optional[int]:
+        if self._quantizer is not None:
+            return self._quantizer.dims[0]
         if len(self._shards) > 0:
             return self._shards[0].shape[-1]
         return None
