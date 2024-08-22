@@ -58,9 +58,7 @@ class NanoPQ(Quantizer):
     def _from_state(
         cls, attributes: QuantizerAttributes, data: QuantizerData
     ) -> "NanoPQ":
-        quantizer = cls.__new__(cls)
-        super(NanoPQ, quantizer).__init__()
-        quantizer._pq = nanopq.PQ(
+        quantizer = cls(
             M=attributes["M"],
             Ks=attributes["Ks"],
             metric=attributes["metric"],
