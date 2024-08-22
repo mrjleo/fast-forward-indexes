@@ -233,12 +233,9 @@ class TestIndex(unittest.TestCase):
             )
 
     def test_early_stopping(self):
-        vectors = np.stack([[1, 0], [1, 1]] * 10)
-        psg_ids = [f"p{i}" for i in range(20)]
-        index = InMemoryIndex(
-            LambdaEncoder(lambda q: np.array([10, 10])), mode=Mode.PASSAGE
+        self.early_stopping_index.add(
+            np.stack([[1, 0], [1, 1]] * 10), psg_ids=[f"p{i}" for i in range(20)]
         )
-        index.add(vectors, psg_ids=psg_ids)
         r = Ranking(
             pd.DataFrame(
                 [
@@ -277,7 +274,7 @@ class TestIndex(unittest.TestCase):
         )
 
         self.assertEqual(
-            index(
+            self.early_stopping_index(
                 r,
                 early_stopping=5,
                 early_stopping_alpha=0.5,
@@ -288,7 +285,7 @@ class TestIndex(unittest.TestCase):
 
         # order of intervals should make no difference
         self.assertEqual(
-            index(
+            self.early_stopping_index(
                 r,
                 early_stopping=5,
                 early_stopping_alpha=0.5,
@@ -343,6 +340,9 @@ class TestInMemoryIndex(TestIndex):
         self.psg_index = InMemoryIndex(DUMMY_ENCODER)
         self.index_no_enc = InMemoryIndex(query_encoder=None)
         self.index_wrong_dim = InMemoryIndex(query_encoder=None)
+        self.early_stopping_index = InMemoryIndex(
+            LambdaEncoder(lambda q: np.array([10, 10])), mode=Mode.PASSAGE
+        )
         self.coalesced_indexes = [
             InMemoryIndex(mode=Mode.MAXP),
             InMemoryIndex(mode=Mode.MAXP),
@@ -398,6 +398,11 @@ class TestOnDiskIndex(TestIndex):
         )
         self.index_wrong_dim = OnDiskIndex(
             self.temp_dir / "index_wrong_dim.h5", query_encoder=None
+        )
+        self.early_stopping_index = OnDiskIndex(
+            self.temp_dir / "early_stopping_index.h5",
+            LambdaEncoder(lambda q: np.array([10, 10])),
+            mode=Mode.PASSAGE,
         )
         self.coalesced_indexes = [
             OnDiskIndex(self.temp_dir / "coalesced_index_1.h5", mode=Mode.MAXP),
