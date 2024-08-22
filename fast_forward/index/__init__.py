@@ -52,6 +52,8 @@ class Index(abc.ABC):
         self.query_encoder = query_encoder
         self.mode = mode
         self._quantizer = quantizer
+        if quantizer is not None:
+            quantizer.set_attached()
         self._encoder_batch_size = encoder_batch_size
 
     def encode_queries(self, queries: Sequence[str]) -> np.ndarray:
