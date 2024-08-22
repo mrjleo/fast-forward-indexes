@@ -66,6 +66,8 @@ class NanoPQ(Quantizer):
             metric=attributes["metric"],
             verbose=attributes["verbose"],
         )
-        quantizer._pq.Ds = attributes["Ds"]
-        quantizer._pq.codewords = data["codewords"]
+        if "Ds" in attributes:
+            quantizer._pq.Ds = attributes["Ds"]
+        if "codewords" in data:
+            quantizer._pq.codewords = data["codewords"]
         return quantizer
