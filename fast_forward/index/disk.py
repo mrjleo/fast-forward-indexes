@@ -74,9 +74,18 @@ class OnDiskIndex(Index):
         self._max_id_length = max_id_length
         self._ds_buffer_size = ds_buffer_size
 
+        LOGGER.debug("creating file %s", self._index_file)
         with h5py.File(self._index_file, "w") as fp:
             fp.attrs["num_vectors"] = 0
             fp.attrs["ff_version"] = fast_forward.__version__
+
+            if self._quantizer is not None:
+                meta, attributes, data = self._quantizer.serialize()
+                fp.create_group("quantizer/meta").attrs.update(meta)
+                fp.create_group("quantizer/attributes").attrs.update(attributes)
+                data_group = fp.create_group("quantizer/data")
+                for k, v in data.items():
+                    data_group.create_dataset(k, data=v)
 
     def _create_ds(self, fp: h5py.File, dim: int, dtype: np.dtype) -> None:
         """Create the h5py datasets for vectors and IDs.
@@ -315,16 +324,28 @@ class OnDiskIndex(Index):
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
-            resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
+            resize_min_val (int, optional): Minimum value to increase index size by. Defaults to 2**10.
             ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
 
         Returns:
             OnDiskIndex: The index.
         """
+        LOGGER.debug("reading file %s", index_file)
+        # deserialize quantizer if any
+        with h5py.File(index_file, "r") as fp:
+            if "quantizer" in fp:
+                quantizer = Quantizer.deserialize(
+                    dict(fp["quantizer/meta"].attrs),
+                    dict(fp["quantizer/attributes"].attrs),
+                    {k: v[:] for k, v in fp["quantizer/data"].items()},
+                )
+            else:
+                quantizer = None
+
         index = cls.__new__(cls)
         super(OnDiskIndex, index).__init__(
             query_encoder=query_encoder,
-            quantizer=None,
+            quantizer=quantizer,
             mode=mode,
             encoder_batch_size=encoder_batch_size,
         )
@@ -333,17 +354,19 @@ class OnDiskIndex(Index):
         index._ds_buffer_size = ds_buffer_size
 
         # read ID mappings
-        index._doc_id_to_idx = defaultdict(list)
-        index._psg_id_to_idx = {}
-        with h5py.File(index._index_file, "r") as fp:
+        with h5py.File(index_file, "r") as fp:
+            index._doc_id_to_idx = defaultdict(list)
+            index._psg_id_to_idx = {}
+
+            num_vectors = fp.attrs["num_vectors"]
+            if num_vectors == 0:
+                return index
+
+            doc_id_iter = fp["doc_ids"].asstr()[:num_vectors]
+            psg_id_iter = fp["psg_ids"].asstr()[:num_vectors]
             for i, (doc_id, psg_id) in tqdm(
-                enumerate(
-                    zip(
-                        fp["doc_ids"].asstr()[: fp.attrs["num_vectors"]],
-                        fp["psg_ids"].asstr()[: fp.attrs["num_vectors"]],
-                    ),
-                ),
-                total=fp.attrs["num_vectors"],
+                enumerate(zip(doc_id_iter, psg_id_iter)),
+                total=num_vectors,
             ):
                 if len(doc_id) > 0:
                     index._doc_id_to_idx[doc_id].append(i)

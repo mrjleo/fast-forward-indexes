@@ -163,7 +163,7 @@ class Quantizer(abc.ABC):
 
         Args:
             attributes (QuantizerAttributes): The quantizer attributes.
-            data (QuantizerData): The quantizer attributes.
+            data (QuantizerData): The quantizer data.
 
         Returns:
             Quantizer: The resulting quantizer.
@@ -173,18 +173,21 @@ class Quantizer(abc.ABC):
     @classmethod
     def deserialize(
         cls,
-        rep: Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData],
+        meta: QuantizerAttributes,
+        attributes: QuantizerAttributes,
+        data: QuantizerData,
     ) -> "Quantizer":
         """Reconstruct a serialized quantizer.
 
         Args:
-            rep (Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]): The serialized quantizer.
+            meta (QuantizerAttributes): The quantizer metadata.
+            attributes (QuantizerAttributes): The quantizer attributes.
+            data (QuantizerData): The quantizer data.
 
         Returns:
             Quantizer: The loaded quantizer.
         """
-        meta, attributes, data = rep
-        LOGGER.debug("importing %s.%s", meta["__module__"], meta["__name__"])
+        LOGGER.debug("reconstructing %s.%s", meta["__module__"], meta["__name__"])
         quantizer_mod = importlib.import_module(meta["__module__"])
         quantizer_cls = getattr(quantizer_mod, meta["__name__"])
         quantizer = quantizer_cls._from_state(attributes, data)
