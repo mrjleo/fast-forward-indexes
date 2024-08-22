@@ -181,7 +181,7 @@ class InMemoryIndex(Index):
             return np.array([]), []
         return np.concatenate(result_vectors), [result_ids[id] for id in ids]
 
-    def batch_iter(
+    def _batch_iter(
         self, batch_size: int
     ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
         LOGGER.info("creating ID mappings for this index")

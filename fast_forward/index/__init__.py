@@ -461,6 +461,22 @@ class Index(abc.ABC):
         )
 
     @abc.abstractmethod
+    def _batch_iter(
+        self, batch_size: int
+    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+        """Iterate over the index in batches (internal method).
+
+        If a quantizer is used, the vectors are the quantized codes.
+        When an ID does not exist, it must be set to None.
+
+        Args:
+            batch_size (int): Batch size.
+
+        Yields:
+            Tuple[np.ndarray, IDSequence, IDSequence]: Vectors, document IDs, passage IDs in batches.
+        """
+        pass
+
     def batch_iter(
         self, batch_size: int
     ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
@@ -473,7 +489,12 @@ class Index(abc.ABC):
         Yields:
             Tuple[np.ndarray, IDSequence, IDSequence]: Batches of vectors, document IDs (if any), passage IDs (if any).
         """
-        pass
+        if self._quantizer is None:
+            yield from self._batch_iter(batch_size)
+
+        else:
+            for batch in self._batch_iter(batch_size):
+                yield self._quantizer.decode(batch[0]), batch[1], batch[2]
 
     def __iter__(
         self,

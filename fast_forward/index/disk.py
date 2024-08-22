@@ -290,7 +290,7 @@ class OnDiskIndex(Index):
             )
             return vectors, [id_to_idxs[id] for id in ids]
 
-    def batch_iter(
+    def _batch_iter(
         self, batch_size: int
     ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
         with h5py.File(self._index_file, "r") as fp:
@@ -331,6 +331,7 @@ class OnDiskIndex(Index):
             OnDiskIndex: The index.
         """
         LOGGER.debug("reading file %s", index_file)
+
         # deserialize quantizer if any
         with h5py.File(index_file, "r") as fp:
             if "quantizer" in fp:
