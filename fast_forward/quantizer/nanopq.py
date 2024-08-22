@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 import nanopq
 import numpy as np
@@ -34,8 +34,10 @@ class NanoPQ(Quantizer):
         return self._pq.code_dtype
 
     @property
-    def dim(self) -> int:
-        return self._pq.M
+    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+        if self._pq.Ds is None:
+            return None, self._pq.M
+        return self._pq.Ds * self._pq.M, self._pq.M
 
     def _encode(self, vectors: np.ndarray) -> np.ndarray:
         return self._pq.encode(vecs=vectors)

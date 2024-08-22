@@ -1,7 +1,7 @@
 import abc
 import importlib
 import logging
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
 
@@ -67,11 +67,13 @@ class Quantizer(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def dim(self) -> int:
-        """The dimension of the codes produced by this quantizer.
+    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+        """The dimensions before and after quantization.
+
+        May return None values before the quantizer is trained.
 
         Returns:
-            np.dtype: The dimension.
+            Tuple[Optional[int], Optional[int]]: Dimension of the original vectors and dimension of the codes.
         """
         pass
 
