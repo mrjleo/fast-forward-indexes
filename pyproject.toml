@@ -20,6 +20,7 @@ dependencies = [
     "transformers >= 4.28.0, < 5",
     "h5py >= 3.0.0, < 4",
     "tqdm >= 4.66.0, < 5",
+    "nanopq >= 0.2.1, < 0.3",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
