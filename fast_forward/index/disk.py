@@ -137,52 +137,29 @@ class OnDiskIndex(Index):
         """Load the index entirely into memory.
 
         Args:
-            buffer_size (int, optional): Use a buffer instead of adding all vectors at once. Defaults to None.
+            buffer_size (int, optional): Use batches instead of adding all vectors at once. Defaults to None.
 
         Returns:
             InMemoryIndex: The loaded index.
         """
+        index = InMemoryIndex(
+            query_encoder=self._query_encoder,
+            quantizer=self._quantizer,
+            mode=self.mode,
+            encoder_batch_size=self._encoder_batch_size,
+            init_size=len(self),
+        )
         with h5py.File(self._index_file, "r") as fp:
-            index = InMemoryIndex(
-                query_encoder=self._query_encoder,
-                mode=self.mode,
-                encoder_batch_size=self._encoder_batch_size,
-                init_size=len(self),
-            )
-
             buffer_size = buffer_size or fp.attrs["num_vectors"]
             for i_low in range(0, fp.attrs["num_vectors"], buffer_size):
                 i_up = min(i_low + buffer_size, fp.attrs["num_vectors"])
 
-                # we can only add vectors of the same type (doc IDs, passage IDs, or both) in one batch
-                has_doc_id, has_psg_id, has_both_ids = [], [], []
-                vecs = fp["vectors"][i_low:i_up]
+                # IDs that don't exist will be returned as empty strings here
                 doc_ids = fp["doc_ids"].asstr()[i_low:i_up]
+                doc_ids[doc_ids == ""] = None
                 psg_ids = fp["psg_ids"].asstr()[i_low:i_up]
-                for j, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
-                    if len(doc_id) == 0:
-                        has_psg_id.append(j)
-                    elif len(psg_id) == 0:
-                        has_doc_id.append(j)
-                    else:
-                        has_both_ids.append(j)
-
-                if len(has_doc_id) > 0:
-                    index.add(
-                        vecs[has_doc_id],
-                        doc_ids=doc_ids[has_doc_id],
-                    )
-                if len(has_psg_id) > 0:
-                    index.add(
-                        vecs[has_psg_id],
-                        psg_ids=psg_ids[has_psg_id],
-                    )
-                if len(has_both_ids) > 0:
-                    index.add(
-                        vecs[has_both_ids],
-                        doc_ids=doc_ids[has_both_ids],
-                        psg_ids=psg_ids[has_both_ids],
-                    )
+                psg_ids[psg_ids == ""] = None
+                index._add(fp["vectors"][i_low:i_up], doc_ids=doc_ids, psg_ids=psg_ids)
         return index
 
     def _add(
