@@ -127,14 +127,11 @@ class OnDiskIndex(Index):
         with h5py.File(self._index_file, "r") as fp:
             return fp.attrs["num_vectors"]
 
-    @property
-    def dim(self) -> Optional[int]:
-        if self._quantizer is not None:
-            return self._quantizer.dims[0]
+    def _internal_dim(self) -> Optional[int]:
         with h5py.File(self._index_file, "r") as fp:
             if "vectors" in fp:
                 return fp["vectors"].shape[1]
-            return None
+        return None
 
     def to_memory(self, buffer_size=None) -> InMemoryIndex:
         """Load the index entirely into memory.

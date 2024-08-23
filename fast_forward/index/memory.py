@@ -58,10 +58,7 @@ class InMemoryIndex(Index):
                 + self._idx_in_cur_shard
             )
 
-    @property
-    def dim(self) -> Optional[int]:
-        if self._quantizer is not None:
-            return self._quantizer.dims[0]
+    def _internal_dim(self) -> Optional[int]:
         if len(self._shards) > 0:
             return self._shards[0].shape[-1]
         return None

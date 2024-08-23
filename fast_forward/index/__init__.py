@@ -115,17 +115,31 @@ class Index(abc.ABC):
         assert isinstance(mode, Mode)
         self._mode = mode
 
-    @property
     @abc.abstractmethod
-    def dim(self) -> Optional[int]:
-        """Return the dimensionality of the vectors in the index or None if there are no vectors.
+    def _internal_dim(self) -> Optional[int]:
+        """Return the dimensionality of the vectors in the index (internal method).
 
-        If a quantizer is used, the dimension before qunatization is returned.
+        If no vectors exist, return None. If a quantizer is used, return the dimension of the codes.
 
         Returns:
             Optional[int]: The dimensionality (if any).
         """
         pass
+
+    @property
+    def dim(self) -> Optional[int]:
+        """Return the dimensionality of the vectors.
+
+        May return None if there are no vectors.
+
+        If a quantizer is used, the dimension before quantization is returned.
+
+        Returns:
+            Optional[int]: The dimensionality (if any).
+        """
+        if self._quantizer is not None:
+            return self._quantizer.dims[0]
+        return self._internal_dim()
 
     @property
     def doc_ids(self) -> Set[str]:
