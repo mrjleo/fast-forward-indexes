@@ -9,6 +9,7 @@ import pandas as pd
 
 from fast_forward import InMemoryIndex, Mode, OnDiskIndex, Ranking
 from fast_forward.encoder import LambdaEncoder
+from fast_forward.quantizer.nanopq import NanoPQ
 from fast_forward.util import create_coalesced_index
 
 DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
@@ -62,6 +63,17 @@ class TestIndex(unittest.TestCase):
         self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
         self.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
+        # prepare quantized index
+        quantizer = NanoPQ(2, 8)
+        quantizer.fit(np.random.normal(size=(16, 16)).astype(np.float32))
+        # manually add the quantizer here rather than in the index constructor
+        self.quantized_index._quantizer = quantizer
+        quantizer.set_attached()
+        self.quantized_index.add(
+            vectors=np.random.normal(size=(5, 16)).astype(np.float32),
+            doc_ids=DUMMY_DOC_IDS,
+        )
+
     def test_properties(self):
         self.assertEqual(set(DUMMY_DOC_IDS), self.doc_psg_index.doc_ids)
         self.assertEqual(set(DUMMY_PSG_IDS), self.doc_psg_index.psg_ids)
@@ -82,6 +94,8 @@ class TestIndex(unittest.TestCase):
         self.assertEqual(0, len(self.psg_index.doc_ids))
         self.assertEqual(DUMMY_NUM, len(self.psg_index))
         self.assertEqual(DUMMY_DIM, self.psg_index.dim)
+
+        self.assertEqual(16, self.quantized_index.dim)
 
     def test_add_retrieve(self):
         self.assertEqual(0, len(self.index))
@@ -328,6 +342,18 @@ class TestIndex(unittest.TestCase):
                     DUMMY_PSG_IDS, list(itertools.chain.from_iterable(psg_ids))
                 )
 
+    def test_quantization(self):
+        self.assertEqual(2, self.quantized_index._internal_dim())
+
+        # make sure the dimensions of the returned vetors match the original dimension
+        for vec, _, _ in self.quantized_index:
+            self.assertEqual(16, vec.shape[0])
+
+        self.quantized_index.mode = Mode.MAXP
+        self.assertEqual(
+            self.quantized_index._get_vectors(UNIQUE_DUMMY_DOC_IDS)[0].shape, (5, 2)
+        )
+
 
 class TestInMemoryIndex(TestIndex):
     __test__ = True
@@ -351,6 +377,7 @@ class TestInMemoryIndex(TestIndex):
             InMemoryIndex(init_size=2, alloc_size=2),
             InMemoryIndex(init_size=5),
         ]
+        self.quantized_index = InMemoryIndex()
         super().setUp()
 
     def test_consolidate(self):
@@ -416,6 +443,7 @@ class TestOnDiskIndex(TestIndex):
             ),
             OnDiskIndex(self.temp_dir / "iter_index_2.h5", init_size=5),
         ]
+        self.quantized_index = OnDiskIndex(self.temp_dir / "quantized_index.h5")
         super().setUp()
 
     def test_load(self):
