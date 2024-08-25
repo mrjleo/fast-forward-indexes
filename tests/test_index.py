@@ -38,6 +38,9 @@ DUMMY_PSG_RUN = {
 DUMMY_PSG_RANKING = Ranking.from_run(DUMMY_PSG_RUN, queries=DUMMY_QUERIES)
 DUMMY_ENCODER = LambdaEncoder(lambda _: np.array([1, 1, 1, 1, 1]))
 
+DUMMY_QUANTIZER = NanoPQ(2, 8)
+DUMMY_QUANTIZER.fit(np.random.normal(size=(16, 16)).astype(np.float32))
+
 
 class TestIndex(unittest.TestCase):
     __test__ = False
@@ -63,14 +66,10 @@ class TestIndex(unittest.TestCase):
         self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
         self.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
-        # prepare quantized index
-        quantizer = NanoPQ(2, 8)
-        quantizer.fit(np.random.normal(size=(16, 16)).astype(np.float32))
-        # manually add the quantizer here rather than in the index constructor
-        self.quantized_index._quantizer = quantizer
-        quantizer.set_attached()
         self.quantized_index.add(
-            vectors=np.random.normal(size=(5, 16)).astype(np.float32),
+            vectors=np.random.normal(size=(5, DUMMY_QUANTIZER.dims[0])).astype(
+                np.float32
+            ),
             doc_ids=DUMMY_DOC_IDS,
         )
 
@@ -377,7 +376,7 @@ class TestInMemoryIndex(TestIndex):
             InMemoryIndex(init_size=2, alloc_size=2),
             InMemoryIndex(init_size=5),
         ]
-        self.quantized_index = InMemoryIndex()
+        self.quantized_index = InMemoryIndex(quantizer=DUMMY_QUANTIZER)
         super().setUp()
 
     def test_consolidate(self):
@@ -443,10 +442,13 @@ class TestOnDiskIndex(TestIndex):
             ),
             OnDiskIndex(self.temp_dir / "iter_index_2.h5", init_size=5),
         ]
-        self.quantized_index = OnDiskIndex(self.temp_dir / "quantized_index.h5")
+        self.quantized_index = OnDiskIndex(
+            self.temp_dir / "quantized_index.h5", quantizer=DUMMY_QUANTIZER
+        )
         super().setUp()
 
     def test_load(self):
+        # test whether vectors are preserved properly
         shutil.copy(
             self.temp_dir / "doc_psg_index.h5", self.temp_dir / "doc_psg_index_copy.h5"
         )
@@ -474,6 +476,21 @@ class TestOnDiskIndex(TestIndex):
         self.assertEqual(index_copied._get_psg_ids(), self.psg_index._get_psg_ids())
         self.psg_index.mode = Mode.PASSAGE
         index_copied.mode = Mode.PASSAGE
+        _test_get_vectors(index_copied, self.psg_index, DUMMY_PSG_IDS)
+
+        # test whether quantizers are loaded properly
+        shutil.copy(
+            self.temp_dir / "quantized_index.h5",
+            self.temp_dir / "quantized_index_copy.h5",
+        )
+        quantized_index_copied = OnDiskIndex.load(
+            self.temp_dir / "quantized_index_copy.h5"
+        )
+        self.assertEqual(
+            quantized_index_copied._quantizer._pq, self.quantized_index._quantizer._pq
+        )
+        self.quantized_index.mode = Mode.PASSAGE
+        quantized_index_copied.mode = Mode.PASSAGE
         _test_get_vectors(index_copied, self.psg_index, DUMMY_PSG_IDS)
 
     def test_to_memory(self):
@@ -504,6 +521,11 @@ class TestOnDiskIndex(TestIndex):
 
                 _test_get_vectors(mem_index, index, ids)
                 _test_get_vectors(mem_index_buffered, index, ids)
+
+        mem_quantized_index = self.quantized_index.to_memory()
+        self.assertEqual(
+            mem_quantized_index._quantizer._pq, self.quantized_index._quantizer._pq
+        )
 
     def test_max_id_length(self):
         index = OnDiskIndex(self.temp_dir / "max_id_length_index.h5", max_id_length=3)
