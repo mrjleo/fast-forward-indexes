@@ -117,7 +117,7 @@ class Index(abc.ABC):
 
     @abc.abstractmethod
     def _get_internal_dim(self) -> Optional[int]:
-        """Return the dimensionality of the vectors in the index (internal method).
+        """Return the dimensionality of the vectors (or codes) in the index (internal method).
 
         If no vectors exist, return None. If a quantizer is used, return the dimension of the codes.
 
@@ -128,7 +128,7 @@ class Index(abc.ABC):
 
     @property
     def dim(self) -> Optional[int]:
-        """Return the dimensionality of the vectors.
+        """Return the dimensionality of the vector index.
 
         May return None if there are no vectors.
 
@@ -225,7 +225,7 @@ class Index(abc.ABC):
         Raises:
             ValueError: When there are no document IDs and no passage IDs.
             ValueError: When the number of IDs does not match the number of vectors.
-            ValueError: When the vector and index dimensionalities don't match.
+            ValueError: When the input vector and index dimensionalities don't match.
             ValueError: When a vector has neither a document nor a passage ID.
             RuntimeError: When items can't be added to the index for any reason.
         """
@@ -243,7 +243,7 @@ class Index(abc.ABC):
 
         if self.dim is not None and dim != self.dim:
             raise ValueError(
-                f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
+                f"Input vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
             )
 
         for doc_id, psg_id in zip(doc_ids, psg_ids):
