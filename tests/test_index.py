@@ -342,7 +342,7 @@ class TestIndex(unittest.TestCase):
                 )
 
     def test_quantization(self):
-        self.assertEqual(2, self.quantized_index._internal_dim())
+        self.assertEqual(2, self.quantized_index._get_internal_dim())
 
         # make sure the dimensions of the returned vetors match the original dimension
         for vec, _, _ in self.quantized_index:

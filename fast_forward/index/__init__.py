@@ -116,7 +116,7 @@ class Index(abc.ABC):
         self._mode = mode
 
     @abc.abstractmethod
-    def _internal_dim(self) -> Optional[int]:
+    def _get_internal_dim(self) -> Optional[int]:
         """Return the dimensionality of the vectors in the index (internal method).
 
         If no vectors exist, return None. If a quantizer is used, return the dimension of the codes.
@@ -139,7 +139,7 @@ class Index(abc.ABC):
         """
         if self._quantizer is not None:
             return self._quantizer.dims[0]
-        return self._internal_dim()
+        return self._get_internal_dim()
 
     @property
     def doc_ids(self) -> Set[str]:

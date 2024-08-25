@@ -127,7 +127,7 @@ class OnDiskIndex(Index):
         with h5py.File(self._index_file, "r") as fp:
             return fp.attrs["num_vectors"]
 
-    def _internal_dim(self) -> Optional[int]:
+    def _get_internal_dim(self) -> Optional[int]:
         with h5py.File(self._index_file, "r") as fp:
             if "vectors" in fp:
                 return fp["vectors"].shape[1]
