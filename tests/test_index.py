@@ -493,6 +493,12 @@ class TestOnDiskIndex(TestIndex):
         quantized_index_copied.mode = Mode.PASSAGE
         _test_get_vectors(index_copied, self.psg_index, DUMMY_PSG_IDS)
 
+        # test loading an empty index
+        OnDiskIndex(self.temp_dir / "empty_index.h5")
+        empty_index_loaded = OnDiskIndex.load(self.temp_dir / "empty_index.h5")
+        self.assertEqual(len(empty_index_loaded._get_doc_ids()), 0)
+        self.assertEqual(len(empty_index_loaded._get_psg_ids()), 0)
+
     def test_to_memory(self):
         for index, params in [
             (self.doc_index, [(Mode.MAXP, UNIQUE_DUMMY_DOC_IDS)]),
