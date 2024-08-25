@@ -247,7 +247,7 @@
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="n">query_encoder</span><span class="p">:</span> <span class="n">Encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>        <span class="n">quantizer</span><span class="p">:</span> <span class="n">Quantizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span><span class="p">,</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">,</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>        <span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
@@ -255,7 +255,7 @@
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">        Args:</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">            encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -860,7 +860,7 @@
 </span><span id="Index-38"><a href="#Index-38"><span class="linenos"> 38</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Index-39"><a href="#Index-39"><span class="linenos"> 39</span></a>        <span class="n">query_encoder</span><span class="p">:</span> <span class="n">Encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index-40"><a href="#Index-40"><span class="linenos"> 40</span></a>        <span class="n">quantizer</span><span class="p">:</span> <span class="n">Quantizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Index-41"><a href="#Index-41"><span class="linenos"> 41</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span><span class="p">,</span>
+</span><span id="Index-41"><a href="#Index-41"><span class="linenos"> 41</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">,</span>
 </span><span id="Index-42"><a href="#Index-42"><span class="linenos"> 42</span></a>        <span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
 </span><span id="Index-43"><a href="#Index-43"><span class="linenos"> 43</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Index-44"><a href="#Index-44"><span class="linenos"> 44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
@@ -868,7 +868,7 @@
 </span><span id="Index-46"><a href="#Index-46"><span class="linenos"> 46</span></a><span class="sd">        Args:</span>
 </span><span id="Index-47"><a href="#Index-47"><span class="linenos"> 47</span></a><span class="sd">            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.</span>
 </span><span id="Index-48"><a href="#Index-48"><span class="linenos"> 48</span></a><span class="sd">            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.</span>
-</span><span id="Index-49"><a href="#Index-49"><span class="linenos"> 49</span></a><span class="sd">            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.</span>
+</span><span id="Index-49"><a href="#Index-49"><span class="linenos"> 49</span></a><span class="sd">            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.</span>
 </span><span id="Index-50"><a href="#Index-50"><span class="linenos"> 50</span></a><span class="sd">            encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.</span>
 </span><span id="Index-51"><a href="#Index-51"><span class="linenos"> 51</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index-52"><a href="#Index-52"><span class="linenos"> 52</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1354,7 +1354,7 @@
                                         <input id="Index.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">Index</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">query_encoder</span><span class="p">:</span> <span class="n"><a href="encoder.html#Encoder">fast_forward.encoder.Encoder</a></span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">quantizer</span><span class="p">:</span> <span class="n"><a href="quantizer.html#Quantizer">fast_forward.quantizer.Quantizer</a></span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">mode</span><span class="p">:</span> <span class="n"><a href="#Mode">Mode</a></span> <span class="o">=</span> <span class="o">&lt;</span><span class="n"><a href="#Mode.PASSAGE">Mode.PASSAGE</a></span><span class="p">:</span> <span class="mi">1</span><span class="o">&gt;</span>,</span><span class="param">	<span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span></span>)</span>
+        <span class="name">Index</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">query_encoder</span><span class="p">:</span> <span class="n"><a href="encoder.html#Encoder">fast_forward.encoder.Encoder</a></span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">quantizer</span><span class="p">:</span> <span class="n"><a href="quantizer.html#Quantizer">fast_forward.quantizer.Quantizer</a></span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">mode</span><span class="p">:</span> <span class="n"><a href="#Mode">Mode</a></span> <span class="o">=</span> <span class="o">&lt;</span><span class="n"><a href="#Mode.MAXP">Mode.MAXP</a></span><span class="p">:</span> <span class="mi">2</span><span class="o">&gt;</span>,</span><span class="param">	<span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span></span>)</span>
 
                 <label class="view-source-button" for="Index.__init__-view-source"><span>View Source</span></label>
 
@@ -1364,7 +1364,7 @@
 </span><span id="Index.__init__-38"><a href="#Index.__init__-38"><span class="linenos">38</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Index.__init__-39"><a href="#Index.__init__-39"><span class="linenos">39</span></a>        <span class="n">query_encoder</span><span class="p">:</span> <span class="n">Encoder</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index.__init__-40"><a href="#Index.__init__-40"><span class="linenos">40</span></a>        <span class="n">quantizer</span><span class="p">:</span> <span class="n">Quantizer</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Index.__init__-41"><a href="#Index.__init__-41"><span class="linenos">41</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">PASSAGE</span><span class="p">,</span>
+</span><span id="Index.__init__-41"><a href="#Index.__init__-41"><span class="linenos">41</span></a>        <span class="n">mode</span><span class="p">:</span> <span class="n">Mode</span> <span class="o">=</span> <span class="n">Mode</span><span class="o">.</span><span class="n">MAXP</span><span class="p">,</span>
 </span><span id="Index.__init__-42"><a href="#Index.__init__-42"><span class="linenos">42</span></a>        <span class="n">encoder_batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
 </span><span id="Index.__init__-43"><a href="#Index.__init__-43"><span class="linenos">43</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Index.__init__-44"><a href="#Index.__init__-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
@@ -1372,7 +1372,7 @@
 </span><span id="Index.__init__-46"><a href="#Index.__init__-46"><span class="linenos">46</span></a><span class="sd">        Args:</span>
 </span><span id="Index.__init__-47"><a href="#Index.__init__-47"><span class="linenos">47</span></a><span class="sd">            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.</span>
 </span><span id="Index.__init__-48"><a href="#Index.__init__-48"><span class="linenos">48</span></a><span class="sd">            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.</span>
-</span><span id="Index.__init__-49"><a href="#Index.__init__-49"><span class="linenos">49</span></a><span class="sd">            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.</span>
+</span><span id="Index.__init__-49"><a href="#Index.__init__-49"><span class="linenos">49</span></a><span class="sd">            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.</span>
 </span><span id="Index.__init__-50"><a href="#Index.__init__-50"><span class="linenos">50</span></a><span class="sd">            encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.</span>
 </span><span id="Index.__init__-51"><a href="#Index.__init__-51"><span class="linenos">51</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index.__init__-52"><a href="#Index.__init__-52"><span class="linenos">52</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -1392,7 +1392,7 @@
 <ul>
 <li><strong>query_encoder (Encoder, optional):</strong>  The query encoder to use. Defaults to None.</li>
 <li><strong>quantizer (Quantizer, optional):</strong>  The quantizer to use. Defaults to None.</li>
-<li><strong>mode (Mode, optional):</strong>  Ranking mode. Defaults to <a href="#Mode.PASSAGE">Mode.PASSAGE</a>.</li>
+<li><strong>mode (Mode, optional):</strong>  Ranking mode. Defaults to <a href="#Mode.MAXP">Mode.MAXP</a>.</li>
 <li><strong>encoder_batch_size (int, optional):</strong>  Encoder batch size. Defaults to 32.</li>
 </ul>
 </div>
