@@ -8,7 +8,7 @@ description = "Efficient interpolation-based ranking on CPUs"
 authors = [
     {name = "Jurek Leonhardt"},
 ]
-version = "0.2.1"
+version = "0.3.0"
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["information retrieval", "ranking", "search"]
