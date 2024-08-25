@@ -7,7 +7,7 @@ from fast_forward.quantizer import Quantizer, QuantizerAttributes, QuantizerData
 
 
 class NanoPQ(Quantizer):
-    """Product quantizer that uses the nanopq library.
+    """Product quantizer that uses the [nanopq library](https://nanopq.readthedocs.io/en/stable/index.html).
 
     More information is available [here](https://nanopq.readthedocs.io/en/stable/source/api.html#nanopq.PQ).
     """

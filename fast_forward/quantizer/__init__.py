@@ -1,3 +1,7 @@
+"""
+.. include:: ../docs/quantizer.md
+"""
+
 import abc
 import importlib
 import logging
