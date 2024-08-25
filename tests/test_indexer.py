@@ -10,7 +10,7 @@ from fast_forward.indexer import Indexer
 class TestIndexer(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        self.index = InMemoryIndex(16)
+        self.index = InMemoryIndex()
         self.indexer = Indexer(
             self.index, LambdaEncoder(lambda q: np.zeros(shape=(16,))), batch_size=2
         )

@@ -11,6 +11,7 @@ import fast_forward
 from fast_forward.encoder import Encoder
 from fast_forward.index import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
+from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -25,14 +26,13 @@ class OnDiskIndex(Index):
     def __init__(
         self,
         index_file: Path,
-        dim: int,
         query_encoder: Encoder = None,
+        quantizer: Quantizer = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
         resize_min_val: int = 2**10,
         hdf5_chunk_size: int = None,
-        dtype: np.dtype = np.float32,
         max_id_length: int = 8,
         overwrite: bool = False,
         ds_buffer_size: int = 2**10,
@@ -41,14 +41,13 @@ class OnDiskIndex(Index):
 
         Args:
             index_file (Path): Index file to create (or overwrite).
-            dim (int): Vector dimensionality.
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
+            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             init_size (int, optional): Initial size to allocate (number of vectors). Defaults to 2**14.
             resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
             hdf5_chunk_size (int, optional): Override chunk size used by HDF5. Defaults to None.
-            dtype (np.dtype, optional): Vector dtype. Defaults to np.float32.
             max_id_length (int, optional): Maximum length of document and passage IDs (number of characters). Defaults to 8.
             overwrite (bool, optional): Overwrite index file if it exists. Defaults to False.
             ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
@@ -59,99 +58,108 @@ class OnDiskIndex(Index):
         if index_file.exists() and not overwrite:
             raise ValueError(f"File {index_file} exists.")
 
-        super().__init__(query_encoder, mode, encoder_batch_size)
+        super().__init__(
+            query_encoder=query_encoder,
+            quantizer=quantizer,
+            mode=mode,
+            encoder_batch_size=encoder_batch_size,
+        )
         self._index_file = index_file.absolute()
-        self._resize_min_val = resize_min_val
-        self._ds_buffer_size = ds_buffer_size
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
 
+        self._init_size = init_size
+        self._resize_min_val = resize_min_val
+        self._hdf5_chunk_size = hdf5_chunk_size
+        self._max_id_length = max_id_length
+        self._ds_buffer_size = ds_buffer_size
+
+        LOGGER.debug("creating file %s", self._index_file)
         with h5py.File(self._index_file, "w") as fp:
             fp.attrs["num_vectors"] = 0
             fp.attrs["ff_version"] = fast_forward.__version__
-            fp.create_dataset(
-                "vectors",
-                (init_size, dim),
-                dtype,
-                maxshape=(None, dim),
-                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size, dim),
-            )
-            fp.create_dataset(
-                "doc_ids",
-                (init_size,),
-                f"S{max_id_length}",
-                maxshape=(None,),
-                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
-            )
-            fp.create_dataset(
-                "psg_ids",
-                (init_size,),
-                f"S{max_id_length}",
-                maxshape=(None,),
-                chunks=True if hdf5_chunk_size is None else (hdf5_chunk_size,),
-            )
+
+            if self._quantizer is not None:
+                meta, attributes, data = self._quantizer.serialize()
+                fp.create_group("quantizer/meta").attrs.update(meta)
+                fp.create_group("quantizer/attributes").attrs.update(attributes)
+                data_group = fp.create_group("quantizer/data")
+                for k, v in data.items():
+                    data_group.create_dataset(k, data=v)
+
+    def _create_ds(self, fp: h5py.File, dim: int, dtype: np.dtype) -> None:
+        """Create the h5py datasets for vectors and IDs.
+
+        Args:
+            fp (h5py.File): Index file (write permissions).
+            dim (int): Dimension of the vectors.
+            dtype (np.dtype): Type of the vectors.
+        """
+        fp.create_dataset(
+            "vectors",
+            (self._init_size, dim),
+            dtype,
+            maxshape=(None, dim),
+            chunks=(
+                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size, dim)
+            ),
+        )
+        fp.create_dataset(
+            "doc_ids",
+            (self._init_size,),
+            f"S{self._max_id_length}",
+            maxshape=(None,),
+            chunks=(
+                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size,)
+            ),
+        )
+        fp.create_dataset(
+            "psg_ids",
+            (self._init_size,),
+            f"S{self._max_id_length}",
+            maxshape=(None,),
+            chunks=(
+                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size,)
+            ),
+        )
 
     def __len__(self) -> int:
         with h5py.File(self._index_file, "r") as fp:
             return fp.attrs["num_vectors"]
 
-    @property
-    def dim(self) -> int:
+    def _get_internal_dim(self) -> Optional[int]:
         with h5py.File(self._index_file, "r") as fp:
-            return fp["vectors"].shape[1]
+            if "vectors" in fp:
+                return fp["vectors"].shape[1]
+        return None
 
     def to_memory(self, buffer_size=None) -> InMemoryIndex:
         """Load the index entirely into memory.
 
         Args:
-            buffer_size (int, optional): Use a buffer instead of adding all vectors at once. Defaults to None.
+            buffer_size (int, optional): Use batches instead of adding all vectors at once. Defaults to None.
 
         Returns:
             InMemoryIndex: The loaded index.
         """
+        index = InMemoryIndex(
+            query_encoder=self._query_encoder,
+            quantizer=self._quantizer,
+            mode=self.mode,
+            encoder_batch_size=self._encoder_batch_size,
+            init_size=len(self),
+        )
         with h5py.File(self._index_file, "r") as fp:
-            index = InMemoryIndex(
-                dim=self.dim,
-                query_encoder=self._query_encoder,
-                mode=self.mode,
-                encoder_batch_size=self._encoder_batch_size,
-                init_size=len(self),
-                dtype=fp["vectors"].dtype,
-            )
-
             buffer_size = buffer_size or fp.attrs["num_vectors"]
             for i_low in range(0, fp.attrs["num_vectors"], buffer_size):
                 i_up = min(i_low + buffer_size, fp.attrs["num_vectors"])
 
-                # we can only add vectors of the same type (doc IDs, passage IDs, or both) in one batch
-                has_doc_id, has_psg_id, has_both_ids = [], [], []
-                vecs = fp["vectors"][i_low:i_up]
+                # IDs that don't exist will be returned as empty strings here
                 doc_ids = fp["doc_ids"].asstr()[i_low:i_up]
+                doc_ids[doc_ids == ""] = None
                 psg_ids = fp["psg_ids"].asstr()[i_low:i_up]
-                for j, (doc_id, psg_id) in enumerate(zip(doc_ids, psg_ids)):
-                    if len(doc_id) == 0:
-                        has_psg_id.append(j)
-                    elif len(psg_id) == 0:
-                        has_doc_id.append(j)
-                    else:
-                        has_both_ids.append(j)
-
-                if len(has_doc_id) > 0:
-                    index.add(
-                        vecs[has_doc_id],
-                        doc_ids=doc_ids[has_doc_id],
-                    )
-                if len(has_psg_id) > 0:
-                    index.add(
-                        vecs[has_psg_id],
-                        psg_ids=psg_ids[has_psg_id],
-                    )
-                if len(has_both_ids) > 0:
-                    index.add(
-                        vecs[has_both_ids],
-                        doc_ids=doc_ids[has_both_ids],
-                        psg_ids=psg_ids[has_both_ids],
-                    )
+                psg_ids[psg_ids == ""] = None
+                index._add(fp["vectors"][i_low:i_up], doc_ids=doc_ids, psg_ids=psg_ids)
         return index
 
     def _add(
@@ -161,6 +169,9 @@ class OnDiskIndex(Index):
         psg_ids: Sequence[Optional[str]],
     ) -> None:
         with h5py.File(self._index_file, "a") as fp:
+            # if this is the first call to _add, no datasets exist
+            if "vectors" not in fp:
+                self._create_ds(fp, vectors.shape[-1], vectors.dtype)
 
             # check all IDs first before adding anything
             doc_id_size = fp["doc_ids"].dtype.itemsize
@@ -253,7 +264,7 @@ class OnDiskIndex(Index):
             )
             return vectors, [id_to_idxs[id] for id in ids]
 
-    def batch_iter(
+    def _batch_iter(
         self, batch_size: int
     ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
         with h5py.File(self._index_file, "r") as fp:
@@ -287,30 +298,50 @@ class OnDiskIndex(Index):
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
-            resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
+            resize_min_val (int, optional): Minimum value to increase index size by. Defaults to 2**10.
             ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
 
         Returns:
             OnDiskIndex: The index.
         """
+        LOGGER.debug("reading file %s", index_file)
+
+        # deserialize quantizer if any
+        with h5py.File(index_file, "r") as fp:
+            if "quantizer" in fp:
+                quantizer = Quantizer.deserialize(
+                    dict(fp["quantizer/meta"].attrs),
+                    dict(fp["quantizer/attributes"].attrs),
+                    {k: v[:] for k, v in fp["quantizer/data"].items()},
+                )
+            else:
+                quantizer = None
+
         index = cls.__new__(cls)
-        super(OnDiskIndex, index).__init__(query_encoder, mode, encoder_batch_size)
+        super(OnDiskIndex, index).__init__(
+            query_encoder=query_encoder,
+            quantizer=quantizer,
+            mode=mode,
+            encoder_batch_size=encoder_batch_size,
+        )
         index._index_file = index_file.absolute()
         index._resize_min_val = resize_min_val
         index._ds_buffer_size = ds_buffer_size
 
         # read ID mappings
-        index._doc_id_to_idx = defaultdict(list)
-        index._psg_id_to_idx = {}
-        with h5py.File(index._index_file, "r") as fp:
+        with h5py.File(index_file, "r") as fp:
+            index._doc_id_to_idx = defaultdict(list)
+            index._psg_id_to_idx = {}
+
+            num_vectors = fp.attrs["num_vectors"]
+            if num_vectors == 0:
+                return index
+
+            doc_id_iter = fp["doc_ids"].asstr()[:num_vectors]
+            psg_id_iter = fp["psg_ids"].asstr()[:num_vectors]
             for i, (doc_id, psg_id) in tqdm(
-                enumerate(
-                    zip(
-                        fp["doc_ids"].asstr()[: fp.attrs["num_vectors"]],
-                        fp["psg_ids"].asstr()[: fp.attrs["num_vectors"]],
-                    ),
-                ),
-                total=fp.attrs["num_vectors"],
+                enumerate(zip(doc_id_iter, psg_id_iter)),
+                total=num_vectors,
             ):
                 if len(doc_id) > 0:
                     index._doc_id_to_idx[doc_id].append(i)

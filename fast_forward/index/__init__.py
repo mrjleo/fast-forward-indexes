@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 
 from fast_forward.encoder import Encoder
+from fast_forward.quantizer import Quantizer
 from fast_forward.ranking import Ranking
 
 LOGGER = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ class Index(abc.ABC):
     def __init__(
         self,
         query_encoder: Encoder = None,
+        quantizer: Quantizer = None,
         mode: Mode = Mode.PASSAGE,
         encoder_batch_size: int = 32,
     ) -> None:
@@ -42,12 +44,16 @@ class Index(abc.ABC):
 
         Args:
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
+            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
             mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
         super().__init__()
         self.query_encoder = query_encoder
         self.mode = mode
+        self._quantizer = quantizer
+        if quantizer is not None:
+            quantizer.set_attached()
         self._encoder_batch_size = encoder_batch_size
 
     def encode_queries(self, queries: Sequence[str]) -> np.ndarray:
@@ -109,15 +115,31 @@ class Index(abc.ABC):
         assert isinstance(mode, Mode)
         self._mode = mode
 
-    @property
     @abc.abstractmethod
-    def dim(self) -> int:
-        """Return the dimensionality of the vectors in the index.
+    def _get_internal_dim(self) -> Optional[int]:
+        """Return the dimensionality of the vectors (or codes) in the index (internal method).
+
+        If no vectors exist, return None. If a quantizer is used, return the dimension of the codes.
 
         Returns:
-            int: The dimensionality.
+            Optional[int]: The dimensionality (if any).
         """
         pass
+
+    @property
+    def dim(self) -> Optional[int]:
+        """Return the dimensionality of the vector index.
+
+        May return None if there are no vectors.
+
+        If a quantizer is used, the dimension before quantization is returned.
+
+        Returns:
+            Optional[int]: The dimensionality (if any).
+        """
+        if self._quantizer is not None:
+            return self._quantizer.dims[0]
+        return self._get_internal_dim()
 
     @property
     def doc_ids(self) -> Set[str]:
@@ -173,10 +195,10 @@ class Index(abc.ABC):
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
 
-        Document IDs may have duplicates, passage IDs are assumed to be unique.
+        Document IDs may have duplicates, passage IDs are assumed to be unique. Vectors may be quantized.
 
         Args:
-            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
+            vectors (np.ndarray): The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.
             doc_ids (Sequence[Optional[str]]): The corresponding document IDs.
             psg_ids (Sequence[Optional[str]]): The corresponding passage IDs.
         """
@@ -203,7 +225,7 @@ class Index(abc.ABC):
         Raises:
             ValueError: When there are no document IDs and no passage IDs.
             ValueError: When the number of IDs does not match the number of vectors.
-            ValueError: When the vector and index dimensionalities don't match.
+            ValueError: When the input vector and index dimensionalities don't match.
             ValueError: When a vector has neither a document nor a passage ID.
             RuntimeError: When items can't be added to the index for any reason.
         """
@@ -219,16 +241,20 @@ class Index(abc.ABC):
         if not len(doc_ids) == len(psg_ids) == num_vectors:
             raise ValueError("Number of IDs does not match number of vectors.")
 
-        if dim != self.dim:
+        if self.dim is not None and dim != self.dim:
             raise ValueError(
-                f"Vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
+                f"Input vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
             )
 
         for doc_id, psg_id in zip(doc_ids, psg_ids):
             if doc_id is None and psg_id is None:
                 raise ValueError("Vector has neither document nor passage ID.")
 
-        self._add(vectors, doc_ids, psg_ids)
+        self._add(
+            vectors if self._quantizer is None else self._quantizer.encode(vectors),
+            doc_ids,
+            psg_ids,
+        )
 
     @abc.abstractmethod
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
@@ -238,6 +264,7 @@ class Index(abc.ABC):
 
         The integers will be used to get the corresponding representations from the array.
         The output of this function depends on the current mode.
+        If a quantizer is used, this function returns quantized vectors.
 
         Args:
             ids (Iterable[str]): The document/passage IDs to get the representations for.
@@ -269,6 +296,8 @@ class Index(abc.ABC):
 
         # get all required vectors from the FF index
         vectors, id_to_vec_idxs = self._get_vectors(id_df["id"].to_list())
+        if self._quantizer is not None:
+            vectors = self._quantizer.decode(vectors)
 
         # compute indices for query vectors and doc/passage vectors in current arrays
         select_query_vectors = []
@@ -446,6 +475,22 @@ class Index(abc.ABC):
         )
 
     @abc.abstractmethod
+    def _batch_iter(
+        self, batch_size: int
+    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+        """Iterate over the index in batches (internal method).
+
+        If a quantizer is used, the vectors are the quantized codes.
+        When an ID does not exist, it must be set to None.
+
+        Args:
+            batch_size (int): Batch size.
+
+        Yields:
+            Tuple[np.ndarray, IDSequence, IDSequence]: Vectors, document IDs, passage IDs in batches.
+        """
+        pass
+
     def batch_iter(
         self, batch_size: int
     ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
@@ -458,7 +503,12 @@ class Index(abc.ABC):
         Yields:
             Tuple[np.ndarray, IDSequence, IDSequence]: Batches of vectors, document IDs (if any), passage IDs (if any).
         """
-        pass
+        if self._quantizer is None:
+            yield from self._batch_iter(batch_size)
+
+        else:
+            for batch in self._batch_iter(batch_size):
+                yield self._quantizer.decode(batch[0]), batch[1], batch[2]
 
     def __iter__(
         self,
