@@ -28,7 +28,7 @@ class OnDiskIndex(Index):
         index_file: Path,
         query_encoder: Encoder = None,
         quantizer: Quantizer = None,
-        mode: Mode = Mode.PASSAGE,
+        mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
         resize_min_val: int = 2**10,
@@ -43,7 +43,7 @@ class OnDiskIndex(Index):
             index_file (Path): Index file to create (or overwrite).
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
             quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
+            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             init_size (int, optional): Initial size to allocate (number of vectors). Defaults to 2**14.
             resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
@@ -286,7 +286,7 @@ class OnDiskIndex(Index):
         cls,
         index_file: Path,
         query_encoder: Encoder = None,
-        mode: Mode = Mode.PASSAGE,
+        mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         resize_min_val: int = 2**10,
         ds_buffer_size: int = 2**10,
@@ -296,7 +296,7 @@ class OnDiskIndex(Index):
         Args:
             index_file (Path): Index file to open.
             query_encoder (Encoder, optional): Query encoder. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
+            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             resize_min_val (int, optional): Minimum value to increase index size by. Defaults to 2**10.
             ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.

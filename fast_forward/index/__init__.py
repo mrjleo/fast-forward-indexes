@@ -37,7 +37,7 @@ class Index(abc.ABC):
         self,
         query_encoder: Encoder = None,
         quantizer: Quantizer = None,
-        mode: Mode = Mode.PASSAGE,
+        mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
     ) -> None:
         """Create an index.
@@ -45,7 +45,7 @@ class Index(abc.ABC):
         Args:
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
             quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
+            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
         super().__init__()

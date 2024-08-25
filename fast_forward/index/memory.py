@@ -19,7 +19,7 @@ class InMemoryIndex(Index):
         self,
         query_encoder: Encoder = None,
         quantizer: Quantizer = None,
-        mode: Mode = Mode.PASSAGE,
+        mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
         alloc_size: int = 2**14,
@@ -29,7 +29,7 @@ class InMemoryIndex(Index):
         Args:
             query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
             quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.PASSAGE.
+            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
             encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
             init_size (int, optional): Initial index size. Defaults to 2**14.
             alloc_size (int, optional): Size of shard allocated when index is full. Defaults to 2**14.
