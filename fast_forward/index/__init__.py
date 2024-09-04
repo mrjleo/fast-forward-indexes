@@ -328,7 +328,7 @@ class Index(abc.ABC):
             scores_i = select_scores[i]
             if len(scores_i) == 0:
                 return np.nan
-            return op(scores[select_scores[i]])
+            return op(scores[scores_i])
 
         # insert FF scores in the correct rows
         df["ff_score"] = df.index.map(_mapfunc)
@@ -391,7 +391,7 @@ class Index(abc.ABC):
             if len(chunk) == 0:
                 break
 
-            # compute scores for the chunk and join
+            # compute scores for the chunk and merge
             out = self._compute_scores(chunk, query_vectors)[["orig_index", "ff_score"]]
             chunk_scores = chunk.merge(out, on="orig_index", suffixes=[None, "_"])
 
