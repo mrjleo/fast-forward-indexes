@@ -1,6 +1,7 @@
 Fast-Forward indexes support (product) quantization as a means of compressing an index. The `fast_forward.quantizer.Quantizer` class defines the interface for quantizers to implement. Currently, the following quantizers are available:
 
 - `fast_forward.quantizer.nanopq.NanoPQ`: Product quantization based on the [nanopq library](https://nanopq.readthedocs.io/en/stable/index.html).
+- `fast_forward.quantizer.nanopq.NanoOPQ`: Optimized product quantization based on the [nanopq library](https://nanopq.readthedocs.io/en/stable/index.html).
 
 Quantizers must be trained **before** they are used with the corresponding Fast-Forward index. The typical workflow is as follows:
 
