@@ -33,6 +33,9 @@ IDSequence = Sequence[Optional[str]]
 class Index(abc.ABC):
     """Abstract base class for Fast-Forward indexes."""
 
+    _query_encoder: Encoder = None
+    _quantizer: Quantizer = None
+
     def __init__(
         self,
         query_encoder: Encoder = None,
@@ -49,11 +52,11 @@ class Index(abc.ABC):
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
         """
         super().__init__()
-        self.query_encoder = query_encoder
+        if query_encoder is not None:
+            self.query_encoder = query_encoder
         self.mode = mode
-        self._quantizer = quantizer
         if quantizer is not None:
-            quantizer.set_attached()
+            self.quantizer = quantizer
         self._encoder_batch_size = encoder_batch_size
 
     def encode_queries(self, queries: Sequence[str]) -> np.ndarray:
@@ -68,13 +71,13 @@ class Index(abc.ABC):
         Returns:
             np.ndarray: The query representations.
         """
-        if self._query_encoder is None:
+        if self.query_encoder is None:
             raise RuntimeError("Index does not have a query encoder.")
 
         result = []
         for i in range(0, len(queries), self._encoder_batch_size):
             batch = queries[i : i + self._encoder_batch_size]
-            result.append(self._query_encoder(batch))
+            result.append(self.query_encoder(batch))
         return np.concatenate(result)
 
     @property
@@ -87,14 +90,40 @@ class Index(abc.ABC):
         return self._query_encoder
 
     @query_encoder.setter
-    def query_encoder(self, encoder: Optional[Encoder]) -> None:
+    def query_encoder(self, encoder: Encoder) -> None:
         """Set the query encoder.
 
         Args:
-            encoder (Optional[Encoder]): The query encoder.
+            encoder (Encoder): The new query encoder.
         """
-        assert encoder is None or isinstance(encoder, Encoder)
+        assert isinstance(encoder, Encoder)
         self._query_encoder = encoder
+
+    @property
+    def quantizer(self) -> Optional[Quantizer]:
+        """Return the quantizer if it exists.
+
+        Returns:
+            Optional[Quantizer]: The quantizer (if any).
+        """
+        return self._quantizer
+
+    @quantizer.setter
+    def quantizer(self, quantizer: Quantizer) -> None:
+        """Set the quantizer. This is only possible before any vectors are added to the index.
+
+        Raises:
+            RuntimeError: When the index is not empty.
+
+        Args:
+            quantizer (Quantizer): The new quantizer.
+        """
+        assert isinstance(quantizer, Quantizer)
+
+        if len(self) > 0:
+            raise RuntimeError("Quantizers can only be attached to empty indexes.")
+        self._quantizer = quantizer
+        quantizer.set_attached()
 
     @property
     def mode(self) -> Mode:
@@ -110,7 +139,7 @@ class Index(abc.ABC):
         """Set the ranking mode.
 
         Args:
-            mode (Mode): The ranking mode.
+            mode (Mode): The new ranking mode.
         """
         assert isinstance(mode, Mode)
         self._mode = mode
@@ -251,7 +280,7 @@ class Index(abc.ABC):
                 raise ValueError("Vector has neither document nor passage ID.")
 
         self._add(
-            vectors if self._quantizer is None else self._quantizer.encode(vectors),
+            vectors if self.quantizer is None else self.quantizer.encode(vectors),
             doc_ids,
             psg_ids,
         )
@@ -296,8 +325,8 @@ class Index(abc.ABC):
 
         # get all required vectors from the FF index
         vectors, id_to_vec_idxs = self._get_vectors(id_df["id"].to_list())
-        if self._quantizer is not None:
-            vectors = self._quantizer.decode(vectors)
+        if self.quantizer is not None:
+            vectors = self.quantizer.decode(vectors)
 
         # compute indices for query vectors and doc/passage vectors in current arrays
         select_query_vectors = []

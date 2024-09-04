@@ -245,6 +245,10 @@ class TestIndex(unittest.TestCase):
                 DUMMY_DOC_RANKING, early_stopping=10, early_stopping_intervals=None
             )
 
+        # adding a quantizer to an index that's not empty
+        with self.assertRaises(RuntimeError):
+            self.doc_psg_index.quantizer = DUMMY_QUANTIZER
+
     def test_early_stopping(self):
         self.early_stopping_index.add(
             np.stack([[1, 0], [1, 1]] * 10), psg_ids=[f"p{i}" for i in range(20)]
@@ -487,7 +491,7 @@ class TestOnDiskIndex(TestIndex):
             self.temp_dir / "quantized_index_copy.h5"
         )
         self.assertEqual(
-            quantized_index_copied._quantizer._pq, self.quantized_index._quantizer._pq
+            quantized_index_copied.quantizer, self.quantized_index.quantizer
         )
         self.quantized_index.mode = Mode.PASSAGE
         quantized_index_copied.mode = Mode.PASSAGE
@@ -498,6 +502,21 @@ class TestOnDiskIndex(TestIndex):
         empty_index_loaded = OnDiskIndex.load(self.temp_dir / "empty_index.h5")
         self.assertEqual(len(empty_index_loaded._get_doc_ids()), 0)
         self.assertEqual(len(empty_index_loaded._get_psg_ids()), 0)
+
+    def test_store_quantizer(self):
+        # create index with quantizer and then replace the quantizer
+        index_with_quantizer = OnDiskIndex(self.temp_dir / "index_with_quantizer.h5")
+        index_with_quantizer.quantizer = DUMMY_QUANTIZER
+        new_quantizer = NanoPQ(2, 8)
+        new_quantizer.fit(np.random.normal(size=(16, 16)).astype(np.float32))
+        index_with_quantizer.quantizer = new_quantizer
+
+        # load index again and check whether the new quantizer has been stored
+        del index_with_quantizer
+        index_with_quantizer = OnDiskIndex.load(
+            self.temp_dir / "index_with_quantizer.h5"
+        )
+        self.assertEqual(new_quantizer, index_with_quantizer.quantizer)
 
     def test_to_memory(self):
         for index, params in [

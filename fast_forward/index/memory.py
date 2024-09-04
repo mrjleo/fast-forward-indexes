@@ -40,6 +40,7 @@ class InMemoryIndex(Index):
         self._idx_in_cur_shard = 0
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
+
         super().__init__(
             query_encoder=query_encoder,
             quantizer=quantizer,

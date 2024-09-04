@@ -19,8 +19,7 @@ LOGGER = logging.getLogger(__name__)
 class OnDiskIndex(Index):
     """Fast-Forward index that is read on-demand from disk.
 
-    Uses HDF5 via h5py under the hood. The buffer (ds_buffer_size) works around a h5py limitation.
-    More information: https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing
+    Uses HDF5 via h5py under the hood. The buffer (`ds_buffer_size`) works around a [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
     """
 
     def __init__(
@@ -58,12 +57,6 @@ class OnDiskIndex(Index):
         if index_file.exists() and not overwrite:
             raise ValueError(f"File {index_file} exists.")
 
-        super().__init__(
-            query_encoder=query_encoder,
-            quantizer=quantizer,
-            mode=mode,
-            encoder_batch_size=encoder_batch_size,
-        )
         self._index_file = index_file.absolute()
         self._doc_id_to_idx = defaultdict(list)
         self._psg_id_to_idx = {}
@@ -79,13 +72,29 @@ class OnDiskIndex(Index):
             fp.attrs["num_vectors"] = 0
             fp.attrs["ff_version"] = fast_forward.__version__
 
-            if self._quantizer is not None:
-                meta, attributes, data = self._quantizer.serialize()
-                fp.create_group("quantizer/meta").attrs.update(meta)
-                fp.create_group("quantizer/attributes").attrs.update(attributes)
-                data_group = fp.create_group("quantizer/data")
-                for k, v in data.items():
-                    data_group.create_dataset(k, data=v)
+        super().__init__(
+            query_encoder=query_encoder,
+            quantizer=quantizer,
+            mode=mode,
+            encoder_batch_size=encoder_batch_size,
+        )
+
+    @Index.quantizer.setter
+    def quantizer(self, quantizer: Quantizer) -> None:
+        # call the setter of the super class
+        Index.quantizer.fset(self, quantizer)
+
+        # serialize the quantizer and store it on disk
+        with h5py.File(self._index_file, "a") as fp:
+            if "quantizer" in fp:
+                del fp["quantizer"]
+
+            meta, attributes, data = self.quantizer.serialize()
+            fp.create_group("quantizer/meta").attrs.update(meta)
+            fp.create_group("quantizer/attributes").attrs.update(attributes)
+            data_group = fp.create_group("quantizer/data")
+            for k, v in data.items():
+                data_group.create_dataset(k, data=v)
 
     def _create_ds(self, fp: h5py.File, dim: int, dtype: np.dtype) -> None:
         """Create the HDF5 datasets for vectors and IDs.
@@ -306,27 +315,25 @@ class OnDiskIndex(Index):
         """
         LOGGER.debug("reading file %s", index_file)
 
-        # deserialize quantizer if any
-        with h5py.File(index_file, "r") as fp:
-            if "quantizer" in fp:
-                quantizer = Quantizer.deserialize(
-                    dict(fp["quantizer/meta"].attrs),
-                    dict(fp["quantizer/attributes"].attrs),
-                    {k: v[:] for k, v in fp["quantizer/data"].items()},
-                )
-            else:
-                quantizer = None
-
         index = cls.__new__(cls)
         super(OnDiskIndex, index).__init__(
             query_encoder=query_encoder,
-            quantizer=quantizer,
+            quantizer=None,
             mode=mode,
             encoder_batch_size=encoder_batch_size,
         )
         index._index_file = index_file.absolute()
         index._resize_min_val = resize_min_val
         index._ds_buffer_size = ds_buffer_size
+
+        # deserialize quantizer if any
+        with h5py.File(index_file, "r") as fp:
+            if "quantizer" in fp:
+                index._quantizer = Quantizer.deserialize(
+                    dict(fp["quantizer/meta"].attrs),
+                    dict(fp["quantizer/attributes"].attrs),
+                    {k: v[:] for k, v in fp["quantizer/data"].items()},
+                )
 
         # read ID mappings
         with h5py.File(index_file, "r") as fp:
