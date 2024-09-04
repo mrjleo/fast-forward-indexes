@@ -1,7 +1,7 @@
 The `fast_forward.indexer.Indexer` class is a utility for indexing a collection. If the size of the collection is known in advace, it can be specified when the index is created in order to avoid subsequent resizing operations:
 
 ```python
-my_index = OnDiskIndex(Path("my_index.h5"), 768, init_size=1000000)
+my_index = OnDiskIndex(Path("my_index.h5"), init_size=1000000)
 ```
 
 For indexing, a document/passage encoder is required, for example:

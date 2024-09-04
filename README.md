@@ -18,14 +18,14 @@ Using a Fast-Forward index is as simple as providing a TREC run with retrieval s
 
 ```python
 from pathlib import Path
-from fast_forward import OnDiskIndex, Mode, Ranking
+from fast_forward import OnDiskIndex, Ranking
 from fast_forward.encoder import TCTColBERTQueryEncoder
 
 # choose a pre-trained query encoder
 encoder = TCTColBERTQueryEncoder("castorini/tct_colbert-msmarco")
 
 # load an index on disk
-ff_index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, Mode.MAXP)
+ff_index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, mode=Mode.MAXP)
 
 # load a run (TREC format) and attach all required queries
 first_stage_ranking = (

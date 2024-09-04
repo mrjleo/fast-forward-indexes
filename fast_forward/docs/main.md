@@ -45,7 +45,7 @@ from fast_forward.encoder import TCTColBERTQueryEncoder
 encoder = TCTColBERTQueryEncoder("castorini/tct_colbert-msmarco")
 
 # load an index on disk
-ff_index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, Mode.MAXP)
+ff_index = OnDiskIndex.load(Path("/path/to/index.h5"), encoder, mode=Mode.MAXP)
 
 # load a run (TREC format) and attach all required queries
 first_stage_ranking = (

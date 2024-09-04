@@ -4,7 +4,7 @@ The sequential coalescing algorithm is a compression technique for indexes with 
 
 ```python
 my_index = OnDiskIndex.load(Path("/path/to/index.h5"))
-coalesced_index = InMemoryIndex(768, mode=Mode.MAXP)
+coalesced_index = InMemoryIndex(mode=Mode.MAXP)
 create_coalesced_index(my_index, coalesced_index, 0.3)
 ```
 
