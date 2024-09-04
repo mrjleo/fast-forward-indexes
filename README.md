@@ -18,7 +18,7 @@ Using a Fast-Forward index is as simple as providing a TREC run with retrieval s
 
 ```python
 from pathlib import Path
-from fast_forward import OnDiskIndex, Ranking
+from fast_forward import OnDiskIndex, Mode, Ranking
 from fast_forward.encoder import TCTColBERTQueryEncoder
 
 # choose a pre-trained query encoder
