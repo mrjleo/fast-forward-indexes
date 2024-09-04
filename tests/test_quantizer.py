@@ -3,17 +3,16 @@ import unittest
 import numpy as np
 
 from fast_forward.quantizer import Quantizer
-from fast_forward.quantizer.nanopq import NanoPQ
+from fast_forward.quantizer.nanopq import NanoOPQ, NanoPQ
 
 
-class TestNanoPQ(unittest.TestCase):
-    @classmethod
-    def setUpClass(self):
-        self.quantizer = NanoPQ(8, 256)
-        self.quantizer_trained = NanoPQ(8, 256)
-        self.quantizer_trained.fit(
-            np.random.normal(size=(2**10, 768)).astype(np.float32)
-        )
+class TestQuantizer(unittest.TestCase):
+    __test__ = False
+
+    def test_eq(self):
+        self.assertEqual(self.quantizer, self.quantizer)
+        self.assertEqual(self.quantizer_trained, self.quantizer_trained)
+        self.assertNotEqual(self.quantizer, self.quantizer_trained)
 
     def test_properties(self):
         self.assertEqual((None, 8), self.quantizer.dims)
@@ -33,12 +32,18 @@ class TestNanoPQ(unittest.TestCase):
         self.assertEqual(decoded.shape, inputs.shape)
 
     def test_serialization(self):
-        for q in (self.quantizer, self.quantizer_trained):
-            q_loaded = Quantizer.deserialize(*q.serialize())
+        inputs = np.random.normal(size=(8, 768)).astype(np.float32)
+        quantizer_loaded = Quantizer.deserialize(*self.quantizer.serialize())
+        self.assertEqual(self.quantizer, quantizer_loaded)
 
-            # nanopq implements __eq__
-            self.assertEqual(q._pq, q_loaded._pq)
-            self.assertEqual(q._trained, q_loaded._trained)
+        quantizer_trained_loaded = Quantizer.deserialize(
+            *self.quantizer_trained.serialize()
+        )
+        self.assertEqual(self.quantizer_trained, quantizer_trained_loaded)
+        np.testing.assert_array_equal(
+            self.quantizer_trained.encode(inputs),
+            quantizer_trained_loaded.encode(inputs),
+        )
 
     def test_errors(self):
         # encoding before the quantizer is trained
@@ -48,6 +53,30 @@ class TestNanoPQ(unittest.TestCase):
         # attaching to index before the quantizer is trained
         with self.assertRaises(RuntimeError):
             self.quantizer.set_attached()
+
+
+class TestNanoPQ(TestQuantizer):
+    __test__ = True
+
+    @classmethod
+    def setUpClass(self):
+        self.quantizer = NanoPQ(8, 256)
+        self.quantizer_trained = NanoPQ(8, 256)
+        self.quantizer_trained.fit(
+            np.random.normal(size=(2**10, 768)).astype(np.float32)
+        )
+
+
+class TestNanoOPQ(TestQuantizer):
+    __test__ = True
+
+    @classmethod
+    def setUpClass(self):
+        self.quantizer = NanoOPQ(8, 256)
+        self.quantizer_trained = NanoOPQ(8, 256)
+        self.quantizer_trained.fit(
+            np.random.normal(size=(2**10, 768)).astype(np.float32)
+        )
 
 
 if __name__ == "__main__":

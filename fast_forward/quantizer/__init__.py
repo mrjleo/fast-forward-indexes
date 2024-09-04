@@ -22,6 +22,33 @@ class Quantizer(abc.ABC):
     _attached: bool = False
     _trained: bool = False
 
+    def __eq__(self, o: object) -> bool:
+        """Check whether this quantizer is identical to another one.
+
+        Args:
+            o (object): The other quantizer.
+
+        Returns:
+            bool: Whether the two quantizers are identical.
+        """
+        if not isinstance(o, Quantizer):
+            return False
+
+        self_meta, self_attributes, self_data = self.serialize()
+        o_meta, o_attributes, o_data = o.serialize()
+
+        if self_meta != o_meta or self_attributes != o_attributes:
+            return False
+
+        if self_data.keys() != o_data.keys():
+            return False
+
+        for k, v in self_data.items():
+            if (v != o_data[k]).any():
+                return False
+
+        return True
+
     def set_attached(self) -> None:
         """Set the quantizer as attached, preventing calls to `Quantizer.fit`."""
         if not self._trained:
