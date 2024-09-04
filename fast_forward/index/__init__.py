@@ -78,20 +78,20 @@ class Index(abc.ABC):
         return np.concatenate(result)
 
     @property
-    def query_encoder(self) -> Encoder:
-        """Return the query encoder.
+    def query_encoder(self) -> Optional[Encoder]:
+        """Return the query encoder if it exists.
 
         Returns:
-            Encoder: The query encoder.
+            Optional[Encoder]: The query encoder (if any).
         """
         return self._query_encoder
 
     @query_encoder.setter
-    def query_encoder(self, encoder: Encoder) -> None:
+    def query_encoder(self, encoder: Optional[Encoder]) -> None:
         """Set the query encoder.
 
         Args:
-            encoder (Encoder): The query encoder.
+            encoder (Optional[Encoder]): The query encoder.
         """
         assert encoder is None or isinstance(encoder, Encoder)
         self._query_encoder = encoder

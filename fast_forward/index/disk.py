@@ -88,7 +88,7 @@ class OnDiskIndex(Index):
                     data_group.create_dataset(k, data=v)
 
     def _create_ds(self, fp: h5py.File, dim: int, dtype: np.dtype) -> None:
-        """Create the h5py datasets for vectors and IDs.
+        """Create the HDF5 datasets for vectors and IDs.
 
         Args:
             fp (h5py.File): Index file (write permissions).
