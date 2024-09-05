@@ -49,8 +49,7 @@ class NanoPQ(Quantizer):
         attributes, data = {}, {}
 
         for a in ("M", "Ks", "Ds", "metric", "verbose"):
-            if hasattr(self._pq, a) and getattr(self._pq, a) is not None:
-                attributes[a] = getattr(self._pq, a)
+            attributes[a] = getattr(self._pq, a)
 
         if (
             hasattr(self._pq, "codewords")
@@ -83,15 +82,18 @@ class NanoOPQ(Quantizer):
     More information is available [here](https://nanopq.readthedocs.io/en/stable/source/api.html#nanopq.OPQ).
     """
 
-    def __init__(self, M: int, Ks: int, verbose: bool = False) -> None:
+    def __init__(
+        self, M: int, Ks: int, metric: str = "dot", verbose: bool = False
+    ) -> None:
         """Instantiate a nanopq optimized product quantizer.
 
         Args:
             M (int): The number of subspaces.
             Ks (int): The number of codewords per subspace.
+            metric (str, optional): The metric to use. Defaults to "dot".
             verbose (bool, optional): Enable verbosity. Defaults to False.
         """
-        self._opq = nanopq.OPQ(M=M, Ks=Ks, verbose=verbose)
+        self._opq = nanopq.OPQ(M=M, Ks=Ks, metric=metric, verbose=verbose)
         super().__init__()
 
     def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
@@ -99,7 +101,7 @@ class NanoOPQ(Quantizer):
 
     @property
     def dtype(self) -> np.dtype:
-        return self._opq.pq.code_dtype
+        return self._opq.code_dtype
 
     @property
     def dims(self) -> Tuple[Optional[int], Optional[int]]:
@@ -116,9 +118,8 @@ class NanoOPQ(Quantizer):
     def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
         attributes, data = {}, {}
 
-        for a in ("M", "Ks", "Ds"):
-            if hasattr(self._opq.pq, a) and getattr(self._opq.pq, a) is not None:
-                attributes[a] = getattr(self._opq.pq, a)
+        for a in ("M", "Ks", "Ds", "metric"):
+            attributes[a] = getattr(self._opq.pq, a)
 
         attributes["verbose"] = self._opq.verbose
 
@@ -140,6 +141,7 @@ class NanoOPQ(Quantizer):
         quantizer = cls(
             M=attributes["M"],
             Ks=attributes["Ks"],
+            metric=attributes["metric"],
             verbose=attributes["verbose"],
         )
         if "Ds" in attributes:
