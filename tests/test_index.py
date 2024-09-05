@@ -457,8 +457,8 @@ class TestOnDiskIndex(TestIndex):
             self.temp_dir / "doc_psg_index.h5", self.temp_dir / "doc_psg_index_copy.h5"
         )
         index_copied = OnDiskIndex.load(self.temp_dir / "doc_psg_index_copy.h5")
-        self.assertEqual(index_copied._get_doc_ids(), self.doc_psg_index._get_doc_ids())
-        self.assertEqual(index_copied._get_psg_ids(), self.doc_psg_index._get_psg_ids())
+        self.assertEqual(index_copied.doc_ids, self.doc_psg_index.doc_ids)
+        self.assertEqual(index_copied.psg_ids, self.doc_psg_index.psg_ids)
         self.doc_psg_index.mode = Mode.PASSAGE
         index_copied.mode = Mode.PASSAGE
         _test_get_vectors(index_copied, self.doc_psg_index, DUMMY_PSG_IDS)
@@ -468,16 +468,16 @@ class TestOnDiskIndex(TestIndex):
 
         shutil.copy(self.temp_dir / "doc_index.h5", self.temp_dir / "doc_index_copy.h5")
         index_copied = OnDiskIndex.load(self.temp_dir / "doc_index_copy.h5")
-        self.assertEqual(index_copied._get_doc_ids(), self.doc_index._get_doc_ids())
-        self.assertEqual(index_copied._get_psg_ids(), self.doc_index._get_psg_ids())
+        self.assertEqual(index_copied.doc_ids, self.doc_index.doc_ids)
+        self.assertEqual(index_copied.psg_ids, self.doc_index.psg_ids)
         self.doc_index.mode = Mode.MAXP
         index_copied.mode = Mode.MAXP
         _test_get_vectors(index_copied, self.doc_index, UNIQUE_DUMMY_DOC_IDS)
 
         shutil.copy(self.temp_dir / "psg_index.h5", self.temp_dir / "psg_index_copy.h5")
         index_copied = OnDiskIndex.load(self.temp_dir / "psg_index_copy.h5")
-        self.assertEqual(index_copied._get_doc_ids(), self.psg_index._get_doc_ids())
-        self.assertEqual(index_copied._get_psg_ids(), self.psg_index._get_psg_ids())
+        self.assertEqual(index_copied.doc_ids, self.psg_index.doc_ids)
+        self.assertEqual(index_copied.psg_ids, self.psg_index.psg_ids)
         self.psg_index.mode = Mode.PASSAGE
         index_copied.mode = Mode.PASSAGE
         _test_get_vectors(index_copied, self.psg_index, DUMMY_PSG_IDS)
@@ -500,8 +500,8 @@ class TestOnDiskIndex(TestIndex):
         # test loading an empty index
         OnDiskIndex(self.temp_dir / "empty_index.h5")
         empty_index_loaded = OnDiskIndex.load(self.temp_dir / "empty_index.h5")
-        self.assertEqual(len(empty_index_loaded._get_doc_ids()), 0)
-        self.assertEqual(len(empty_index_loaded._get_psg_ids()), 0)
+        self.assertEqual(len(empty_index_loaded.doc_ids), 0)
+        self.assertEqual(len(empty_index_loaded.doc_ids), 0)
 
     def test_store_quantizer(self):
         # create index with quantizer and then replace the quantizer
@@ -535,14 +535,10 @@ class TestOnDiskIndex(TestIndex):
                 mem_index.mode = mode
                 mem_index_buffered.mode = mode
 
-                self.assertEqual(mem_index._get_doc_ids(), index._get_doc_ids())
-                self.assertEqual(mem_index._get_psg_ids(), index._get_psg_ids())
-                self.assertEqual(
-                    mem_index_buffered._get_doc_ids(), index._get_doc_ids()
-                )
-                self.assertEqual(
-                    mem_index_buffered._get_psg_ids(), index._get_psg_ids()
-                )
+                self.assertEqual(mem_index.doc_ids, index.doc_ids)
+                self.assertEqual(mem_index.psg_ids, index.psg_ids)
+                self.assertEqual(mem_index_buffered.doc_ids, index.doc_ids)
+                self.assertEqual(mem_index_buffered.psg_ids, index.psg_ids)
 
                 _test_get_vectors(mem_index, index, ids)
                 _test_get_vectors(mem_index_buffered, index, ids)
@@ -568,8 +564,8 @@ class TestOnDiskIndex(TestIndex):
             index.add(vectors, psg_ids=psg_ids_long)
 
         # make sure the index remains unchanged in case of the error
-        self.assertEqual(index._get_doc_ids(), set(doc_ids_ok))
-        self.assertEqual(index._get_psg_ids(), set(psg_ids_ok))
+        self.assertEqual(index.doc_ids, set(doc_ids_ok))
+        self.assertEqual(index.psg_ids, set(psg_ids_ok))
         self.assertEqual(16, len(index))
 
     def test_ds_buffer_size(self):

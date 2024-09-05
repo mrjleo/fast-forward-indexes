@@ -171,16 +171,8 @@ class Index(abc.ABC):
         return self._get_internal_dim()
 
     @property
-    def doc_ids(self) -> Set[str]:
-        """Return all unique document IDs.
-
-        Returns:
-            Set[str]: The document IDs.
-        """
-        return self._get_doc_ids()
-
     @abc.abstractmethod
-    def _get_doc_ids(self) -> Set[str]:
+    def doc_ids(self) -> Set[str]:
         """Return all unique document IDs.
 
         Returns:
@@ -189,16 +181,8 @@ class Index(abc.ABC):
         pass
 
     @property
-    def psg_ids(self) -> Set[str]:
-        """Return all unique passage IDs.
-
-        Returns:
-            Set[str]: The passage IDs.
-        """
-        return self._get_psg_ids()
-
     @abc.abstractmethod
-    def _get_psg_ids(self) -> Set[str]:
+    def psg_ids(self) -> Set[str]:
         """Return all unique passage IDs.
 
         Returns:

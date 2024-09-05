@@ -122,10 +122,12 @@ class InMemoryIndex(Index):
         ]
         self._idx_in_cur_shard = self._shards[0].shape[0]
 
-    def _get_doc_ids(self) -> Set[str]:
+    @property
+    def doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
 
-    def _get_psg_ids(self) -> Set[str]:
+    @property
+    def psg_ids(self) -> Set[str]:
         return set(self._psg_id_to_idx.keys())
 
     def _index_shards(self, idx: int) -> Tuple[int, int]:

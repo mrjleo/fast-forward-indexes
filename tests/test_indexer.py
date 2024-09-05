@@ -28,10 +28,10 @@ class TestIndexer(unittest.TestCase):
             ]
         )
         self.assertEqual(7, len(self.index))
-        self.assertEqual(set(("d1", "d2", "d3", "d4")), self.index._get_doc_ids())
+        self.assertEqual(set(("d1", "d2", "d3", "d4")), self.index.doc_ids)
         self.assertEqual(
             set(("d1_p1", "d1_p2", "d1_p3", "d2_p1", "d3_p1", "d5_p1")),
-            self.index._get_psg_ids(),
+            self.index.psg_ids,
         )
 
 

@@ -233,10 +233,12 @@ class OnDiskIndex(Index):
             fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors
             fp.attrs["num_vectors"] += num_new_vecs
 
-    def _get_doc_ids(self) -> Set[str]:
+    @property
+    def doc_ids(self) -> Set[str]:
         return set(self._doc_id_to_idx.keys())
 
-    def _get_psg_ids(self) -> Set[str]:
+    @property
+    def psg_ids(self) -> Set[str]:
         return set(self._psg_id_to_idx.keys())
 
     def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
