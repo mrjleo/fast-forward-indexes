@@ -45,28 +45,29 @@ DUMMY_QUANTIZER.fit(np.random.normal(size=(16, 16)).astype(np.float32))
 class TestIndex(unittest.TestCase):
     __test__ = False
 
-    def setUp(self):
-        self.doc_psg_index.add(
+    @classmethod
+    def setUpClass(cls):
+        cls.doc_psg_index.add(
             vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS
         )
 
         # some vectors have only a document ID, some have only a passage ID, some have both
-        self.index_partial_ids.add(
+        cls.index_partial_ids.add(
             vectors=DUMMY_VECTORS,
             doc_ids=[None, None] + DUMMY_DOC_IDS[2:],
             psg_ids=DUMMY_PSG_IDS[:-2] + [None, None],
         )
         # vectors have only document IDs
-        self.index_partial_ids.add(vectors=DUMMY_VECTORS[:2], doc_ids=DUMMY_DOC_IDS[:2])
+        cls.index_partial_ids.add(vectors=DUMMY_VECTORS[:2], doc_ids=DUMMY_DOC_IDS[:2])
         # vectors have only passage IDs
-        self.index_partial_ids.add(
+        cls.index_partial_ids.add(
             vectors=DUMMY_VECTORS[-2:], psg_ids=DUMMY_PSG_IDS[-2:]
         )
 
-        self.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
-        self.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
+        cls.doc_index.add(vectors=DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS)
+        cls.psg_index.add(vectors=DUMMY_VECTORS, psg_ids=DUMMY_PSG_IDS)
 
-        self.quantized_index.add(
+        cls.quantized_index.add(
             vectors=np.random.normal(size=(5, DUMMY_QUANTIZER.dims[0])).astype(
                 np.float32
             ),
@@ -361,27 +362,28 @@ class TestIndex(unittest.TestCase):
 class TestInMemoryIndex(TestIndex):
     __test__ = True
 
-    def setUp(self):
-        self.index = InMemoryIndex(init_size=32, alloc_size=32)
-        self.doc_psg_index = InMemoryIndex(DUMMY_ENCODER)
-        self.index_partial_ids = InMemoryIndex(DUMMY_ENCODER)
-        self.doc_index = InMemoryIndex(DUMMY_ENCODER)
-        self.psg_index = InMemoryIndex(DUMMY_ENCODER)
-        self.index_no_enc = InMemoryIndex(query_encoder=None)
-        self.index_wrong_dim = InMemoryIndex(query_encoder=None)
-        self.early_stopping_index = InMemoryIndex(
+    @classmethod
+    def setUpClass(cls):
+        cls.index = InMemoryIndex(init_size=32, alloc_size=32)
+        cls.doc_psg_index = InMemoryIndex(DUMMY_ENCODER)
+        cls.index_partial_ids = InMemoryIndex(DUMMY_ENCODER)
+        cls.doc_index = InMemoryIndex(DUMMY_ENCODER)
+        cls.psg_index = InMemoryIndex(DUMMY_ENCODER)
+        cls.index_no_enc = InMemoryIndex(query_encoder=None)
+        cls.index_wrong_dim = InMemoryIndex(query_encoder=None)
+        cls.early_stopping_index = InMemoryIndex(
             LambdaEncoder(lambda q: np.array([10, 10])), mode=Mode.PASSAGE
         )
-        self.coalesced_indexes = [
+        cls.coalesced_indexes = [
             InMemoryIndex(mode=Mode.MAXP),
             InMemoryIndex(mode=Mode.MAXP),
         ]
-        self.iter_indexes = [
+        cls.iter_indexes = [
             InMemoryIndex(init_size=2, alloc_size=2),
             InMemoryIndex(init_size=5),
         ]
-        self.quantized_index = InMemoryIndex(quantizer=DUMMY_QUANTIZER)
-        super().setUp()
+        cls.quantized_index = InMemoryIndex(quantizer=DUMMY_QUANTIZER)
+        super(TestInMemoryIndex, cls).setUpClass()
 
     def test_consolidate(self):
         index = InMemoryIndex(init_size=8, alloc_size=4)
@@ -402,54 +404,55 @@ class TestInMemoryIndex(TestIndex):
 class TestOnDiskIndex(TestIndex):
     __test__ = True
 
-    def setUp(self):
-        self.temp_dir = Path(tempfile.mkdtemp())
-        self.index = OnDiskIndex(
-            self.temp_dir / "index.h5", init_size=32, resize_min_val=32
+    @classmethod
+    def setUpClass(cls):
+        cls.temp_dir = Path(tempfile.mkdtemp())
+        cls.index = OnDiskIndex(
+            cls.temp_dir / "index.h5", init_size=32, resize_min_val=32
         )
-        self.doc_psg_index = OnDiskIndex(
-            self.temp_dir / "doc_psg_index.h5",
+        cls.doc_psg_index = OnDiskIndex(
+            cls.temp_dir / "doc_psg_index.h5",
             DUMMY_ENCODER,
         )
-        self.index_partial_ids = OnDiskIndex(
-            self.temp_dir / "index_partial_ids.h5",
+        cls.index_partial_ids = OnDiskIndex(
+            cls.temp_dir / "index_partial_ids.h5",
             DUMMY_ENCODER,
         )
-        self.doc_index = OnDiskIndex(
-            self.temp_dir / "doc_index.h5",
+        cls.doc_index = OnDiskIndex(
+            cls.temp_dir / "doc_index.h5",
             DUMMY_ENCODER,
         )
-        self.psg_index = OnDiskIndex(
-            self.temp_dir / "psg_index.h5",
+        cls.psg_index = OnDiskIndex(
+            cls.temp_dir / "psg_index.h5",
             DUMMY_ENCODER,
         )
-        self.index_no_enc = OnDiskIndex(
-            self.temp_dir / "index_no_enc.h5", query_encoder=None
+        cls.index_no_enc = OnDiskIndex(
+            cls.temp_dir / "index_no_enc.h5", query_encoder=None
         )
-        self.index_wrong_dim = OnDiskIndex(
-            self.temp_dir / "index_wrong_dim.h5", query_encoder=None
+        cls.index_wrong_dim = OnDiskIndex(
+            cls.temp_dir / "index_wrong_dim.h5", query_encoder=None
         )
-        self.early_stopping_index = OnDiskIndex(
-            self.temp_dir / "early_stopping_index.h5",
+        cls.early_stopping_index = OnDiskIndex(
+            cls.temp_dir / "early_stopping_index.h5",
             LambdaEncoder(lambda q: np.array([10, 10])),
             mode=Mode.PASSAGE,
         )
-        self.coalesced_indexes = [
-            OnDiskIndex(self.temp_dir / "coalesced_index_1.h5", mode=Mode.MAXP),
-            OnDiskIndex(self.temp_dir / "coalesced_index_2.h5", mode=Mode.MAXP),
+        cls.coalesced_indexes = [
+            OnDiskIndex(cls.temp_dir / "coalesced_index_1.h5", mode=Mode.MAXP),
+            OnDiskIndex(cls.temp_dir / "coalesced_index_2.h5", mode=Mode.MAXP),
         ]
-        self.iter_indexes = [
+        cls.iter_indexes = [
             OnDiskIndex(
-                self.temp_dir / "iter_index_1.h5",
+                cls.temp_dir / "iter_index_1.h5",
                 init_size=2,
                 resize_min_val=2,
             ),
-            OnDiskIndex(self.temp_dir / "iter_index_2.h5", init_size=5),
+            OnDiskIndex(cls.temp_dir / "iter_index_2.h5", init_size=5),
         ]
-        self.quantized_index = OnDiskIndex(
-            self.temp_dir / "quantized_index.h5", quantizer=DUMMY_QUANTIZER
+        cls.quantized_index = OnDiskIndex(
+            cls.temp_dir / "quantized_index.h5", quantizer=DUMMY_QUANTIZER
         )
-        super().setUp()
+        super(TestOnDiskIndex, cls).setUpClass()
 
     def test_load(self):
         # test whether vectors are preserved properly
@@ -582,8 +585,9 @@ class TestOnDiskIndex(TestIndex):
             vecs[id_idxs], psg_reps.reshape((16, 1, 16)), decimal=6
         )
 
-    def tearDown(self):
-        shutil.rmtree(self.temp_dir)
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.temp_dir)
 
 
 def _test_get_vectors(index_1, index_2, ids):
