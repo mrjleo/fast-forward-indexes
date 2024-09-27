@@ -203,8 +203,8 @@ class Index(abc.ABC):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[Optional[str]],
-        psg_ids: Sequence[Optional[str]],
+        doc_ids: IDSequence,
+        psg_ids: IDSequence,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
 
@@ -212,16 +212,16 @@ class Index(abc.ABC):
 
         Args:
             vectors (np.ndarray): The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.
-            doc_ids (Sequence[Optional[str]]): The corresponding document IDs.
-            psg_ids (Sequence[Optional[str]]): The corresponding passage IDs.
+            doc_ids (IDSequence): The corresponding document IDs.
+            psg_ids (IDSequence): The corresponding passage IDs.
         """
         pass
 
     def add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[Optional[str]] = None,
-        psg_ids: Sequence[Optional[str]] = None,
+        doc_ids: IDSequence = None,
+        psg_ids: IDSequence = None,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
 
@@ -232,8 +232,8 @@ class Index(abc.ABC):
 
         Args:
             vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
-            doc_id (Sequence[Optional[str]], optional): The corresponding document IDs (may be duplicate). Defaults to None.
-            psg_id (Sequence[Optional[str]], optional): The corresponding passage IDs (must be unique). Defaults to None.
+            doc_id (IDSequence, optional): The corresponding document IDs (may be duplicate). Defaults to None.
+            psg_id (IDSequence, optional): The corresponding passage IDs (must be unique). Defaults to None.
 
         Raises:
             ValueError: When there are no document IDs and no passage IDs.

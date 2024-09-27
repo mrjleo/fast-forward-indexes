@@ -67,8 +67,8 @@ class InMemoryIndex(Index):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[Optional[str]],
-        psg_ids: Sequence[Optional[str]],
+        doc_ids: IDSequence,
+        psg_ids: IDSequence,
     ) -> None:
         # if this is the first call to _add, no shards exist
         if len(self._shards) == 0:

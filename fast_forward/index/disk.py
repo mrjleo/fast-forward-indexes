@@ -174,8 +174,8 @@ class OnDiskIndex(Index):
     def _add(
         self,
         vectors: np.ndarray,
-        doc_ids: Sequence[Optional[str]],
-        psg_ids: Sequence[Optional[str]],
+        doc_ids: IDSequence,
+        psg_ids: IDSequence,
     ) -> None:
         with h5py.File(self._index_file, "a") as fp:
             # if this is the first call to _add, no datasets exist
