@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 14.6.1"/>
+    <meta name="generator" content="pdoc 14.7.0"/>
     <title>fast_forward.index API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -167,7 +167,7 @@
 
 <h2 id="ranking-mode">Ranking mode</h2>
 
-<p>Each index has a ranking mode (<code><a href="#Mode">Mode</a></code>). The active mode determines the way scores are computed. For example, consider the <a href="#creating-an-index">example index from earlier</a>. Setting the mode to <code><a href="#Mode.PASSAGE">Mode.PASSAGE</a></code> instructs the index to compute scores on the passage level (and expect passage IDs in the input ranking):</p>
+<p>Each index has a ranking mode (<code><a href="#Mode">fast_forward.index.Mode</a></code>). The active mode determines the way scores are computed. For example, consider the <a href="#creating-an-index">example index from earlier</a>. Setting the mode to <code><a href="#Mode.PASSAGE">fast_forward.index.Mode.PASSAGE</a></code> instructs the index to compute scores on the passage level (and expect passage IDs in the input ranking):</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">my_index</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n"><a href="#Mode.PASSAGE">Mode.PASSAGE</a></span>
@@ -177,21 +177,21 @@
 <p>Similarly, the index can return document IDs, where the score of a document computes as</p>
 
 <ul>
-<li>the highest score of its passages (<code><a href="#Mode.MAXP">Mode.MAXP</a></code>),</li>
-<li>the score of the its first passage (<code><a href="#Mode.FIRSTP">Mode.FIRSTP</a></code>) or</li>
-<li>the average score of all its passages (<code><a href="#Mode.AVEP">Mode.AVEP</a></code>).</li>
+<li>the highest score of its passages (<code><a href="#Mode.MAXP">fast_forward.index.Mode.MAXP</a></code>),</li>
+<li>the score of the its first passage (<code><a href="#Mode.FIRSTP">fast_forward.index.Mode.FIRSTP</a></code>) or</li>
+<li>the average score of all its passages (<code><a href="#Mode.AVEP">fast_forward.index.Mode.AVEP</a></code>).</li>
 </ul>
 
 <h2 id="early-stopping">Early stopping</h2>
 
-<p>Early stopping is a technique to limit the number of index look-ups. This can be beneficial for OnDiskIndexes, especially when the disk is slow. For early stopping, a relatively small cut-off depth (e.g., <code>10</code>) is required, and it is mostly helpful when a large number of candidates are to be re-ranked. More information can be found <a href="https://dl.acm.org/doi/abs/10.1145/3485447.3511955">in the paper</a>.</p>
+<p>Early stopping is a technique to limit the number of index look-ups. This can be beneficial for OnDiskIndexes, especially when the disk is slow. For early stopping, a relatively small cut-off depth (e.g., <code>10</code>) is required, and it is mostly helpful when a large number of candidates are to be re-ranked. More information can be found <a href="https://dl.acm.org/doi/abs/10.1145/3485447.3511955">in the paper</a>. Note that the implementation here differs slightly from the algorithm in the paper, as the early stopping criterion is only computed at depths that are specified via the <code>early_stopping_depths</code> parameter for performance reasons.</p>
 
 <p>The following snippet demonstrates early stopping with</p>
 
 <ul>
 <li>a cut-off depth of <code>5</code>,</li>
 <li>interpolation parameter <code>0.2</code>,</li>
-<li>intervals <code>(0, 400)</code> and <code>(401, 5000)</code>.</li>
+<li>depths <code>400</code> and <code>5000</code>.</li>
 </ul>
 
 <div class="pdoc-code codehilite">
@@ -199,7 +199,7 @@
     <span class="n">ranking</span><span class="p">,</span>
     <span class="n">early_stopping</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
     <span class="n">early_stopping_alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
-    <span class="n">early_stopping_intervals</span><span class="o">=</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
+    <span class="n">early_stopping_depths</span><span class="o">=</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">5000</span><span class="p">),</span>
 <span class="p">)</span>
 </code></pre>
 </div>
@@ -416,8 +416,8 @@
 </span><span id="L-203"><a href="#L-203"><span class="linenos">203</span></a>    <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span>
 </span><span id="L-204"><a href="#L-204"><span class="linenos">204</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="L-205"><a href="#L-205"><span class="linenos">205</span></a>        <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+</span><span id="L-206"><a href="#L-206"><span class="linenos">206</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">IDSequence</span><span class="p">,</span>
+</span><span id="L-207"><a href="#L-207"><span class="linenos">207</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">IDSequence</span><span class="p">,</span>
 </span><span id="L-208"><a href="#L-208"><span class="linenos">208</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-209"><a href="#L-209"><span class="linenos">209</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
 </span><span id="L-210"><a href="#L-210"><span class="linenos">210</span></a>
@@ -425,16 +425,16 @@
 </span><span id="L-212"><a href="#L-212"><span class="linenos">212</span></a>
 </span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">        Args:</span>
 </span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.</span>
-</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="sd">            doc_ids (Sequence[Optional[str]]): The corresponding document IDs.</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="sd">            psg_ids (Sequence[Optional[str]]): The corresponding passage IDs.</span>
+</span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="sd">            doc_ids (IDSequence): The corresponding document IDs.</span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="sd">            psg_ids (IDSequence): The corresponding passage IDs.</span>
 </span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a>        <span class="k">pass</span>
 </span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>
 </span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
 </span><span id="L-221"><a href="#L-221"><span class="linenos">221</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="L-222"><a href="#L-222"><span class="linenos">222</span></a>        <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-223"><a href="#L-223"><span class="linenos">223</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">IDSequence</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-224"><a href="#L-224"><span class="linenos">224</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">IDSequence</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="L-225"><a href="#L-225"><span class="linenos">225</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-226"><a href="#L-226"><span class="linenos">226</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
 </span><span id="L-227"><a href="#L-227"><span class="linenos">227</span></a>
@@ -445,8 +445,8 @@
 </span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a>
 </span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a><span class="sd">        Args:</span>
 </span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">            doc_id (Sequence[Optional[str]], optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
-</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="sd">            psg_id (Sequence[Optional[str]], optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a><span class="sd">            doc_id (IDSequence, optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
+</span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a><span class="sd">            psg_id (IDSequence, optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>
 </span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a><span class="sd">        Raises:</span>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="sd">            ValueError: When there are no document IDs and no passage IDs.</span>
@@ -566,7 +566,7 @@
 </span><span id="L-353"><a href="#L-353"><span class="linenos">353</span></a>        <span class="n">query_vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 </span><span id="L-354"><a href="#L-354"><span class="linenos">354</span></a>        <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 </span><span id="L-355"><a href="#L-355"><span class="linenos">355</span></a>        <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-</span><span id="L-356"><a href="#L-356"><span class="linenos">356</span></a>        <span class="n">intervals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+</span><span id="L-356"><a href="#L-356"><span class="linenos">356</span></a>        <span class="n">depths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 </span><span id="L-357"><a href="#L-357"><span class="linenos">357</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="L-358"><a href="#L-358"><span class="linenos">358</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute scores with early stopping for a data frame.</span>
 </span><span id="L-359"><a href="#L-359"><span class="linenos">359</span></a><span class="sd">        The input data frame needs a &quot;q_no&quot; column with unique query numbers.</span>
@@ -576,7 +576,7 @@
 </span><span id="L-363"><a href="#L-363"><span class="linenos">363</span></a><span class="sd">            query_vectors (np.ndarray): All query vectors indexed by &quot;q_no&quot;.</span>
 </span><span id="L-364"><a href="#L-364"><span class="linenos">364</span></a><span class="sd">            cutoff (int): Cut-off depth for early stopping.</span>
 </span><span id="L-365"><a href="#L-365"><span class="linenos">365</span></a><span class="sd">            alpha (float): Interpolation parameter.</span>
-</span><span id="L-366"><a href="#L-366"><span class="linenos">366</span></a><span class="sd">            intervals (Iterable[int]): Depths to compute scores at.</span>
+</span><span id="L-366"><a href="#L-366"><span class="linenos">366</span></a><span class="sd">            depths (Iterable[int]): Depths to compute scores at.</span>
 </span><span id="L-367"><a href="#L-367"><span class="linenos">367</span></a>
 </span><span id="L-368"><a href="#L-368"><span class="linenos">368</span></a><span class="sd">        Returns:</span>
 </span><span id="L-369"><a href="#L-369"><span class="linenos">369</span></a><span class="sd">            pd.DataFrame: Data frame with computed scores.</span>
@@ -589,7 +589,7 @@
 </span><span id="L-376"><a href="#L-376"><span class="linenos">376</span></a>
 </span><span id="L-377"><a href="#L-377"><span class="linenos">377</span></a>        <span class="c1"># [a, b] is the interval for which the scores are computed in each step</span>
 </span><span id="L-378"><a href="#L-378"><span class="linenos">378</span></a>        <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="L-379"><a href="#L-379"><span class="linenos">379</span></a>        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">intervals</span><span class="p">):</span>
+</span><span id="L-379"><a href="#L-379"><span class="linenos">379</span></a>        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">depths</span><span class="p">):</span>
 </span><span id="L-380"><a href="#L-380"><span class="linenos">380</span></a>            <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">cutoff</span><span class="p">:</span>
 </span><span id="L-381"><a href="#L-381"><span class="linenos">381</span></a>                <span class="k">continue</span>
 </span><span id="L-382"><a href="#L-382"><span class="linenos">382</span></a>
@@ -642,7 +642,7 @@
 </span><span id="L-429"><a href="#L-429"><span class="linenos">429</span></a>        <span class="n">ranking</span><span class="p">:</span> <span class="n">Ranking</span><span class="p">,</span>
 </span><span id="L-430"><a href="#L-430"><span class="linenos">430</span></a>        <span class="n">early_stopping</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="L-431"><a href="#L-431"><span class="linenos">431</span></a>        <span class="n">early_stopping_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a>        <span class="n">early_stopping_intervals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="L-432"><a href="#L-432"><span class="linenos">432</span></a>        <span class="n">early_stopping_depths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="L-433"><a href="#L-433"><span class="linenos">433</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ranking</span><span class="p">:</span>
 </span><span id="L-434"><a href="#L-434"><span class="linenos">434</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute scores for a ranking.</span>
 </span><span id="L-435"><a href="#L-435"><span class="linenos">435</span></a>
@@ -650,7 +650,7 @@
 </span><span id="L-437"><a href="#L-437"><span class="linenos">437</span></a><span class="sd">            ranking (Ranking): The ranking to compute scores for. Must have queries attached.</span>
 </span><span id="L-438"><a href="#L-438"><span class="linenos">438</span></a><span class="sd">            early_stopping (int, optional): Perform early stopping at this cut-off depth. Defaults to None.</span>
 </span><span id="L-439"><a href="#L-439"><span class="linenos">439</span></a><span class="sd">            early_stopping_alpha (float, optional): Interpolation parameter for early stopping. Defaults to None.</span>
-</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="sd">            early_stopping_intervals (Iterable[int], optional): Intervals for early stopping. Defaults to None.</span>
+</span><span id="L-440"><a href="#L-440"><span class="linenos">440</span></a><span class="sd">            early_stopping_depths (Iterable[int], optional): Depths for early stopping. Defaults to None.</span>
 </span><span id="L-441"><a href="#L-441"><span class="linenos">441</span></a>
 </span><span id="L-442"><a href="#L-442"><span class="linenos">442</span></a><span class="sd">        Returns:</span>
 </span><span id="L-443"><a href="#L-443"><span class="linenos">443</span></a><span class="sd">            Ranking: Ranking with the computed scores.</span>
@@ -662,9 +662,9 @@
 </span><span id="L-449"><a href="#L-449"><span class="linenos">449</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">ranking</span><span class="o">.</span><span class="n">has_queries</span><span class="p">:</span>
 </span><span id="L-450"><a href="#L-450"><span class="linenos">450</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input ranking has no queries attached.&quot;</span><span class="p">)</span>
 </span><span id="L-451"><a href="#L-451"><span class="linenos">451</span></a>        <span class="k">if</span> <span class="n">early_stopping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
-</span><span id="L-452"><a href="#L-452"><span class="linenos">452</span></a>            <span class="n">early_stopping_alpha</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">early_stopping_intervals</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="L-452"><a href="#L-452"><span class="linenos">452</span></a>            <span class="n">early_stopping_alpha</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">early_stopping_depths</span> <span class="ow">is</span> <span class="kc">None</span>
 </span><span id="L-453"><a href="#L-453"><span class="linenos">453</span></a>        <span class="p">):</span>
-</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Early stopping requires alpha and intervals.&quot;</span><span class="p">)</span>
+</span><span id="L-454"><a href="#L-454"><span class="linenos">454</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Early stopping requires alpha and depths.&quot;</span><span class="p">)</span>
 </span><span id="L-455"><a href="#L-455"><span class="linenos">455</span></a>        <span class="n">t0</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
 </span><span id="L-456"><a href="#L-456"><span class="linenos">456</span></a>
 </span><span id="L-457"><a href="#L-457"><span class="linenos">457</span></a>        <span class="c1"># get all unique queries and query IDs and map to unique numbers (0 to m)</span>
@@ -685,7 +685,7 @@
 </span><span id="L-472"><a href="#L-472"><span class="linenos">472</span></a>                <span class="n">query_vectors</span><span class="p">,</span>
 </span><span id="L-473"><a href="#L-473"><span class="linenos">473</span></a>                <span class="n">early_stopping</span><span class="p">,</span>
 </span><span id="L-474"><a href="#L-474"><span class="linenos">474</span></a>                <span class="n">early_stopping_alpha</span><span class="p">,</span>
-</span><span id="L-475"><a href="#L-475"><span class="linenos">475</span></a>                <span class="n">early_stopping_intervals</span><span class="p">,</span>
+</span><span id="L-475"><a href="#L-475"><span class="linenos">475</span></a>                <span class="n">early_stopping_depths</span><span class="p">,</span>
 </span><span id="L-476"><a href="#L-476"><span class="linenos">476</span></a>            <span class="p">)</span>
 </span><span id="L-477"><a href="#L-477"><span class="linenos">477</span></a>        <span class="k">else</span><span class="p">:</span>
 </span><span id="L-478"><a href="#L-478"><span class="linenos">478</span></a>            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_scores</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">query_vectors</span><span class="p">)</span>
@@ -1042,8 +1042,8 @@
 </span><span id="Index-204"><a href="#Index-204"><span class="linenos">204</span></a>    <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span>
 </span><span id="Index-205"><a href="#Index-205"><span class="linenos">205</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Index-206"><a href="#Index-206"><span class="linenos">206</span></a>        <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="Index-207"><a href="#Index-207"><span class="linenos">207</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-</span><span id="Index-208"><a href="#Index-208"><span class="linenos">208</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+</span><span id="Index-207"><a href="#Index-207"><span class="linenos">207</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">IDSequence</span><span class="p">,</span>
+</span><span id="Index-208"><a href="#Index-208"><span class="linenos">208</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">IDSequence</span><span class="p">,</span>
 </span><span id="Index-209"><a href="#Index-209"><span class="linenos">209</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Index-210"><a href="#Index-210"><span class="linenos">210</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
 </span><span id="Index-211"><a href="#Index-211"><span class="linenos">211</span></a>
@@ -1051,16 +1051,16 @@
 </span><span id="Index-213"><a href="#Index-213"><span class="linenos">213</span></a>
 </span><span id="Index-214"><a href="#Index-214"><span class="linenos">214</span></a><span class="sd">        Args:</span>
 </span><span id="Index-215"><a href="#Index-215"><span class="linenos">215</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.</span>
-</span><span id="Index-216"><a href="#Index-216"><span class="linenos">216</span></a><span class="sd">            doc_ids (Sequence[Optional[str]]): The corresponding document IDs.</span>
-</span><span id="Index-217"><a href="#Index-217"><span class="linenos">217</span></a><span class="sd">            psg_ids (Sequence[Optional[str]]): The corresponding passage IDs.</span>
+</span><span id="Index-216"><a href="#Index-216"><span class="linenos">216</span></a><span class="sd">            doc_ids (IDSequence): The corresponding document IDs.</span>
+</span><span id="Index-217"><a href="#Index-217"><span class="linenos">217</span></a><span class="sd">            psg_ids (IDSequence): The corresponding passage IDs.</span>
 </span><span id="Index-218"><a href="#Index-218"><span class="linenos">218</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Index-219"><a href="#Index-219"><span class="linenos">219</span></a>        <span class="k">pass</span>
 </span><span id="Index-220"><a href="#Index-220"><span class="linenos">220</span></a>
 </span><span id="Index-221"><a href="#Index-221"><span class="linenos">221</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
 </span><span id="Index-222"><a href="#Index-222"><span class="linenos">222</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Index-223"><a href="#Index-223"><span class="linenos">223</span></a>        <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="Index-224"><a href="#Index-224"><span class="linenos">224</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Index-225"><a href="#Index-225"><span class="linenos">225</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Index-224"><a href="#Index-224"><span class="linenos">224</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">IDSequence</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Index-225"><a href="#Index-225"><span class="linenos">225</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">IDSequence</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index-226"><a href="#Index-226"><span class="linenos">226</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Index-227"><a href="#Index-227"><span class="linenos">227</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
 </span><span id="Index-228"><a href="#Index-228"><span class="linenos">228</span></a>
@@ -1071,8 +1071,8 @@
 </span><span id="Index-233"><a href="#Index-233"><span class="linenos">233</span></a>
 </span><span id="Index-234"><a href="#Index-234"><span class="linenos">234</span></a><span class="sd">        Args:</span>
 </span><span id="Index-235"><a href="#Index-235"><span class="linenos">235</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
-</span><span id="Index-236"><a href="#Index-236"><span class="linenos">236</span></a><span class="sd">            doc_id (Sequence[Optional[str]], optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
-</span><span id="Index-237"><a href="#Index-237"><span class="linenos">237</span></a><span class="sd">            psg_id (Sequence[Optional[str]], optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
+</span><span id="Index-236"><a href="#Index-236"><span class="linenos">236</span></a><span class="sd">            doc_id (IDSequence, optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
+</span><span id="Index-237"><a href="#Index-237"><span class="linenos">237</span></a><span class="sd">            psg_id (IDSequence, optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
 </span><span id="Index-238"><a href="#Index-238"><span class="linenos">238</span></a>
 </span><span id="Index-239"><a href="#Index-239"><span class="linenos">239</span></a><span class="sd">        Raises:</span>
 </span><span id="Index-240"><a href="#Index-240"><span class="linenos">240</span></a><span class="sd">            ValueError: When there are no document IDs and no passage IDs.</span>
@@ -1192,7 +1192,7 @@
 </span><span id="Index-354"><a href="#Index-354"><span class="linenos">354</span></a>        <span class="n">query_vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 </span><span id="Index-355"><a href="#Index-355"><span class="linenos">355</span></a>        <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 </span><span id="Index-356"><a href="#Index-356"><span class="linenos">356</span></a>        <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-</span><span id="Index-357"><a href="#Index-357"><span class="linenos">357</span></a>        <span class="n">intervals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+</span><span id="Index-357"><a href="#Index-357"><span class="linenos">357</span></a>        <span class="n">depths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
 </span><span id="Index-358"><a href="#Index-358"><span class="linenos">358</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 </span><span id="Index-359"><a href="#Index-359"><span class="linenos">359</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute scores with early stopping for a data frame.</span>
 </span><span id="Index-360"><a href="#Index-360"><span class="linenos">360</span></a><span class="sd">        The input data frame needs a &quot;q_no&quot; column with unique query numbers.</span>
@@ -1202,7 +1202,7 @@
 </span><span id="Index-364"><a href="#Index-364"><span class="linenos">364</span></a><span class="sd">            query_vectors (np.ndarray): All query vectors indexed by &quot;q_no&quot;.</span>
 </span><span id="Index-365"><a href="#Index-365"><span class="linenos">365</span></a><span class="sd">            cutoff (int): Cut-off depth for early stopping.</span>
 </span><span id="Index-366"><a href="#Index-366"><span class="linenos">366</span></a><span class="sd">            alpha (float): Interpolation parameter.</span>
-</span><span id="Index-367"><a href="#Index-367"><span class="linenos">367</span></a><span class="sd">            intervals (Iterable[int]): Depths to compute scores at.</span>
+</span><span id="Index-367"><a href="#Index-367"><span class="linenos">367</span></a><span class="sd">            depths (Iterable[int]): Depths to compute scores at.</span>
 </span><span id="Index-368"><a href="#Index-368"><span class="linenos">368</span></a>
 </span><span id="Index-369"><a href="#Index-369"><span class="linenos">369</span></a><span class="sd">        Returns:</span>
 </span><span id="Index-370"><a href="#Index-370"><span class="linenos">370</span></a><span class="sd">            pd.DataFrame: Data frame with computed scores.</span>
@@ -1215,7 +1215,7 @@
 </span><span id="Index-377"><a href="#Index-377"><span class="linenos">377</span></a>
 </span><span id="Index-378"><a href="#Index-378"><span class="linenos">378</span></a>        <span class="c1"># [a, b] is the interval for which the scores are computed in each step</span>
 </span><span id="Index-379"><a href="#Index-379"><span class="linenos">379</span></a>        <span class="n">a</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="Index-380"><a href="#Index-380"><span class="linenos">380</span></a>        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">intervals</span><span class="p">):</span>
+</span><span id="Index-380"><a href="#Index-380"><span class="linenos">380</span></a>        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">depths</span><span class="p">):</span>
 </span><span id="Index-381"><a href="#Index-381"><span class="linenos">381</span></a>            <span class="k">if</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">cutoff</span><span class="p">:</span>
 </span><span id="Index-382"><a href="#Index-382"><span class="linenos">382</span></a>                <span class="k">continue</span>
 </span><span id="Index-383"><a href="#Index-383"><span class="linenos">383</span></a>
@@ -1268,7 +1268,7 @@
 </span><span id="Index-430"><a href="#Index-430"><span class="linenos">430</span></a>        <span class="n">ranking</span><span class="p">:</span> <span class="n">Ranking</span><span class="p">,</span>
 </span><span id="Index-431"><a href="#Index-431"><span class="linenos">431</span></a>        <span class="n">early_stopping</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index-432"><a href="#Index-432"><span class="linenos">432</span></a>        <span class="n">early_stopping_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Index-433"><a href="#Index-433"><span class="linenos">433</span></a>        <span class="n">early_stopping_intervals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Index-433"><a href="#Index-433"><span class="linenos">433</span></a>        <span class="n">early_stopping_depths</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index-434"><a href="#Index-434"><span class="linenos">434</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Ranking</span><span class="p">:</span>
 </span><span id="Index-435"><a href="#Index-435"><span class="linenos">435</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute scores for a ranking.</span>
 </span><span id="Index-436"><a href="#Index-436"><span class="linenos">436</span></a>
@@ -1276,7 +1276,7 @@
 </span><span id="Index-438"><a href="#Index-438"><span class="linenos">438</span></a><span class="sd">            ranking (Ranking): The ranking to compute scores for. Must have queries attached.</span>
 </span><span id="Index-439"><a href="#Index-439"><span class="linenos">439</span></a><span class="sd">            early_stopping (int, optional): Perform early stopping at this cut-off depth. Defaults to None.</span>
 </span><span id="Index-440"><a href="#Index-440"><span class="linenos">440</span></a><span class="sd">            early_stopping_alpha (float, optional): Interpolation parameter for early stopping. Defaults to None.</span>
-</span><span id="Index-441"><a href="#Index-441"><span class="linenos">441</span></a><span class="sd">            early_stopping_intervals (Iterable[int], optional): Intervals for early stopping. Defaults to None.</span>
+</span><span id="Index-441"><a href="#Index-441"><span class="linenos">441</span></a><span class="sd">            early_stopping_depths (Iterable[int], optional): Depths for early stopping. Defaults to None.</span>
 </span><span id="Index-442"><a href="#Index-442"><span class="linenos">442</span></a>
 </span><span id="Index-443"><a href="#Index-443"><span class="linenos">443</span></a><span class="sd">        Returns:</span>
 </span><span id="Index-444"><a href="#Index-444"><span class="linenos">444</span></a><span class="sd">            Ranking: Ranking with the computed scores.</span>
@@ -1288,9 +1288,9 @@
 </span><span id="Index-450"><a href="#Index-450"><span class="linenos">450</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">ranking</span><span class="o">.</span><span class="n">has_queries</span><span class="p">:</span>
 </span><span id="Index-451"><a href="#Index-451"><span class="linenos">451</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input ranking has no queries attached.&quot;</span><span class="p">)</span>
 </span><span id="Index-452"><a href="#Index-452"><span class="linenos">452</span></a>        <span class="k">if</span> <span class="n">early_stopping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span>
-</span><span id="Index-453"><a href="#Index-453"><span class="linenos">453</span></a>            <span class="n">early_stopping_alpha</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">early_stopping_intervals</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="Index-453"><a href="#Index-453"><span class="linenos">453</span></a>            <span class="n">early_stopping_alpha</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">early_stopping_depths</span> <span class="ow">is</span> <span class="kc">None</span>
 </span><span id="Index-454"><a href="#Index-454"><span class="linenos">454</span></a>        <span class="p">):</span>
-</span><span id="Index-455"><a href="#Index-455"><span class="linenos">455</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Early stopping requires alpha and intervals.&quot;</span><span class="p">)</span>
+</span><span id="Index-455"><a href="#Index-455"><span class="linenos">455</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Early stopping requires alpha and depths.&quot;</span><span class="p">)</span>
 </span><span id="Index-456"><a href="#Index-456"><span class="linenos">456</span></a>        <span class="n">t0</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
 </span><span id="Index-457"><a href="#Index-457"><span class="linenos">457</span></a>
 </span><span id="Index-458"><a href="#Index-458"><span class="linenos">458</span></a>        <span class="c1"># get all unique queries and query IDs and map to unique numbers (0 to m)</span>
@@ -1311,7 +1311,7 @@
 </span><span id="Index-473"><a href="#Index-473"><span class="linenos">473</span></a>                <span class="n">query_vectors</span><span class="p">,</span>
 </span><span id="Index-474"><a href="#Index-474"><span class="linenos">474</span></a>                <span class="n">early_stopping</span><span class="p">,</span>
 </span><span id="Index-475"><a href="#Index-475"><span class="linenos">475</span></a>                <span class="n">early_stopping_alpha</span><span class="p">,</span>
-</span><span id="Index-476"><a href="#Index-476"><span class="linenos">476</span></a>                <span class="n">early_stopping_intervals</span><span class="p">,</span>
+</span><span id="Index-476"><a href="#Index-476"><span class="linenos">476</span></a>                <span class="n">early_stopping_depths</span><span class="p">,</span>
 </span><span id="Index-477"><a href="#Index-477"><span class="linenos">477</span></a>            <span class="p">)</span>
 </span><span id="Index-478"><a href="#Index-478"><span class="linenos">478</span></a>        <span class="k">else</span><span class="p">:</span>
 </span><span id="Index-479"><a href="#Index-479"><span class="linenos">479</span></a>            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_scores</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">query_vectors</span><span class="p">)</span>
@@ -1697,8 +1697,8 @@
             <div class="pdoc-code codehilite"><pre><span></span><span id="Index.add-221"><a href="#Index.add-221"><span class="linenos">221</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span>
 </span><span id="Index.add-222"><a href="#Index.add-222"><span class="linenos">222</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Index.add-223"><a href="#Index.add-223"><span class="linenos">223</span></a>        <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-</span><span id="Index.add-224"><a href="#Index.add-224"><span class="linenos">224</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="Index.add-225"><a href="#Index.add-225"><span class="linenos">225</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Index.add-224"><a href="#Index.add-224"><span class="linenos">224</span></a>        <span class="n">doc_ids</span><span class="p">:</span> <span class="n">IDSequence</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="Index.add-225"><a href="#Index.add-225"><span class="linenos">225</span></a>        <span class="n">psg_ids</span><span class="p">:</span> <span class="n">IDSequence</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="Index.add-226"><a href="#Index.add-226"><span class="linenos">226</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Index.add-227"><a href="#Index.add-227"><span class="linenos">227</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add vector representations and corresponding IDs to the index.</span>
 </span><span id="Index.add-228"><a href="#Index.add-228"><span class="linenos">228</span></a>
@@ -1709,8 +1709,8 @@
 </span><span id="Index.add-233"><a href="#Index.add-233"><span class="linenos">233</span></a>
 </span><span id="Index.add-234"><a href="#Index.add-234"><span class="linenos">234</span></a><span class="sd">        Args:</span>
 </span><span id="Index.add-235"><a href="#Index.add-235"><span class="linenos">235</span></a><span class="sd">            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.</span>
-</span><span id="Index.add-236"><a href="#Index.add-236"><span class="linenos">236</span></a><span class="sd">            doc_id (Sequence[Optional[str]], optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
-</span><span id="Index.add-237"><a href="#Index.add-237"><span class="linenos">237</span></a><span class="sd">            psg_id (Sequence[Optional[str]], optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
+</span><span id="Index.add-236"><a href="#Index.add-236"><span class="linenos">236</span></a><span class="sd">            doc_id (IDSequence, optional): The corresponding document IDs (may be duplicate). Defaults to None.</span>
+</span><span id="Index.add-237"><a href="#Index.add-237"><span class="linenos">237</span></a><span class="sd">            psg_id (IDSequence, optional): The corresponding passage IDs (must be unique). Defaults to None.</span>
 </span><span id="Index.add-238"><a href="#Index.add-238"><span class="linenos">238</span></a>
 </span><span id="Index.add-239"><a href="#Index.add-239"><span class="linenos">239</span></a><span class="sd">        Raises:</span>
 </span><span id="Index.add-240"><a href="#Index.add-240"><span class="linenos">240</span></a><span class="sd">            ValueError: When there are no document IDs and no passage IDs.</span>
@@ -1759,8 +1759,8 @@ but each vector must have at least one associated ID.</p>
 
 <ul>
 <li><strong>vectors (np.ndarray):</strong>  The representations, shape <code>(num_vectors, dim)</code>.</li>
-<li><strong>doc_id (Sequence[Optional[str]], optional):</strong>  The corresponding document IDs (may be duplicate). Defaults to None.</li>
-<li><strong>psg_id (Sequence[Optional[str]], optional):</strong>  The corresponding passage IDs (must be unique). Defaults to None.</li>
+<li><strong>doc_id (IDSequence, optional):</strong>  The corresponding document IDs (may be duplicate). Defaults to None.</li>
+<li><strong>psg_id (IDSequence, optional):</strong>  The corresponding passage IDs (must be unique). Defaults to None.</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
