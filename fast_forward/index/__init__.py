@@ -353,7 +353,7 @@ class Index(abc.ABC):
         query_vectors: np.ndarray,
         cutoff: int,
         alpha: float,
-        intervals: Iterable[int],
+        depths: Iterable[int],
     ) -> pd.DataFrame:
         """Compute scores with early stopping for a data frame.
         The input data frame needs a "q_no" column with unique query numbers.
@@ -363,7 +363,7 @@ class Index(abc.ABC):
             query_vectors (np.ndarray): All query vectors indexed by "q_no".
             cutoff (int): Cut-off depth for early stopping.
             alpha (float): Interpolation parameter.
-            intervals (Iterable[int]): Depths to compute scores at.
+            depths (Iterable[int]): Depths to compute scores at.
 
         Returns:
             pd.DataFrame: Data frame with computed scores.
@@ -376,7 +376,7 @@ class Index(abc.ABC):
 
         # [a, b] is the interval for which the scores are computed in each step
         a = 0
-        for b in sorted(intervals):
+        for b in sorted(depths):
             if b < cutoff:
                 continue
 
@@ -429,7 +429,7 @@ class Index(abc.ABC):
         ranking: Ranking,
         early_stopping: int = None,
         early_stopping_alpha: float = None,
-        early_stopping_intervals: Iterable[int] = None,
+        early_stopping_depths: Iterable[int] = None,
     ) -> Ranking:
         """Compute scores for a ranking.
 
@@ -437,7 +437,7 @@ class Index(abc.ABC):
             ranking (Ranking): The ranking to compute scores for. Must have queries attached.
             early_stopping (int, optional): Perform early stopping at this cut-off depth. Defaults to None.
             early_stopping_alpha (float, optional): Interpolation parameter for early stopping. Defaults to None.
-            early_stopping_intervals (Iterable[int], optional): Intervals for early stopping. Defaults to None.
+            early_stopping_depths (Iterable[int], optional): Depths for early stopping. Defaults to None.
 
         Returns:
             Ranking: Ranking with the computed scores.
@@ -449,9 +449,9 @@ class Index(abc.ABC):
         if not ranking.has_queries:
             raise ValueError("Input ranking has no queries attached.")
         if early_stopping is not None and (
-            early_stopping_alpha is None or early_stopping_intervals is None
+            early_stopping_alpha is None or early_stopping_depths is None
         ):
-            raise ValueError("Early stopping requires alpha and intervals.")
+            raise ValueError("Early stopping requires alpha and depths.")
         t0 = perf_counter()
 
         # get all unique queries and query IDs and map to unique numbers (0 to m)
@@ -472,7 +472,7 @@ class Index(abc.ABC):
                 query_vectors,
                 early_stopping,
                 early_stopping_alpha,
-                early_stopping_intervals,
+                early_stopping_depths,
             )
         else:
             result = self._compute_scores(df, query_vectors)

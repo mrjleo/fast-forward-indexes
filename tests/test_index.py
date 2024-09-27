@@ -242,7 +242,7 @@ class TestIndex(unittest.TestCase):
             )
         with self.assertRaises(ValueError):
             self.doc_psg_index(
-                DUMMY_DOC_RANKING, early_stopping=10, early_stopping_intervals=None
+                DUMMY_DOC_RANKING, early_stopping=10, early_stopping_depths=None
             )
 
         # adding a quantizer to an index that's not empty
@@ -295,18 +295,18 @@ class TestIndex(unittest.TestCase):
                 r,
                 early_stopping=5,
                 early_stopping_alpha=0.5,
-                early_stopping_intervals=(2, 5, 10, 20),
+                early_stopping_depths=(2, 5, 10, 20),
             ),
             result_expected,
         )
 
-        # order of intervals should make no difference
+        # order of depths should make no difference
         self.assertEqual(
             self.early_stopping_index(
                 r,
                 early_stopping=5,
                 early_stopping_alpha=0.5,
-                early_stopping_intervals=(5, 2, 20, 10),
+                early_stopping_depths=(5, 2, 20, 10),
             ),
             result_expected,
         )

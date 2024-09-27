@@ -53,20 +53,20 @@ Similarly, the index can return document IDs, where the score of a document comp
 
 ## Early stopping
 
-Early stopping is a technique to limit the number of index look-ups. This can be beneficial for OnDiskIndexes, especially when the disk is slow. For early stopping, a relatively small cut-off depth (e.g., `10`) is required, and it is mostly helpful when a large number of candidates are to be re-ranked. More information can be found [in the paper](https://dl.acm.org/doi/abs/10.1145/3485447.3511955).
+Early stopping is a technique to limit the number of index look-ups. This can be beneficial for OnDiskIndexes, especially when the disk is slow. For early stopping, a relatively small cut-off depth (e.g., `10`) is required, and it is mostly helpful when a large number of candidates are to be re-ranked. More information can be found [in the paper](https://dl.acm.org/doi/abs/10.1145/3485447.3511955). Note that the implementation here differs slightly from the algorithm in the paper, as the early stopping criterion is only computed at depths that are specified via the `early_stopping_depths` parameter for performance reasons.
 
 The following snippet demonstrates early stopping with
 
 - a cut-off depth of `5`,
 - interpolation parameter `0.2`,
-- intervals `(0, 400)` and `(401, 5000)`.
+- depths `400` and `5000`.
 
 ```python
 result = my_index(
     ranking,
     early_stopping=5,
     early_stopping_alpha=0.2,
-    early_stopping_intervals=(400, 5000),
+    early_stopping_depths=(400, 5000),
 )
 ```
 
