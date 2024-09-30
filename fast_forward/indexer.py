@@ -13,13 +13,15 @@ from fast_forward.index import Index
 class Indexer(object):
     """Utility class for indexing collections."""
 
-    def __init__(self, index: Index, encoder: Encoder, batch_size: int = 32) -> None:
+    def __init__(
+        self, index: Index, encoder: Encoder = None, batch_size: int = 32
+    ) -> None:
         """Constructor.
 
         Args:
             index (Index): The index to add the collection to.
-            encoder (Encoder): Document/passage encoder.
-            batch_size (int, optional): Batch size for encoding. Defaults to 32.
+            encoder (Encoder, optional): Document/passage encoder. Defaults to None.
+            batch_size (int, optional): How many items to process at once. Defaults to 32.
         """
         self._index = index
         self._encoder = encoder
@@ -32,7 +34,13 @@ class Indexer(object):
 
         Args:
             data (Iterable[Dict[str, str]]): An iterable of the dictionaries.
+
+        Raises:
+            RuntimeError: When no encoder is set.
         """
+        if self._encoder is None:
+            raise RuntimeError("An encoder is required.")
+
         texts, doc_ids, psg_ids = [], [], []
         for d in tqdm(data):
             texts.append(d["text"])
@@ -45,3 +53,12 @@ class Indexer(object):
 
         if len(texts) > 0:
             self._index.add(self._encoder(texts), doc_ids=doc_ids, psg_ids=psg_ids)
+
+    def from_index(self, index: Index) -> None:
+        """Transfer vectors and IDs from another index.
+
+        Args:
+            index (Index): The source index.
+        """
+        for vectors, doc_ids, psg_ids in tqdm(index.batch_iter(self._batch_size)):
+            self._index.add(vectors, doc_ids, psg_ids)
