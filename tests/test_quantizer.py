@@ -71,10 +71,10 @@ class TestNanoOPQ(TestQuantizer):
     __test__ = True
 
     @classmethod
-    def setUpClass(self):
-        self.quantizer = NanoOPQ(8, 256)
-        self.quantizer_trained = NanoOPQ(8, 256)
-        self.quantizer_trained.fit(
+    def setUpClass(cls):
+        cls.quantizer = NanoOPQ(8, 256)
+        cls.quantizer_trained = NanoOPQ(8, 256)
+        cls.quantizer_trained.fit(
             np.random.normal(size=(2**10, 768)).astype(np.float32)
         )
 

@@ -9,14 +9,14 @@ from fast_forward.indexer import Indexer
 
 class TestIndexer(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.index = InMemoryIndex()
-        self.indexer = Indexer(
-            self.index, LambdaEncoder(lambda q: np.zeros(shape=(16,))), batch_size=2
+    def setUpClass(cls):
+        cls.index = InMemoryIndex()
+        cls.indexer = Indexer(
+            cls.index, LambdaEncoder(lambda q: np.zeros(shape=(16,))), batch_size=2
         )
 
-    def test_index_dicts(self):
-        self.indexer.index_dicts(
+    def test_from_dicts(self):
+        self.indexer.from_dicts(
             [
                 {"text": "123", "doc_id": "d1", "psg_id": "d1_p1"},
                 {"text": "234", "doc_id": "d1", "psg_id": "d1_p2"},

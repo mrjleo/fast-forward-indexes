@@ -25,7 +25,7 @@ class Indexer(object):
         self._encoder = encoder
         self._batch_size = batch_size
 
-    def index_dicts(self, data: Iterable[Dict[str, str]]) -> None:
+    def from_dicts(self, data: Iterable[Dict[str, str]]) -> None:
         """Index data from dictionaries.
 
         The dictionaries should have the key "text" and at least one of "doc_id" and "psg_id".
