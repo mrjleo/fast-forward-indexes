@@ -323,7 +323,7 @@ class TestIndex(unittest.TestCase):
 
         # delta = 0.2: nothing should change
         create_coalesced_index(
-            self.doc_index, self.coalesced_indexes[1], 0.2, buffer_size=2
+            self.doc_index, self.coalesced_indexes[1], 0.2, batch_size=2
         )
         self.assertEqual(self.doc_index.doc_ids, self.coalesced_indexes[1].doc_ids)
         for doc_id in self.doc_index.doc_ids:

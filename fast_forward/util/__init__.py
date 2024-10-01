@@ -44,7 +44,7 @@ def create_coalesced_index(
     target_index: Index,
     delta: float,
     distance_function: Callable[[np.ndarray, np.ndarray], float] = cos_dist,
-    buffer_size: int = None,
+    batch_size: int = None,
 ) -> None:
     """Create a compressed index using sequential coalescing.
 
@@ -53,10 +53,10 @@ def create_coalesced_index(
         target_index (Index): The target index. Must be empty.
         delta (float): The coalescing threshold.
         distance_function (Callable[[np.ndarray, np.ndarray], float]): The distance function. Defaults to cos_dist.
-        buffer_size (int, optional): Use a buffer instead of adding all vectors at the end. Defaults to None.
+        batch_size (int, optional): Use batches instead of adding all vectors at the end. Defaults to None.
     """
     assert len(target_index.doc_ids) == 0
-    buffer_size = buffer_size or len(source_index.doc_ids)
+    batch_size = batch_size or len(source_index.doc_ids)
     source_index.mode = Mode.MAXP
 
     def _coalesce(P):
@@ -78,8 +78,8 @@ def create_coalesced_index(
     vectors, doc_ids = [], []
     for doc_id in tqdm(source_index.doc_ids):
 
-        # check if buffer is full
-        if len(vectors) == buffer_size:
+        # check if batch is full
+        if len(vectors) == batch_size:
             target_index.add(np.array(vectors), doc_ids=doc_ids)
             vectors, doc_ids = [], []
 
