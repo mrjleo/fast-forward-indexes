@@ -166,6 +166,8 @@ class Indexer(object):
     def from_index(self, index: Index) -> None:
         """Transfer vectors and IDs from another index.
 
+        If the source index uses quantized representations, the vectors are reconstructed first.
+
         Args:
             index (Index): The source index.
         """
