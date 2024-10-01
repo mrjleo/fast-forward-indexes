@@ -29,6 +29,7 @@ class Indexer(object):
     ) -> None:
         """Instantiate an indexer.
 
+        Optionally, a quantizer can be automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.
         If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.
 
         Args:
@@ -36,8 +37,12 @@ class Indexer(object):
             encoder (Encoder, optional): Document/passage encoder. Defaults to None.
             encoder_batch_size (int, optional): Encoder batch size. Defaults to 256.
             batch_size (int, optional): How many vectors to add to the index at once. Defaults to 2**16.
-            quantizer (Quantizer, optional): A quantizer to be trained and attached to the index. Defaults to None.
+            quantizer (Quantizer, optional): A quantizer to be fit and attached to the index. Defaults to None.
             quantizer_fit_batches (int, optional): How many of the first batches to use to fit the quantizer. Defaults to 1.
+
+        Raises:
+            ValueError: When a quantizer is provided that has already been fit.
+            ValueError: When a quantizer is provided and the index already has vectors.
         """
         self._index = index
         self._encoder = encoder
@@ -47,6 +52,16 @@ class Indexer(object):
         self._quantizer_fit_batches = quantizer_fit_batches
 
         if quantizer is not None:
+            if quantizer._trained:
+                raise ValueError(
+                    "The quantizer is already fit and should be attached to the index directly."
+                )
+
+            if len(index) > 0:
+                raise ValueError(
+                    "The index must be empty for a quantizer to be attached."
+                )
+
             self._buf_vectors, self._buf_doc_ids, self._buf_psg_ids = [], [], []
             if quantizer_fit_batches > 1:
                 LOGGER.warning(
@@ -61,7 +76,7 @@ class Indexer(object):
     ) -> None:
         """Add a batch to the index.
 
-        If this indexer has a quantizer to be trained, the inputs will be buffered until the desired amount of data for fitting
+        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for fitting
         has been obtained. Afterwards, the quantizer is fit and attached to the index, and all buffered inputs are added at once.
 
         Args:
