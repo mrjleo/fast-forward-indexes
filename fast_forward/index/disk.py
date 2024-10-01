@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Sequence, Set, Tuple
+from typing import Iterable, Iterator, List, Optional, Set, Tuple
 
 import h5py
 import numpy as np
@@ -142,11 +142,11 @@ class OnDiskIndex(Index):
                 return fp["vectors"].shape[1]
         return None
 
-    def to_memory(self, buffer_size=None) -> InMemoryIndex:
+    def to_memory(self, batch_size=None) -> InMemoryIndex:
         """Load the index entirely into memory.
 
         Args:
-            buffer_size (int, optional): Use batches instead of adding all vectors at once. Defaults to None.
+            batch_size (int, optional): Use batches instead of adding all vectors at once. Defaults to None.
 
         Returns:
             InMemoryIndex: The loaded index.
@@ -159,9 +159,9 @@ class OnDiskIndex(Index):
             init_size=len(self),
         )
         with h5py.File(self._index_file, "r") as fp:
-            buffer_size = buffer_size or fp.attrs["num_vectors"]
-            for i_low in range(0, fp.attrs["num_vectors"], buffer_size):
-                i_up = min(i_low + buffer_size, fp.attrs["num_vectors"])
+            batch_size = batch_size or fp.attrs["num_vectors"]
+            for i_low in range(0, fp.attrs["num_vectors"], batch_size):
+                i_up = min(i_low + batch_size, fp.attrs["num_vectors"])
 
                 # IDs that don't exist will be returned as empty strings here
                 doc_ids = fp["doc_ids"].asstr()[i_low:i_up]

@@ -531,20 +531,20 @@ class TestOnDiskIndex(TestIndex):
             ),
         ]:
             mem_index = index.to_memory()
-            mem_index_buffered = index.to_memory(buffer_size=2)
+            mem_index_batched = index.to_memory(batch_size=2)
 
             for mode, ids in params:
                 index.mode = mode
                 mem_index.mode = mode
-                mem_index_buffered.mode = mode
+                mem_index_batched.mode = mode
 
                 self.assertEqual(mem_index.doc_ids, index.doc_ids)
                 self.assertEqual(mem_index.psg_ids, index.psg_ids)
-                self.assertEqual(mem_index_buffered.doc_ids, index.doc_ids)
-                self.assertEqual(mem_index_buffered.psg_ids, index.psg_ids)
+                self.assertEqual(mem_index_batched.doc_ids, index.doc_ids)
+                self.assertEqual(mem_index_batched.psg_ids, index.psg_ids)
 
                 _test_get_vectors(mem_index, index, ids)
-                _test_get_vectors(mem_index_buffered, index, ids)
+                _test_get_vectors(mem_index_batched, index, ids)
 
         mem_quantized_index = self.quantized_index.to_memory()
         self.assertEqual(
