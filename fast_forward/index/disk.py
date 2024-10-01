@@ -19,7 +19,7 @@ LOGGER = logging.getLogger(__name__)
 class OnDiskIndex(Index):
     """Fast-Forward index that is read on-demand from disk.
 
-    Uses HDF5 via h5py under the hood. The buffer (`ds_buffer_size`) works around a [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
+    Uses HDF5 via h5py under the hood. The `max_indexing_size` works around a [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
     """
 
     def __init__(
@@ -34,7 +34,7 @@ class OnDiskIndex(Index):
         hdf5_chunk_size: int = None,
         max_id_length: int = 8,
         overwrite: bool = False,
-        ds_buffer_size: int = 2**10,
+        max_indexing_size: int = 2**10,
     ) -> None:
         """Create an index.
 
@@ -49,7 +49,7 @@ class OnDiskIndex(Index):
             hdf5_chunk_size (int, optional): Override chunk size used by HDF5. Defaults to None.
             max_id_length (int, optional): Maximum length of document and passage IDs (number of characters). Defaults to 8.
             overwrite (bool, optional): Overwrite index file if it exists. Defaults to False.
-            ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
+            max_indexing_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
 
         Raises:
             ValueError: When the file exists and `overwrite=False`.
@@ -65,7 +65,7 @@ class OnDiskIndex(Index):
         self._resize_min_val = resize_min_val
         self._hdf5_chunk_size = hdf5_chunk_size
         self._max_id_length = max_id_length
-        self._ds_buffer_size = ds_buffer_size
+        self._max_indexing_size = max_indexing_size
 
         LOGGER.debug("creating file %s", self._index_file)
         with h5py.File(self._index_file, "w") as fp:
@@ -269,8 +269,8 @@ class OnDiskIndex(Index):
             # reading all vectors at once slows h5py down significantly, so we read them in chunks and concatenate
             vectors = np.concatenate(
                 [
-                    fp["vectors"][vec_idxs[i : i + self._ds_buffer_size]]
-                    for i in range(0, len(vec_idxs), self._ds_buffer_size)
+                    fp["vectors"][vec_idxs[i : i + self._max_indexing_size]]
+                    for i in range(0, len(vec_idxs), self._max_indexing_size)
                 ]
             )
             return vectors, [id_to_idxs[id] for id in ids]
@@ -300,7 +300,7 @@ class OnDiskIndex(Index):
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         resize_min_val: int = 2**10,
-        ds_buffer_size: int = 2**10,
+        max_indexing_size: int = 2**10,
     ) -> "OnDiskIndex":
         """Open an existing index on disk.
 
@@ -310,7 +310,7 @@ class OnDiskIndex(Index):
             mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
             encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
             resize_min_val (int, optional): Minimum value to increase index size by. Defaults to 2**10.
-            ds_buffer_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
+            max_indexing_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
 
         Returns:
             OnDiskIndex: The index.
@@ -326,7 +326,7 @@ class OnDiskIndex(Index):
         )
         index._index_file = index_file.absolute()
         index._resize_min_val = resize_min_val
-        index._ds_buffer_size = ds_buffer_size
+        index._max_indexing_size = max_indexing_size
 
         # deserialize quantizer if any
         with h5py.File(index_file, "r") as fp:

@@ -571,11 +571,11 @@ class TestOnDiskIndex(TestIndex):
         self.assertEqual(index.psg_ids, set(psg_ids_ok))
         self.assertEqual(16, len(index))
 
-    def test_ds_buffer_size(self):
+    def test_max_indexing_size(self):
         index = OnDiskIndex(
-            self.temp_dir / "ds_buffer_size_index.h5",
+            self.temp_dir / "max_indexing_size_index.h5",
             mode=Mode.PASSAGE,
-            ds_buffer_size=5,
+            max_indexing_size=5,
         )
         psg_reps = np.random.normal(size=(16, 16))
         psg_ids = [f"p{i}" for i in range(16)]
