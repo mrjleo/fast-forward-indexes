@@ -2,7 +2,8 @@
 
 This is the implementation of [Fast-Forward indexes](https://dl.acm.org/doi/abs/10.1145/3485447.3511955).
 
-**Important**: As this library is still in its early stages, the API is subject to change!
+> [!IMPORTANT]
+> As this library is still in its early stages, the API is subject to change!
 
 ## Installation
 
