@@ -35,7 +35,7 @@ class Indexer(object):
         Args:
             index (Index): The target index.
             encoder (Encoder, optional): Document/passage encoder. Defaults to None.
-            encoder_batch_size (int, optional): Encoder batch size. Defaults to 256.
+            encoder_batch_size (int, optional): Encoder batch size. Defaults to 128.
             batch_size (int, optional): How many vectors to add to the index at once. Defaults to 2**16.
             quantizer (Quantizer, optional): A quantizer to be fit and attached to the index. Defaults to None.
             quantizer_fit_batches (int, optional): How many of the first batches to use to fit the quantizer. Defaults to 1.
