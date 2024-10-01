@@ -11,7 +11,10 @@ class TestIndexer(unittest.TestCase):
     def setUp(self):
         self.index = InMemoryIndex()
         self.indexer = Indexer(
-            self.index, LambdaEncoder(lambda q: np.zeros(shape=(16,))), batch_size=2
+            self.index,
+            LambdaEncoder(lambda q: np.zeros(shape=(16,))),
+            encoder_batch_size=2,
+            batch_size=4,
         )
 
     def test_from_dicts(self):

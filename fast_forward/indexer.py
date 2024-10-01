@@ -3,7 +3,7 @@
 """
 
 import logging
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Sequence
 
 import numpy as np
 from tqdm import tqdm
@@ -22,30 +22,36 @@ class Indexer(object):
         self,
         index: Index,
         encoder: Encoder = None,
-        batch_size: int = 32,
+        encoder_batch_size: int = 128,
+        batch_size: int = 2**16,
         quantizer: Quantizer = None,
-        quantizer_fit_batches: int = 2**8,
+        quantizer_fit_batches: int = 1,
     ) -> None:
         """Instantiate an indexer.
+
+        If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.
 
         Args:
             index (Index): The target index.
             encoder (Encoder, optional): Document/passage encoder. Defaults to None.
-            batch_size (int, optional): How many items to process at once. Defaults to 32.
+            encoder_batch_size (int, optional): Encoder batch size. Defaults to 256.
+            batch_size (int, optional): How many vectors to add to the index at once. Defaults to 2**16.
             quantizer (Quantizer, optional): A quantizer to be trained and attached to the index. Defaults to None.
-            quantizer_fit_batches (int, optional): How many of the first batches to use to fit the quantizer. Defaults to 2**8.
+            quantizer_fit_batches (int, optional): How many of the first batches to use to fit the quantizer. Defaults to 1.
         """
         self._index = index
         self._encoder = encoder
+        self._encoder_batch_size = encoder_batch_size
         self._batch_size = batch_size
         self._quantizer = quantizer
         self._quantizer_fit_batches = quantizer_fit_batches
 
         if quantizer is not None:
             self._buf_vectors, self._buf_doc_ids, self._buf_psg_ids = [], [], []
-            LOGGER.warning(
-                "quantizer is set, inputs will be buffered and index will remain empty until the quantizer has been fit"
-            )
+            if quantizer_fit_batches > 1:
+                LOGGER.warning(
+                    "inputs will be buffered and index will remain empty until the quantizer has been fit"
+                )
 
     def _index_batch(
         self,
@@ -73,10 +79,18 @@ class Indexer(object):
 
         if len(self._buf_vectors) >= self._quantizer_fit_batches:
             LOGGER.info(
-                "fitting quantizer (%s batches of size %s)",
+                "fitting quantizer (%s batch(es), batch size %s)",
                 len(self._buf_vectors),
                 self._batch_size,
             )
+
+            last_batch_size = self._buf_vectors[-1].shape[0]
+            if last_batch_size < self._batch_size:
+                LOGGER.warning(
+                    "the size of the last batch (%s) is smaller than the batch size (%s)",
+                    last_batch_size,
+                    self._batch_size,
+                )
 
             self._quantizer.fit(np.concatenate(self._buf_vectors))
             self._index.quantizer = self._quantizer
@@ -92,6 +106,21 @@ class Indexer(object):
             del self._buf_doc_ids
             del self._buf_psg_ids
 
+    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+        """Encode a list of strings (respecting the encoder batch size).
+
+        Args:
+            texts (Sequence[str]): The pieces of text to encode.
+
+        Returns:
+            np.ndarray: The vector representations.
+        """
+        result = []
+        for i in range(0, len(texts), self._encoder_batch_size):
+            batch = texts[i : i + self._encoder_batch_size]
+            result.append(self._encoder(batch))
+        return np.concatenate(result)
+
     def from_dicts(self, data: Iterable[Dict[str, str]]) -> None:
         """Index data from dictionaries.
 
@@ -101,7 +130,7 @@ class Indexer(object):
             data (Iterable[Dict[str, str]]): An iterable of the dictionaries.
 
         Raises:
-            RuntimeError: When no encoder is set.
+            RuntimeError: When no encoder exists.
         """
         if self._encoder is None:
             raise RuntimeError("An encoder is required.")
@@ -113,9 +142,7 @@ class Indexer(object):
             psg_ids.append(d.get("psg_id"))
 
             if len(texts) == self._batch_size:
-                self._index_batch(
-                    self._encoder(texts), doc_ids=doc_ids, psg_ids=psg_ids
-                )
+                self._index_batch(self._encode(texts), doc_ids=doc_ids, psg_ids=psg_ids)
                 texts, doc_ids, psg_ids = [], [], []
 
         if len(texts) > 0:
