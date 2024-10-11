@@ -86,14 +86,16 @@
                     <h1 class="modulename">
 <a href="./../fast_forward.html">fast_forward</a><wbr>.indexer    </h1>
 
-                        <div class="docstring"><p>The <code><a href="#Indexer">fast_forward.indexer.Indexer</a></code> class is a utility for indexing a collection. If the size of the collection is known in advance, it can be specified when the index is created in order to avoid subsequent resizing operations:</p>
+                        <div class="docstring"><p>The <code><a href="#Indexer">fast_forward.indexer.Indexer</a></code> class is a utility for indexing collections or adding pre-computed vectors to an index.</p>
+
+<p>If the size of the collection is known in advance, it can be specified when the index is created in order to avoid subsequent resizing operations:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">my_index</span> <span class="o">=</span> <span class="n">OnDiskIndex</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_index.h5&quot;</span><span class="p">),</span> <span class="n">init_size</span><span class="o">=</span><span class="mi">1000000</span><span class="p">)</span>
 </code></pre>
 </div>
 
-<p>For indexing, a document/passage encoder is required, for example:</p>
+<p>In order to index a corpus, a document/passage encoder is required, for example:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">doc_encoder</span> <span class="o">=</span> <span class="n">TCTColBERTDocumentEncoder</span><span class="p">(</span>
@@ -135,7 +137,7 @@
 </code></pre>
 </div>
 
-<p>Here, the first two batches (of size $2ˆ{16}$) are buffered and used to fit the quantizer.</p>
+<p>Here, the first two batches (of size $2^{16}$) are buffered and used to fit the quantizer.</p>
 </div>
 
                         <input id="mod-indexer-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
@@ -305,7 +307,7 @@
 </span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>                <span class="n">texts</span><span class="p">,</span> <span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 </span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>
 </span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_index_batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encoder</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">doc_ids</span><span class="o">=</span><span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span><span class="o">=</span><span class="n">psg_ids</span><span class="p">)</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_index_batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">doc_ids</span><span class="o">=</span><span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span><span class="o">=</span><span class="n">psg_ids</span><span class="p">)</span>
 </span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>
 </span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>    <span class="k">def</span> <span class="nf">from_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Transfer vectors and IDs from another index.</span>
@@ -490,7 +492,7 @@
 </span><span id="Indexer-162"><a href="#Indexer-162"><span class="linenos">162</span></a>                <span class="n">texts</span><span class="p">,</span> <span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 </span><span id="Indexer-163"><a href="#Indexer-163"><span class="linenos">163</span></a>
 </span><span id="Indexer-164"><a href="#Indexer-164"><span class="linenos">164</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="Indexer-165"><a href="#Indexer-165"><span class="linenos">165</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_index_batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encoder</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">doc_ids</span><span class="o">=</span><span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span><span class="o">=</span><span class="n">psg_ids</span><span class="p">)</span>
+</span><span id="Indexer-165"><a href="#Indexer-165"><span class="linenos">165</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_index_batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">doc_ids</span><span class="o">=</span><span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span><span class="o">=</span><span class="n">psg_ids</span><span class="p">)</span>
 </span><span id="Indexer-166"><a href="#Indexer-166"><span class="linenos">166</span></a>
 </span><span id="Indexer-167"><a href="#Indexer-167"><span class="linenos">167</span></a>    <span class="k">def</span> <span class="nf">from_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Indexer-168"><a href="#Indexer-168"><span class="linenos">168</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Transfer vectors and IDs from another index.</span>
@@ -633,7 +635,7 @@ If a quantizer is provided, the first batch(es) will be buffered and used to fit
 </span><span id="Indexer.from_dicts-162"><a href="#Indexer.from_dicts-162"><span class="linenos">162</span></a>                <span class="n">texts</span><span class="p">,</span> <span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 </span><span id="Indexer.from_dicts-163"><a href="#Indexer.from_dicts-163"><span class="linenos">163</span></a>
 </span><span id="Indexer.from_dicts-164"><a href="#Indexer.from_dicts-164"><span class="linenos">164</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">texts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="Indexer.from_dicts-165"><a href="#Indexer.from_dicts-165"><span class="linenos">165</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_index_batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encoder</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">doc_ids</span><span class="o">=</span><span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span><span class="o">=</span><span class="n">psg_ids</span><span class="p">)</span>
+</span><span id="Indexer.from_dicts-165"><a href="#Indexer.from_dicts-165"><span class="linenos">165</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_index_batch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">texts</span><span class="p">),</span> <span class="n">doc_ids</span><span class="o">=</span><span class="n">doc_ids</span><span class="p">,</span> <span class="n">psg_ids</span><span class="o">=</span><span class="n">psg_ids</span><span class="p">)</span>
 </span></pre></div>
 
 
