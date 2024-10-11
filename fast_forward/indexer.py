@@ -161,7 +161,7 @@ class Indexer(object):
                 texts, doc_ids, psg_ids = [], [], []
 
         if len(texts) > 0:
-            self._index_batch(self._encoder(texts), doc_ids=doc_ids, psg_ids=psg_ids)
+            self._index_batch(self._encode(texts), doc_ids=doc_ids, psg_ids=psg_ids)
 
     def from_index(self, index: Index) -> None:
         """Transfer vectors and IDs from another index.
