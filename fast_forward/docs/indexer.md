@@ -1,10 +1,12 @@
-The `fast_forward.indexer.Indexer` class is a utility for indexing a collection. If the size of the collection is known in advance, it can be specified when the index is created in order to avoid subsequent resizing operations:
+The `fast_forward.indexer.Indexer` class is a utility for indexing collections or adding pre-computed vectors to an index.
+
+If the size of the collection is known in advance, it can be specified when the index is created in order to avoid subsequent resizing operations:
 
 ```python
 my_index = OnDiskIndex(Path("my_index.h5"), init_size=1000000)
 ```
 
-For indexing, a document/passage encoder is required, for example:
+In order to index a corpus, a document/passage encoder is required, for example:
 
 ```python
 doc_encoder = TCTColBERTDocumentEncoder(
@@ -42,4 +44,4 @@ Indexer(
 ).from_index(source_index)
 ```
 
-Here, the first two batches (of size $2ˆ{16}$) are buffered and used to fit the quantizer.
+Here, the first two batches (of size $2^{16}$) are buffered and used to fit the quantizer.
