@@ -204,7 +204,8 @@ class OnDiskIndex(Index):
             space_left = capacity - cur_num_vectors
             if num_new_vecs > space_left:
                 new_size = max(
-                    capacity + num_new_vecs - space_left, self._resize_min_val
+                    cur_num_vectors + num_new_vecs,
+                    capacity + self._resize_min_val,
                 )
                 LOGGER.debug("resizing index from %s to %s", capacity, new_size)
                 fp["vectors"].resize(new_size, axis=0)
