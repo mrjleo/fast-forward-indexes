@@ -36,7 +36,7 @@ def _attach_queries(df: pd.DataFrame, queries: Dict[str, str]) -> pd.DataFrame:
 
 def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
     """Add a new column ("rank") to a data frame that contains ranks of documents w.r.t. the queries
-    (based on the document scores).
+    (based on the document scores). Ranks start from `1`.
 
     Args:
         df (pd.DataFrame): The data frame to add the column to.
@@ -44,7 +44,7 @@ def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The data frame with the new column added.
     """
-    df_ranks = df.groupby("q_id").cumcount().to_frame()
+    df_ranks = df.groupby("q_id").cumcount().to_frame() + 1
     df_ranks.columns = ("rank",)
     return df.join(df_ranks)
 
@@ -245,6 +245,17 @@ class Ranking(object):
             is_sorted=False,
         )
         return result
+
+    def rrf(self, other: "Ranking", k: int = 60) -> "Ranking":
+        """Fuse rankings using RRF.
+
+        Args:
+            other (Ranking): Ranking to fuse with.
+            k (int): RRF parameter. Defaults to 60.
+
+        Returns:
+            Ranking: The fused ranking.
+        """
 
     def save(
         self,
