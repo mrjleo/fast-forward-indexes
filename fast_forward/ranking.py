@@ -258,7 +258,7 @@ class Ranking(object):
         new_df = _add_ranks(self._df).merge(
             _add_ranks(other._df), on=["q_id", "query", "id"], suffixes=["_1", "_2"]
         )
-        new_df["score"] = (1 / new_df["rank_1"] + k) + (1 / new_df["rank_2"] + k)
+        new_df["score"] = 1 / (new_df["rank_1"] + k) + 1 / (new_df["rank_2"] + k)
         return Ranking(
             new_df,
             name=self.name,
