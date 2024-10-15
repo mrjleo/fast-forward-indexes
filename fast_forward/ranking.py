@@ -256,6 +256,11 @@ class Ranking(object):
         Returns:
             Ranking: The fused ranking.
         """
+        df_fused = _add_ranks(self._df).merge(
+            _add_ranks(other._df), on=["q_id", "query", "id"], suffixes=["_1", "_2"]
+        )
+        df_fused["score"] = (1 / df_fused["rank_1"] + k) + (1 / df_fused["rank_2"] + k)
+        return Ranking(df_fused)
 
     def save(
         self,
