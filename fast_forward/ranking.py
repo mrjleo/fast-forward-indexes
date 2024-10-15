@@ -237,14 +237,13 @@ class Ranking(object):
         # preserves order by score
         new_df = self._df.merge(other._df, on=["q_id", "id"], suffixes=[None, "_other"])
         new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
-        result = Ranking(
+        return Ranking(
             new_df,
             name=self.name,
             dtype=self._df.dtypes["score"],
             copy=False,
             is_sorted=False,
         )
-        return result
 
     def rrf(self, other: "Ranking", k: int = 60) -> "Ranking":
         """Fuse rankings using RRF.
@@ -256,11 +255,17 @@ class Ranking(object):
         Returns:
             Ranking: The fused ranking.
         """
-        df_fused = _add_ranks(self._df).merge(
+        new_df = _add_ranks(self._df).merge(
             _add_ranks(other._df), on=["q_id", "query", "id"], suffixes=["_1", "_2"]
         )
-        df_fused["score"] = (1 / df_fused["rank_1"] + k) + (1 / df_fused["rank_2"] + k)
-        return Ranking(df_fused)
+        new_df["score"] = (1 / new_df["rank_1"] + k) + (1 / new_df["rank_2"] + k)
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=False,
+        )
 
     def save(
         self,
