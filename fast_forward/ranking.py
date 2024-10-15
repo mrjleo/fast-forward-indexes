@@ -34,6 +34,21 @@ def _attach_queries(df: pd.DataFrame, queries: Dict[str, str]) -> pd.DataFrame:
     )
 
 
+def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
+    """Add a new column ("rank") to a data frame that contains ranks of documents w.r.t. the queries
+    (based on the document scores).
+
+    Args:
+        df (pd.DataFrame): The data frame to add the column to.
+
+    Returns:
+        pd.DataFrame: The data frame with the new column added.
+    """
+    df_ranks = df.groupby("q_id").cumcount().to_frame()
+    df_ranks.columns = ("rank",)
+    return df.join(df_ranks)
+
+
 class Ranking(object):
     """Represents rankings of documents/passages w.r.t. queries."""
 
@@ -240,9 +255,7 @@ class Ranking(object):
         Args:
             target (Path): Output file.
         """
-        df_ranks = self._df.groupby("q_id").cumcount().to_frame()
-        df_ranks.columns = ("rank",)
-        df_out = self._df.join(df_ranks)
+        df_out = _add_ranks(self._df)
         df_out["name"] = str(self.name)
         df_out["q0"] = "Q0"
 
