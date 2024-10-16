@@ -174,6 +174,61 @@ class Ranking(object):
         cols = ["q_id", "id", "score"]
         return df1[cols].equals(df2[cols])
 
+    def __add__(self, o: Union["Ranking", int, float]) -> "Ranking":
+        """Add either a constant or the corresponding scores of another ranking to this ranking's scores.
+
+        Args:
+            o (Union[Ranking, int, float]): A ranking or a constant.
+
+        Returns:
+            Ranking: The resulting ranking with added scores.
+        """
+        if isinstance(o, Ranking):
+            new_df = self._df.merge(o._df, on=["q_id", "id"], suffixes=[None, "_other"])
+            new_df["score"] = new_df["score"] + new_df["score_other"]
+            is_sorted = False
+        elif isinstance(o, (int, float)):
+            new_df = self._df.copy()
+            new_df["score"] += o
+            is_sorted = True
+        else:
+            return NotImplemented
+
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=is_sorted,
+        )
+
+    __radd__ = __add__
+
+    def __mul__(self, o: Union[int, float]) -> "Ranking":
+        """Multiply this ranking's scores by a constant.
+
+        Args:
+            o (Union[int, float]): A constant.
+
+        Returns:
+            Ranking: The resulting ranking with multiplied scores.
+        """
+        if not isinstance(o, (int, float)):
+            return NotImplemented
+
+        new_df = self._df.copy()
+        new_df["score"] *= o
+
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=True,
+        )
+
+    __rmul__ = __mul__
+
     def __repr__(self) -> str:
         """Return a string representation of this ranking.
 
@@ -234,37 +289,27 @@ class Ranking(object):
         Returns:
             Ranking: The resulting ranking.
         """
-        # preserves order by score
-        new_df = self._df.merge(other._df, on=["q_id", "id"], suffixes=[None, "_other"])
-        new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
-        return Ranking(
-            new_df,
-            name=self.name,
-            dtype=self._df.dtypes["score"],
-            copy=False,
-            is_sorted=False,
-        )
+        return self * alpha + other * (1 - alpha)
 
-    def rrf(self, other: "Ranking", k: int = 60) -> "Ranking":
-        """Fuse rankings using RRF.
+    def rr_scores(self, k: int = 60) -> "Ranking":
+        """Re-score documents/passages using reciprocal rank (as used by RRF).
+
+        A score is computed as `1 / (rank + k)`.
 
         Args:
-            other (Ranking): Ranking to fuse with.
-            k (int): RRF parameter. Defaults to 60.
+            k (int): RR scoring parameter. Defaults to 60.
 
         Returns:
-            Ranking: The fused ranking.
+            Ranking: A new ranking with RR scores.
         """
-        new_df = _add_ranks(self._df).merge(
-            _add_ranks(other._df), on=["q_id", "query", "id"], suffixes=["_1", "_2"]
-        )
-        new_df["score"] = 1 / (new_df["rank_1"] + k) + 1 / (new_df["rank_2"] + k)
+        new_df = _add_ranks(self._df)
+        new_df["score"] = 1 / (new_df["rank"] + k)
         return Ranking(
             new_df,
             name=self.name,
             dtype=self._df.dtypes["score"],
             copy=False,
-            is_sorted=False,
+            is_sorted=True,
         )
 
     def save(
