@@ -161,7 +161,7 @@
 <pre><span></span><code><span class="n">first_stage_ranking</span> <span class="o">=</span> <span class="n"><a href="#Ranking.from_file">Ranking.from_file</a></span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/TREC/run.tsv&quot;</span><span class="p">))</span>
 <span class="n">semantic_scores</span> <span class="o">=</span> <span class="n">my_index</span><span class="p">(</span><span class="n">first_stage_ranking</span><span class="p">)</span>
 <span class="n">interpolated_ranking</span> <span class="o">=</span> <span class="n">first_stage_ranking</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">semantic_scores</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-<span class="c1"># equivalent to (but slightly more efficiant than):</span>
+<span class="c1"># equivalent to (but slightly more efficient than):</span>
 <span class="n">interpolated_ranking</span> <span class="o">=</span> <span class="n">first_stage_ranking</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="o">+</span> <span class="n">semantic_scores</span> <span class="o">*</span> <span class="mf">0.9</span>
 </code></pre>
 </div>
