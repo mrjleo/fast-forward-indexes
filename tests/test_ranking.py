@@ -89,6 +89,17 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
 
+    def test_rr_scores(self):
+        self.assertEqual(
+            self.ranking.rr_scores(k=1),
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 1 / 4, "d1": 1 / 3, "d2": 1 / 2},
+                    "q2": {"d0": 1 / 5, "d1": 1 / 4, "d2": 1 / 2, "d3": 1 / 3},
+                }
+            ),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
