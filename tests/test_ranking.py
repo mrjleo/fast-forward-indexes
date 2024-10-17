@@ -16,25 +16,34 @@ DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
 
 
 class TestRanking(unittest.TestCase):
-    def test_ranking(self):
-        r = Ranking.from_run(RUN)
-        self.assertEqual({"q1", "q2"}, r.q_ids)
-        self.assertEqual(len(r), 2)
-        self.assertIn("q1", r)
-        self.assertIn("q2", r)
-        self.assertNotIn("q3", r)
+    def setUp(self):
+        self.ranking = Ranking.from_run(RUN)
+        self.ranking_with_queries = Ranking.from_run(RUN, queries=DUMMY_QUERIES)
+
+    def test_properties(self):
+        self.assertEqual({"q1", "q2"}, self.ranking.q_ids)
+        self.assertEqual(len(self.ranking), 2)
+        self.assertIn("q1", self.ranking)
+        self.assertIn("q2", self.ranking)
+        self.assertNotIn("q3", self.ranking)
 
     def test_attach_queries(self):
-        r = Ranking.from_run(RUN)
-        r_with_queries = r.attach_queries(DUMMY_QUERIES)
-        self.assertFalse(r.has_queries)
-        self.assertTrue(r_with_queries.has_queries)
+        self.assertFalse(self.ranking.has_queries)
+        self.assertTrue(self.ranking_with_queries.has_queries)
         self.assertEqual(
-            pd.unique(r_with_queries._df.loc[r._df["q_id"].eq("q1"), "query"]).tolist(),
+            pd.unique(
+                self.ranking_with_queries._df.loc[
+                    self.ranking._df["q_id"].eq("q1"), "query"
+                ]
+            ).tolist(),
             ["query 1"],
         )
         self.assertEqual(
-            pd.unique(r_with_queries._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(),
+            pd.unique(
+                self.ranking_with_queries._df.loc[
+                    self.ranking._df["q_id"].eq("q2"), "query"
+                ]
+            ).tolist(),
             ["query 2"],
         )
 
@@ -44,7 +53,7 @@ class TestRanking(unittest.TestCase):
 
         more_queries.update(DUMMY_QUERIES)
         r2_with_queries = Ranking.from_run(RUN, queries=more_queries)
-        self.assertEqual(r2_with_queries, r_with_queries)
+        self.assertEqual(r2_with_queries, self.ranking_with_queries)
 
     def test_eq(self):
         r1 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
@@ -58,32 +67,104 @@ class TestRanking(unittest.TestCase):
         self.assertNotEqual(r1, "string")
         self.assertNotEqual(r1, 0)
 
+    def test_operators(self):
+        self.assertEqual(self.ranking + 0, self.ranking)
+        self.assertEqual(self.ranking * 1, self.ranking)
+        self.assertEqual(
+            self.ranking + 1,
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 2, "d1": 3, "d2": 301},
+                    "q2": {"d0": 5, "d1": 6, "d2": 601, "d3": 8},
+                }
+            ),
+        )
+        self.assertEqual(
+            self.ranking * 2,
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 2, "d1": 4, "d2": 600},
+                    "q2": {"d0": 8, "d1": 10, "d2": 1200, "d3": 14},
+                }
+            ),
+        )
+        self.assertEqual(1 + self.ranking, self.ranking + 1)
+        self.assertEqual(2 * self.ranking, self.ranking * 2)
+        self.assertEqual(self.ranking * 2, self.ranking + self.ranking)
+
+        self.assertTrue((self.ranking_with_queries + 1).has_queries)
+        self.assertTrue((self.ranking_with_queries * 2).has_queries)
+        self.assertTrue((self.ranking_with_queries + self.ranking).has_queries)
+        self.assertTrue((self.ranking + self.ranking_with_queries).has_queries)
+
     def test_cut(self):
         self.assertEqual(
-            Ranking.from_run(RUN).cut(2),
+            self.ranking.cut(2),
             Ranking.from_run({"q1": {"d2": 300, "d1": 2}, "q2": {"d2": 600, "d3": 7}}),
         )
+        self.assertTrue(self.ranking_with_queries.cut(2).has_queries)
 
     def test_save_load(self):
-        r = Ranking.from_run(RUN, name="Dummy")
+        self.ranking.name = "Dummy"
         fd, f = tempfile.mkstemp()
         f = Path(f)
-        r.save(f)
+        self.ranking.save(f)
         r_from_file = Ranking.from_file(f)
-        self.assertEqual(r, r_from_file)
-        self.assertEqual(r.name, r_from_file.name)
+        self.assertEqual(self.ranking, r_from_file)
+        self.assertEqual(self.ranking.name, r_from_file.name)
         os.close(fd)
         os.remove(f)
 
+    def test_normalize(self):
+        self.assertEqual(
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 1, "d1": 2, "d2": 3},
+                    "q2": {"d0": 4, "d1": 5, "d2": 6},
+                }
+            ).normalize(),
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 0, "d1": 1 / 5, "d2": 2 / 5},
+                    "q2": {"d0": 3 / 5, "d1": 4 / 5, "d2": 1},
+                }
+            ),
+        )
+
+        self.assertEqual(
+            Ranking.from_run({"q1": {"d0": 5, "d1": 5}}).normalize(),
+            Ranking.from_run({"q1": {"d0": 0, "d1": 0}}),
+        )
+
+        self.assertTrue(self.ranking_with_queries.normalize().has_queries)
+
     def test_interpolate(self):
-        r = Ranking.from_run(RUN)
-        df = r._df.copy()
-        df["score"] = list(map(np.float32, range(len(r._df))))
+        df = self.ranking_with_queries._df.copy()
+        df["score"] = list(map(np.float32, range(len(self.ranking._df))))
         r2 = Ranking(df)
-        r_int = r.interpolate(r2, 0.5)
-        self.assertNotEqual(r, r_int)
+        r_int = self.ranking.interpolate(r2, 0.5)
+        self.assertNotEqual(self.ranking, r_int)
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
+        self.assertTrue(r_int.has_queries)
+
+        r3 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
+        self.assertEqual(
+            r3.interpolate(r3, 0.5, normalize=True),
+            Ranking.from_run({"q1": {"d1": 0, "d2": 1}}),
+        )
+
+    def test_rr_scores(self):
+        self.assertEqual(
+            self.ranking.rr_scores(k=1),
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 1 / 4, "d1": 1 / 3, "d2": 1 / 2},
+                    "q2": {"d0": 1 / 5, "d1": 1 / 4, "d2": 1 / 2, "d3": 1 / 3},
+                }
+            ),
+        )
+        self.assertTrue(self.ranking_with_queries.rr_scores().has_queries)
 
 
 if __name__ == "__main__":

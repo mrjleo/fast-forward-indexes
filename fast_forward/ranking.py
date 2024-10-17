@@ -34,6 +34,43 @@ def _attach_queries(df: pd.DataFrame, queries: Dict[str, str]) -> pd.DataFrame:
     )
 
 
+def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
+    """Add a new column ("rank") to a data frame that contains ranks of documents w.r.t. the queries
+    (based on the document scores). Ranks start from `1`.
+
+    Args:
+        df (pd.DataFrame): The data frame to add the column to.
+
+    Returns:
+        pd.DataFrame: The data frame with the new column added.
+    """
+    df_ranks = df.groupby("q_id").cumcount().to_frame() + 1
+    df_ranks.columns = ("rank",)
+    return df.join(df_ranks)
+
+
+def _minmax_normalize_scores(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a copy of a data frame with normalized scores (min-max).
+
+    If all scores are equal, they are set to `0`.
+
+    Args:
+        df (pd.DataFrame): The input data frame.
+
+    Returns:
+        pd.DataFrame: A copy of the data frame with normalized scores.
+    """
+    new_df = df.copy()
+    min_val = new_df["score"].min()
+    max_val = new_df["score"].max()
+    if min_val == max_val:
+        LOGGER.warning("all scores are equal, setting scores to 0")
+        new_df["score"] = 0
+    else:
+        new_df["score"] = (new_df["score"] - min_val) / (max_val - min_val)
+    return new_df
+
+
 class Ranking(object):
     """Represents rankings of documents/passages w.r.t. queries."""
 
@@ -159,6 +196,61 @@ class Ranking(object):
         cols = ["q_id", "id", "score"]
         return df1[cols].equals(df2[cols])
 
+    def __add__(self, o: Union["Ranking", int, float]) -> "Ranking":
+        """Add either a constant or the corresponding scores of another ranking to this ranking's scores.
+
+        Args:
+            o (Union[Ranking, int, float]): A ranking or a constant.
+
+        Returns:
+            Ranking: The resulting ranking with added scores.
+        """
+        if isinstance(o, Ranking):
+            new_df = self._df.merge(o._df, on=["q_id", "id"], suffixes=[None, "_other"])
+            new_df["score"] = new_df["score"] + new_df["score_other"]
+            is_sorted = False
+        elif isinstance(o, (int, float)):
+            new_df = self._df.copy()
+            new_df["score"] += o
+            is_sorted = True
+        else:
+            return NotImplemented
+
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=is_sorted,
+        )
+
+    __radd__ = __add__
+
+    def __mul__(self, o: Union[int, float]) -> "Ranking":
+        """Multiply this ranking's scores by a constant.
+
+        Args:
+            o (Union[int, float]): A constant.
+
+        Returns:
+            Ranking: The resulting ranking with multiplied scores.
+        """
+        if not isinstance(o, (int, float)):
+            return NotImplemented
+
+        new_df = self._df.copy()
+        new_df["score"] *= o
+
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=True,
+        )
+
+    __rmul__ = __mul__
+
     def __repr__(self) -> str:
         """Return a string representation of this ranking.
 
@@ -188,6 +280,22 @@ class Ranking(object):
             is_sorted=True,
         )
 
+    def normalize(self) -> "Ranking":
+        """Normalize the scores (min-max) to be in `[0, 1]`.
+
+        If all scores are equal, they are set to `0`.
+
+        Returns:
+            Ranking: The ranking with normalized scores.
+        """
+        return Ranking(
+            _minmax_normalize_scores(self._df),
+            self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=True,
+        )
+
     def cut(self, cutoff: int) -> "Ranking":
         """For each query, remove all but the top-`k` scoring documents/passages.
 
@@ -209,27 +317,54 @@ class Ranking(object):
         self,
         other: "Ranking",
         alpha: float,
+        normalize: bool = False,
     ) -> "Ranking":
         """Interpolate as `score = self.score * alpha + other.score * (1 - alpha)`.
 
         Args:
             other (Ranking): Ranking to interpolate with.
             alpha (float): Interpolation parameter.
+            normalize (bool): Perform min-max normalization. Defaults to False.
 
         Returns:
             Ranking: The resulting ranking.
         """
-        # preserves order by score
-        new_df = self._df.merge(other._df, on=["q_id", "id"], suffixes=[None, "_other"])
+        df1 = self._df if not normalize else _minmax_normalize_scores(self._df)
+        df2 = other._df if not normalize else _minmax_normalize_scores(other._df)
+
+        # during normalization the data frames are copied already
+        new_df = df1.merge(
+            df2, on=["q_id", "id"], suffixes=[None, "_other"], copy=not normalize
+        )
         new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
-        result = Ranking(
+        return Ranking(
             new_df,
             name=self.name,
             dtype=self._df.dtypes["score"],
             copy=False,
             is_sorted=False,
         )
-        return result
+
+    def rr_scores(self, k: int = 60) -> "Ranking":
+        """Re-score documents/passages using reciprocal rank (as used by RRF).
+
+        A score is computed as `1 / (rank + k)`.
+
+        Args:
+            k (int): RR scoring parameter. Defaults to 60.
+
+        Returns:
+            Ranking: A new ranking with RR scores.
+        """
+        new_df = _add_ranks(self._df)
+        new_df["score"] = 1 / (new_df["rank"] + k)
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=True,
+        )
 
     def save(
         self,
@@ -240,9 +375,7 @@ class Ranking(object):
         Args:
             target (Path): Output file.
         """
-        df_ranks = self._df.groupby("q_id").cumcount().to_frame()
-        df_ranks.columns = ("rank",)
-        df_out = self._df.join(df_ranks)
+        df_out = _add_ranks(self._df)
         df_out["name"] = str(self.name)
         df_out["q0"] = "Q0"
 

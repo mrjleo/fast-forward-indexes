@@ -129,11 +129,14 @@ class TestIndex(unittest.TestCase):
                 idxs,
             )
 
+    def test_queries(self):
+        self.doc_psg_index.mode = Mode.MAXP
+        self.assertTrue(self.doc_psg_index(DUMMY_DOC_RANKING).has_queries)
+
     def test_maxp(self):
         self.doc_psg_index.mode = Mode.MAXP
-        result = self.doc_psg_index(DUMMY_DOC_RANKING)
         self.assertEqual(
-            result,
+            self.doc_psg_index(DUMMY_DOC_RANKING),
             Ranking.from_run(
                 {
                     "q1": {"d0": 2, "d1": 3, "d2": 4, "d3": 5},
