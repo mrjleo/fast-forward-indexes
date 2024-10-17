@@ -49,6 +49,28 @@ def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
     return df.join(df_ranks)
 
 
+def _minmax_normalize_scores(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a copy of a data frame with normalized scores (min-max).
+
+    If all scores are equal, they are set to `0`.
+
+    Args:
+        df (pd.DataFrame): The input data frame.
+
+    Returns:
+        pd.DataFrame: A copy of the data frame with normalized scores.
+    """
+    new_df = df.copy()
+    min_val = new_df["score"].min()
+    max_val = new_df["score"].max()
+    if min_val == max_val:
+        LOGGER.warning("all scores are equal, setting scores to 0")
+        new_df["score"] = 0
+    else:
+        new_df["score"] = (new_df["score"] - min_val) / (max_val - min_val)
+    return new_df
+
+
 class Ranking(object):
     """Represents rankings of documents/passages w.r.t. queries."""
 
@@ -258,6 +280,22 @@ class Ranking(object):
             is_sorted=True,
         )
 
+    def normalize(self) -> "Ranking":
+        """Normalize the scores (min-max) to be in `[0, 1]`.
+
+        If all scores are equal, they are set to `0`.
+
+        Returns:
+            Ranking: The ranking with normalized scores.
+        """
+        return Ranking(
+            _minmax_normalize_scores(self._df),
+            self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=True,
+        )
+
     def cut(self, cutoff: int) -> "Ranking":
         """For each query, remove all but the top-`k` scoring documents/passages.
 
@@ -279,17 +317,25 @@ class Ranking(object):
         self,
         other: "Ranking",
         alpha: float,
+        normalize: bool = False,
     ) -> "Ranking":
         """Interpolate as `score = self.score * alpha + other.score * (1 - alpha)`.
 
         Args:
             other (Ranking): Ranking to interpolate with.
             alpha (float): Interpolation parameter.
+            normalize (bool): Perform min-max normalization. Defaults to False.
 
         Returns:
             Ranking: The resulting ranking.
         """
-        new_df = self._df.merge(other._df, on=["q_id", "id"], suffixes=[None, "_other"])
+        df1 = self._df if not normalize else _minmax_normalize_scores(self._df)
+        df2 = other._df if not normalize else _minmax_normalize_scores(other._df)
+
+        # during normalization the data frames are copied already
+        new_df = df1.merge(
+            df2, on=["q_id", "id"], suffixes=[None, "_other"], copy=not normalize
+        )
         new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
         return Ranking(
             new_df,

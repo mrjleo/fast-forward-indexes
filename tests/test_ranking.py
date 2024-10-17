@@ -115,6 +115,29 @@ class TestRanking(unittest.TestCase):
         os.close(fd)
         os.remove(f)
 
+    def test_normalize(self):
+        self.assertEqual(
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 1, "d1": 2, "d2": 3},
+                    "q2": {"d0": 4, "d1": 5, "d2": 6},
+                }
+            ).normalize(),
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 0, "d1": 1 / 5, "d2": 2 / 5},
+                    "q2": {"d0": 3 / 5, "d1": 4 / 5, "d2": 1},
+                }
+            ),
+        )
+
+        self.assertEqual(
+            Ranking.from_run({"q1": {"d0": 5, "d1": 5}}).normalize(),
+            Ranking.from_run({"q1": {"d0": 0, "d1": 0}}),
+        )
+
+        self.assertTrue(self.ranking_with_queries.normalize().has_queries)
+
     def test_interpolate(self):
         df = self.ranking_with_queries._df.copy()
         df["score"] = list(map(np.float32, range(len(self.ranking._df))))
@@ -124,6 +147,12 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
         self.assertTrue(r_int.has_queries)
+
+        r3 = Ranking.from_run({"q1": {"d1": 1, "d2": 2}})
+        self.assertEqual(
+            r3.interpolate(r3, 0.5, normalize=True),
+            Ranking.from_run({"q1": {"d1": 0, "d2": 1}}),
+        )
 
     def test_rr_scores(self):
         self.assertEqual(
