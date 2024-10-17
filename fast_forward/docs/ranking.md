@@ -39,7 +39,7 @@ ranking_3 = 0.1 * ranking_1 + ranking_2
 first_stage_ranking = Ranking.from_file(Path("/path/to/TREC/run.tsv"))
 semantic_scores = my_index(first_stage_ranking)
 interpolated_ranking = first_stage_ranking.interpolate(semantic_scores, 0.1)
-# equivalent to (but slightly more efficiant than):
+# equivalent to (but slightly more efficient than):
 interpolated_ranking = first_stage_ranking * 0.1 + semantic_scores * 0.9
 ```
 
