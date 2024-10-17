@@ -289,7 +289,15 @@ class Ranking(object):
         Returns:
             Ranking: The resulting ranking.
         """
-        return self * alpha + other * (1 - alpha)
+        new_df = self._df.merge(other._df, on=["q_id", "id"], suffixes=[None, "_other"])
+        new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
+        return Ranking(
+            new_df,
+            name=self.name,
+            dtype=self._df.dtypes["score"],
+            copy=False,
+            is_sorted=False,
+        )
 
     def rr_scores(self, k: int = 60) -> "Ranking":
         """Re-score documents/passages using reciprocal rank (as used by RRF).
