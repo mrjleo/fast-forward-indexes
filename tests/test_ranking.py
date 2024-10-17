@@ -16,25 +16,30 @@ DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}
 
 
 class TestRanking(unittest.TestCase):
+    def setUp(self):
+        self.ranking = Ranking.from_run(RUN)
+
     def test_ranking(self):
-        r = Ranking.from_run(RUN)
-        self.assertEqual({"q1", "q2"}, r.q_ids)
-        self.assertEqual(len(r), 2)
-        self.assertIn("q1", r)
-        self.assertIn("q2", r)
-        self.assertNotIn("q3", r)
+        self.assertEqual({"q1", "q2"}, self.ranking.q_ids)
+        self.assertEqual(len(self.ranking), 2)
+        self.assertIn("q1", self.ranking)
+        self.assertIn("q2", self.ranking)
+        self.assertNotIn("q3", self.ranking)
 
     def test_attach_queries(self):
-        r = Ranking.from_run(RUN)
-        r_with_queries = r.attach_queries(DUMMY_QUERIES)
-        self.assertFalse(r.has_queries)
+        r_with_queries = self.ranking.attach_queries(DUMMY_QUERIES)
+        self.assertFalse(self.ranking.has_queries)
         self.assertTrue(r_with_queries.has_queries)
         self.assertEqual(
-            pd.unique(r_with_queries._df.loc[r._df["q_id"].eq("q1"), "query"]).tolist(),
+            pd.unique(
+                r_with_queries._df.loc[self.ranking._df["q_id"].eq("q1"), "query"]
+            ).tolist(),
             ["query 1"],
         )
         self.assertEqual(
-            pd.unique(r_with_queries._df.loc[r._df["q_id"].eq("q2"), "query"]).tolist(),
+            pd.unique(
+                r_with_queries._df.loc[self.ranking._df["q_id"].eq("q2"), "query"]
+            ).tolist(),
             ["query 2"],
         )
 
@@ -60,28 +65,27 @@ class TestRanking(unittest.TestCase):
 
     def test_cut(self):
         self.assertEqual(
-            Ranking.from_run(RUN).cut(2),
+            self.ranking.cut(2),
             Ranking.from_run({"q1": {"d2": 300, "d1": 2}, "q2": {"d2": 600, "d3": 7}}),
         )
 
     def test_save_load(self):
-        r = Ranking.from_run(RUN, name="Dummy")
+        self.ranking.name = "Dummy"
         fd, f = tempfile.mkstemp()
         f = Path(f)
-        r.save(f)
+        self.ranking.save(f)
         r_from_file = Ranking.from_file(f)
-        self.assertEqual(r, r_from_file)
-        self.assertEqual(r.name, r_from_file.name)
+        self.assertEqual(self.ranking, r_from_file)
+        self.assertEqual(self.ranking.name, r_from_file.name)
         os.close(fd)
         os.remove(f)
 
     def test_interpolate(self):
-        r = Ranking.from_run(RUN)
-        df = r._df.copy()
-        df["score"] = list(map(np.float32, range(len(r._df))))
+        df = self.ranking._df.copy()
+        df["score"] = list(map(np.float32, range(len(self.ranking._df))))
         r2 = Ranking(df)
-        r_int = r.interpolate(r2, 0.5)
-        self.assertNotEqual(r, r_int)
+        r_int = self.ranking.interpolate(r2, 0.5)
+        self.assertNotEqual(self.ranking, r_int)
         self.assertEqual(r_int["q1"], {"d2": 152.0, "d1": 3.5, "d0": 3.5})
         self.assertEqual(r_int["q2"], {"d2": 300.0, "d3": 4.0, "d1": 3.5, "d0": 3.5})
 
