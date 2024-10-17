@@ -63,6 +63,31 @@ class TestRanking(unittest.TestCase):
         self.assertNotEqual(r1, "string")
         self.assertNotEqual(r1, 0)
 
+    def test_operators(self):
+        self.assertEqual(self.ranking + 0, self.ranking)
+        self.assertEqual(self.ranking * 1, self.ranking)
+        self.assertEqual(
+            self.ranking + 1,
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 2, "d1": 3, "d2": 301},
+                    "q2": {"d0": 5, "d1": 6, "d2": 601, "d3": 8},
+                }
+            ),
+        )
+        self.assertEqual(
+            self.ranking * 2,
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 2, "d1": 4, "d2": 600},
+                    "q2": {"d0": 8, "d1": 10, "d2": 1200, "d3": 14},
+                }
+            ),
+        )
+        self.assertEqual(1 + self.ranking, self.ranking + 1)
+        self.assertEqual(2 * self.ranking, self.ranking * 2)
+        self.assertEqual(self.ranking * 2, self.ranking + self.ranking)
+
     def test_cut(self):
         self.assertEqual(
             self.ranking.cut(2),
