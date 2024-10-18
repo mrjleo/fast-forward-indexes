@@ -166,12 +166,14 @@
 </code></pre>
 </div>
 
-<p>Additionally, <code><a href="#Ranking.rr_scores">fast_forward.ranking.Ranking.rr_scores</a></code> recomputes a ranking's scores based on the reciprocal rank. This allows, for example, to perform reciprocal rank fusion (RRF) as follows:</p>
+<p>Additionally, <code><a href="#Ranking.rr_scores">fast_forward.ranking.Ranking.rr_scores</a></code> recomputes a ranking's scores based on the reciprocal rank. This allows, for example, to perform <a href="https://dl.acm.org/doi/10.1145/1571941.1572114">reciprocal rank fusion (RRF)</a> as follows:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">rrf_ranking</span> <span class="o">=</span> <span class="n">first_stage_ranking</span><span class="o">.</span><span class="n">rr_scores</span><span class="p">()</span> <span class="o">+</span> <span class="n">semantic_scores</span><span class="o">.</span><span class="n">rr_scores</span><span class="p">()</span>
 </code></pre>
 </div>
+
+<p>Further information about rank fusion can be found <a href="https://dl.acm.org/doi/10.1145/3596512">here</a>.</p>
 
 <p>Finally, a ranking can have a name set and be saved as a TREC runfile:</p>
 
@@ -534,7 +536,7 @@
 </span><span id="L-346"><a href="#L-346"><span class="linenos">346</span></a>        <span class="p">)</span>
 </span><span id="L-347"><a href="#L-347"><span class="linenos">347</span></a>
 </span><span id="L-348"><a href="#L-348"><span class="linenos">348</span></a>    <span class="k">def</span> <span class="nf">rr_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
-</span><span id="L-349"><a href="#L-349"><span class="linenos">349</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank (as used by RRF).</span>
+</span><span id="L-349"><a href="#L-349"><span class="linenos">349</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank (as used by [RRF](https://dl.acm.org/doi/10.1145/1571941.1572114)).</span>
 </span><span id="L-350"><a href="#L-350"><span class="linenos">350</span></a>
 </span><span id="L-351"><a href="#L-351"><span class="linenos">351</span></a><span class="sd">        A score is computed as `1 / (rank + k)`.</span>
 </span><span id="L-352"><a href="#L-352"><span class="linenos">352</span></a>
@@ -938,7 +940,7 @@
 </span><span id="Ranking-347"><a href="#Ranking-347"><span class="linenos">347</span></a>        <span class="p">)</span>
 </span><span id="Ranking-348"><a href="#Ranking-348"><span class="linenos">348</span></a>
 </span><span id="Ranking-349"><a href="#Ranking-349"><span class="linenos">349</span></a>    <span class="k">def</span> <span class="nf">rr_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
-</span><span id="Ranking-350"><a href="#Ranking-350"><span class="linenos">350</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank (as used by RRF).</span>
+</span><span id="Ranking-350"><a href="#Ranking-350"><span class="linenos">350</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank (as used by [RRF](https://dl.acm.org/doi/10.1145/1571941.1572114)).</span>
 </span><span id="Ranking-351"><a href="#Ranking-351"><span class="linenos">351</span></a>
 </span><span id="Ranking-352"><a href="#Ranking-352"><span class="linenos">352</span></a><span class="sd">        A score is computed as `1 / (rank + k)`.</span>
 </span><span id="Ranking-353"><a href="#Ranking-353"><span class="linenos">353</span></a>
@@ -1412,7 +1414,7 @@
     </div>
     <a class="headerlink" href="#Ranking.rr_scores"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.rr_scores-349"><a href="#Ranking.rr_scores-349"><span class="linenos">349</span></a>    <span class="k">def</span> <span class="nf">rr_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
-</span><span id="Ranking.rr_scores-350"><a href="#Ranking.rr_scores-350"><span class="linenos">350</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank (as used by RRF).</span>
+</span><span id="Ranking.rr_scores-350"><a href="#Ranking.rr_scores-350"><span class="linenos">350</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank (as used by [RRF](https://dl.acm.org/doi/10.1145/1571941.1572114)).</span>
 </span><span id="Ranking.rr_scores-351"><a href="#Ranking.rr_scores-351"><span class="linenos">351</span></a>
 </span><span id="Ranking.rr_scores-352"><a href="#Ranking.rr_scores-352"><span class="linenos">352</span></a><span class="sd">        A score is computed as `1 / (rank + k)`.</span>
 </span><span id="Ranking.rr_scores-353"><a href="#Ranking.rr_scores-353"><span class="linenos">353</span></a>
@@ -1434,7 +1436,7 @@
 </span></pre></div>
 
 
-            <div class="docstring"><p>Re-score documents/passages using reciprocal rank (as used by RRF).</p>
+            <div class="docstring"><p>Re-score documents/passages using reciprocal rank (as used by <a href="https://dl.acm.org/doi/10.1145/1571941.1572114">RRF</a>).</p>
 
 <p>A score is computed as <code>1 / (rank + k)</code>.</p>
 
