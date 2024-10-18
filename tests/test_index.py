@@ -315,6 +315,22 @@ class TestIndex(unittest.TestCase):
             result_expected,
         )
 
+    def test_batch_size(self):
+        r = Ranking.from_run(
+            {
+                "q1": {"d0": 2, "d1": 3, "d2": 4, "d3": 10},
+                "q2": {"d0": 5, "d1": 4, "d2": 3, "d3": 12},
+                "q3": {"d0": 8, "d1": 5, "d2": 2, "d3": 1},
+                "q4": {"d0": 11, "d1": 6, "d2": 1, "d3": 2},
+                "q5": {"d0": 14, "d1": 7, "d2": 0, "d3": 3},
+            },
+            queries={f"q{n}": f"query {n}" for n in range(1, 6)},
+        )
+        expected = self.doc_psg_index(r)
+        self.assertEqual(expected, self.doc_psg_index(r, batch_size=2))
+        self.assertEqual(expected, self.doc_psg_index(r, batch_size=5))
+        self.assertEqual(expected, self.doc_psg_index(r, batch_size=10))
+
     def test_coalescing(self):
         # delta = 0.3: vectors of d0 should be averaged
         create_coalesced_index(self.doc_index, self.coalesced_indexes[0], 0.3)
