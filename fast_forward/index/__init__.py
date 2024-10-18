@@ -369,9 +369,6 @@ class Index(abc.ABC):
         Returns:
             pd.DataFrame: Data frame with computed scores.
         """
-        # early stopping splits the data frame, hence we need to keep track of the original index
-        df["orig_index"] = df.index
-
         # data frame for computed scores
         scores_so_far = None
 
@@ -463,6 +460,9 @@ class Index(abc.ABC):
         )
         query_df["q_no"] = query_df.index
         df_with_q_no = ranking._df.merge(query_df, on="q_id", suffixes=[None, "_"])
+
+        # early stopping splits the data frame, hence we need to keep track of the original index
+        df_with_q_no["orig_index"] = df_with_q_no.index
 
         # batch encode queries
         query_vectors = self.encode_queries(list(query_df["query"]))
