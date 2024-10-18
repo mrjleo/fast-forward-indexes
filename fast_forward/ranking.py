@@ -346,7 +346,7 @@ class Ranking(object):
         )
 
     def rr_scores(self, k: int = 60) -> "Ranking":
-        """Re-score documents/passages using reciprocal rank (as used by RRF).
+        """Re-score documents/passages using reciprocal rank (as used by [RRF](https://dl.acm.org/doi/10.1145/1571941.1572114)).
 
         A score is computed as `1 / (rank + k)`.
 
