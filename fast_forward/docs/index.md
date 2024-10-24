@@ -37,7 +37,7 @@ result = my_index(ranking)
 
 Here, `queries` is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, `result`, has the semantic scores for the query-document (or query-passage) pairs. Afterwards, retrieval and re-ranking scores may be combined (see `fast_forward.ranking`).
 
-If the input rankings has a large number of queries, one can use the `batch_size` parameter. The following example processes the ranking in batches of `16` queries each:
+If the input ranking has a large number of queries, one can use the `batch_size` parameter. The following example processes the ranking in batches of `16` queries each:
 
 ```python
 result = my_index(ranking, batch_size=16)
