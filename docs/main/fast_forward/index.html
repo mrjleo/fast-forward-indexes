@@ -187,7 +187,7 @@
 
 <p>Here, <code>queries</code> is a simple dictionary mapping query IDs to actual queries to be encoded. The resulting ranking, <code>result</code>, has the semantic scores for the query-document (or query-passage) pairs. Afterwards, retrieval and re-ranking scores may be combined (see <code><a href="ranking.html">fast_forward.ranking</a></code>).</p>
 
-<p>If the input rankings has a large number of queries, one can use the <code>batch_size</code> parameter. The following example processes the ranking in batches of <code>16</code> queries each:</p>
+<p>If the input ranking has a large number of queries, one can use the <code>batch_size</code> parameter. The following example processes the ranking in batches of <code>16</code> queries each:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">result</span> <span class="o">=</span> <span class="n">my_index</span><span class="p">(</span><span class="n">ranking</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
