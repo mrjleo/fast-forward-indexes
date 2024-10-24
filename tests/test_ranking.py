@@ -91,6 +91,17 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(1 + self.ranking, self.ranking + 1)
         self.assertEqual(2 * self.ranking, self.ranking * 2)
         self.assertEqual(self.ranking * 2, self.ranking + self.ranking)
+        self.assertEqual(
+            self.ranking
+            + Ranking.from_run({"q1": {"d0": 1, "d3": 1}, "q3": {"d0": 1}}),
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 2, "d1": 2, "d2": 300, "d3": 1},
+                    "q2": {"d0": 4, "d1": 5, "d2": 600, "d3": 7},
+                    "q3": {"d0": 1},
+                }
+            ),
+        )
 
         self.assertTrue((self.ranking_with_queries + 1).has_queries)
         self.assertTrue((self.ranking_with_queries * 2).has_queries)

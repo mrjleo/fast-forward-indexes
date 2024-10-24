@@ -198,6 +198,7 @@ class Ranking(object):
 
     def __add__(self, o: Union["Ranking", int, float]) -> "Ranking":
         """Add either a constant or the corresponding scores of another ranking to this ranking's scores.
+        Missing scores in either ranking are treated as zero.
 
         Args:
             o (Union[Ranking, int, float]): A ranking or a constant.
@@ -206,7 +207,9 @@ class Ranking(object):
             Ranking: The resulting ranking with added scores.
         """
         if isinstance(o, Ranking):
-            new_df = self._df.merge(o._df, on=["q_id", "id"], suffixes=[None, "_other"])
+            new_df = self._df.merge(
+                o._df, on=["q_id", "id"], suffixes=[None, "_other"], how="outer"
+            ).fillna(0)
             new_df["score"] = new_df["score"] + new_df["score_other"]
             is_sorted = False
         elif isinstance(o, (int, float)):
