@@ -30,6 +30,8 @@ class TestRanking(unittest.TestCase):
     def test_attach_queries(self):
         self.assertFalse(self.ranking.has_queries)
         self.assertTrue(self.ranking_with_queries.has_queries)
+
+        # check whether queries are attached to the correct query IDs
         self.assertEqual(
             pd.unique(
                 self.ranking_with_queries._df.loc[
@@ -47,6 +49,7 @@ class TestRanking(unittest.TestCase):
             ["query 2"],
         )
 
+        # test whether error is raised when queries are incomplete
         more_queries = {"qx": "other query"}
         with self.assertRaises(ValueError):
             Ranking.from_run(RUN, queries=more_queries)
@@ -91,6 +94,13 @@ class TestRanking(unittest.TestCase):
         self.assertEqual(1 + self.ranking, self.ranking + 1)
         self.assertEqual(2 * self.ranking, self.ranking * 2)
         self.assertEqual(self.ranking * 2, self.ranking + self.ranking)
+
+        self.assertTrue((self.ranking_with_queries + 1).has_queries)
+        self.assertTrue((self.ranking_with_queries * 2).has_queries)
+        self.assertTrue((self.ranking_with_queries + self.ranking).has_queries)
+        self.assertTrue((self.ranking + self.ranking_with_queries).has_queries)
+
+        # test whether missing scores are correctly interpreted as 0
         self.assertEqual(
             self.ranking
             + Ranking.from_run({"q1": {"d0": 1, "d3": 1}, "q3": {"d0": 1}}),
@@ -102,11 +112,6 @@ class TestRanking(unittest.TestCase):
                 }
             ),
         )
-
-        self.assertTrue((self.ranking_with_queries + 1).has_queries)
-        self.assertTrue((self.ranking_with_queries * 2).has_queries)
-        self.assertTrue((self.ranking_with_queries + self.ranking).has_queries)
-        self.assertTrue((self.ranking + self.ranking_with_queries).has_queries)
 
     def test_cut(self):
         self.assertEqual(
@@ -165,6 +170,7 @@ class TestRanking(unittest.TestCase):
             Ranking.from_run({"q1": {"d1": 0, "d2": 1}}),
         )
 
+        # test whether missing scores are correctly interpreted as 0
         r4 = Ranking.from_run({"q1": {"d1": 1, "d2": 1}, "q2": {"d0": 1}})
         r5 = Ranking.from_run({"q1": {"d0": 1, "d1": 1}, "q3": {"d0": 1}})
         self.assertEqual(
@@ -178,6 +184,7 @@ class TestRanking(unittest.TestCase):
             ),
         )
 
+        # test whether interpolate yields the same results as manually adding the rankings
         self.assertEqual(r4.interpolate(r5, 0.5), 0.5 * r4 + 0.5 * r5)
 
     def test_rr_scores(self):
