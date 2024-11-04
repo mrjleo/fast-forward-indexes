@@ -323,6 +323,7 @@ class Ranking(object):
         normalize: bool = False,
     ) -> "Ranking":
         """Interpolate as `score = self.score * alpha + other.score * (1 - alpha)`.
+        Missing scores in either ranking are treated as zero.
 
         Args:
             other (Ranking): Ranking to interpolate with.
@@ -337,8 +338,12 @@ class Ranking(object):
 
         # during normalization the data frames are copied already
         new_df = df1.merge(
-            df2, on=["q_id", "id"], suffixes=[None, "_other"], copy=not normalize
-        )
+            df2,
+            on=["q_id", "id"],
+            suffixes=[None, "_other"],
+            copy=not normalize,
+            how="outer",
+        ).fillna(0)
         new_df["score"] = alpha * new_df["score"] + (1 - alpha) * new_df["score_other"]
         return Ranking(
             new_df,

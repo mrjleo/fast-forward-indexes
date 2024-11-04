@@ -165,6 +165,21 @@ class TestRanking(unittest.TestCase):
             Ranking.from_run({"q1": {"d1": 0, "d2": 1}}),
         )
 
+        r4 = Ranking.from_run({"q1": {"d1": 1, "d2": 1}, "q2": {"d0": 1}})
+        r5 = Ranking.from_run({"q1": {"d0": 1, "d1": 1}, "q3": {"d0": 1}})
+        self.assertEqual(
+            r4.interpolate(r5, 0.5),
+            Ranking.from_run(
+                {
+                    "q1": {"d0": 0.5, "d1": 1, "d2": 0.5},
+                    "q2": {"d0": 1, "d0": 0.5},
+                    "q3": {"d0": 0.5},
+                }
+            ),
+        )
+
+        self.assertEqual(r4.interpolate(r5, 0.5), 0.5 * r4 + 0.5 * r5)
+
     def test_rr_scores(self):
         self.assertEqual(
             self.ranking.rr_scores(k=1),
