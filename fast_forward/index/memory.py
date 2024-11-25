@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Iterable, Iterator, List, Optional, Sequence, Set, Tuple
+from typing import Iterable, Iterator, List, Optional, Set, Tuple
 
 import numpy as np
 from tqdm import tqdm
