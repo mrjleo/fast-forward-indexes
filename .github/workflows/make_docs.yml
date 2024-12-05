@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   make_docs:
-    name: Create and push docs (${{ github.ref_name }})
+    name: Create documentation for ${{ github.ref_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out ${{ github.ref_name }}
@@ -26,6 +26,20 @@ jobs:
           version: "0.5.6"
       - name: Install packages
         run: uv sync --all-extras --dev
+      - name: Generate documentation
+        run: uv run pdoc --math fast_forward -d google -o docs/${{ github.ref_name }}
+      - name: Store generated documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: docs/${{ github.ref_name }}
+
+  publish_docs:
+    name: Push documentation for ${{ github.ref_name }} to gh-pages
+    needs:
+      - make_docs
+    runs-on: ubuntu-latest
+    steps:
       - name: Check out gh-pages
         uses: actions/checkout@v4
         with:
@@ -34,8 +48,11 @@ jobs:
         run: |
           rm -rf docs/${{ github.ref_name }}
           rm -f docs/index.html
-      - name: Run pdoc
-        run: uv run pdoc --math fast_forward -d google -o docs/${{ github.ref_name }}
+      - name: Download generated documentation
+        uses: actions/download-artifact@v4
+        with:
+          name: docs
+          path: docs/${{ github.ref_name }}
       - name: Generate directory listing
         uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
