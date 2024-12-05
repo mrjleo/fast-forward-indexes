@@ -1,1 +1,1 @@
-include fast_forward/docs/*.md
+include src/fast_forward/docs/*.md
