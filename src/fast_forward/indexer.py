@@ -21,10 +21,10 @@ class Indexer(object):
     def __init__(
         self,
         index: Index,
-        encoder: Encoder = None,
+        encoder: Encoder | None = None,
         encoder_batch_size: int = 128,
         batch_size: int = 2**16,
-        quantizer: Quantizer = None,
+        quantizer: Quantizer | None = None,
         quantizer_fit_batches: int = 1,
     ) -> None:
         """Instantiate an indexer.
@@ -71,8 +71,8 @@ class Indexer(object):
     def _index_batch(
         self,
         vectors: np.ndarray,
-        doc_ids: IDSequence = None,
-        psg_ids: IDSequence = None,
+        doc_ids: IDSequence | None = None,
+        psg_ids: IDSequence | None = None,
     ) -> None:
         """Add a batch to the index.
 
@@ -129,7 +129,13 @@ class Indexer(object):
 
         Returns:
             np.ndarray: The vector representations.
+
+        Raises:
+            RuntimeError: When no encoder exists.
         """
+        if self._encoder is None:
+            raise RuntimeError("An encoder is required.")
+
         result = []
         for i in range(0, len(texts), self._encoder_batch_size):
             batch = texts[i : i + self._encoder_batch_size]
@@ -143,13 +149,7 @@ class Indexer(object):
 
         Args:
             data (Iterable[Dict[str, str]]): An iterable of the dictionaries.
-
-        Raises:
-            RuntimeError: When no encoder exists.
         """
-        if self._encoder is None:
-            raise RuntimeError("An encoder is required.")
-
         texts, doc_ids, psg_ids = [], [], []
         for d in tqdm(data):
             texts.append(d["text"])
