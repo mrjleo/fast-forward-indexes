@@ -16,12 +16,16 @@ jobs:
     steps:
       - name: Check out ${{ github.ref_name }}
         uses: actions/checkout@v4
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version-file: "pyproject.toml"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.6"
       - name: Install packages
-        run: python -m pip install .[pyterrier] pdoc
+        run: uv sync --all-extras --dev
       - name: Check out gh-pages
         uses: actions/checkout@v4
         with:
@@ -31,7 +35,7 @@ jobs:
           rm -rf docs/${{ github.ref_name }}
           rm -f docs/index.html
       - name: Run pdoc
-        run: pdoc --math fast_forward -d google -o docs/${{ github.ref_name }}
+        run: uv run pdoc --math fast_forward -d google -o docs/${{ github.ref_name }}
       - name: Generate directory listing
         uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
