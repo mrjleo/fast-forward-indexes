@@ -171,6 +171,7 @@ pyterrier = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "pdoc" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -189,6 +190,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "pdoc", specifier = ">=15.0.0,<16" },
     { name = "pytest", specifier = ">=8.0.0,<9" },
     { name = "ruff", specifier = ">=0.8.1,<9" },
 ]
@@ -880,12 +882,35 @@ wheels = [
 ]
 
 [[package]]
+name = "pdoc"
+version = "15.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jinja2" },
+    { name = "markupsafe" },
+    { name = "pygments" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d1/4a/b645514246e487a02f211023d2fc1f019a25cdd2bf2f4266ff5e92c54f41/pdoc-15.0.0.tar.gz", hash = "sha256:b761220d3ba129cd87e6da1bb7b62c8e799973ab9c595de7ba1a514850d86da5", size = 154109 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/4a/e4a5490bb6d39214cd7778dfd8cf6b353b94f17aafa703bd1d11673ea025/pdoc-15.0.0-py3-none-any.whl", hash = "sha256:151b0187a25eaf827099e981d6dbe3a4f68aeb18d0d637c24edcab788d5540f1", size = 144184 },
+]
+
+[[package]]
 name = "pluggy"
 version = "1.5.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/96/2d/02d4312c973c6050a18b314a5ad0b3210edb65a906f868e31c111dede4a6/pluggy-1.5.0.tar.gz", hash = "sha256:2cffa88e94fdc978c4c574f15f9e59b7f4201d439195c3715ca9e2486f1d0cf1", size = 67955 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/88/5f/e351af9a41f866ac3f1fac4ca0613908d9a41741cfcf2228f4ad853b697d/pluggy-1.5.0-py3-none-any.whl", hash = "sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669", size = 20556 },
+]
+
+[[package]]
+name = "pygments"
+version = "2.18.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/8e/62/8336eff65bcbc8e4cb5d05b55faf041285951b6e80f33e2bff2024788f31/pygments-2.18.0.tar.gz", hash = "sha256:786ff802f32e91311bff3889f6e9a86e81505fe99f2735bb6d60ae0c5004f199", size = 4891905 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f7/3f/01c8b82017c199075f8f788d0d906b9ffbbc5a47dc9918a945e13d5a2bda/pygments-2.18.0-py3-none-any.whl", hash = "sha256:b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a", size = 1205513 },
 ]
 
 [[package]]

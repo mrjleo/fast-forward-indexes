@@ -38,4 +38,4 @@ log_cli = true
 log_cli_level = "DEBUG"
 
 [dependency-groups]
-dev = ["pytest>=8.0.0, <9", "ruff>=0.8.1, <9"]
+dev = ["pdoc>=15.0.0, <16", "pytest>=8.0.0, <9", "ruff>=0.8.1, <9"]
