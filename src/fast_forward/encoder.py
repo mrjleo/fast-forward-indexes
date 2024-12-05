@@ -4,7 +4,7 @@
 
 import abc
 from pathlib import Path
-from typing import Callable, Sequence, Union
+from typing import Callable, Sequence
 
 import numpy as np
 import torch
@@ -31,7 +31,7 @@ class TransformerEncoder(Encoder):
     """Uses a pre-trained transformer model for encoding. Returns the pooler output."""
 
     def __init__(
-        self, model: Union[str, Path], device: str = "cpu", **tokenizer_args
+        self, model: str | Path, device: str = "cpu", **tokenizer_args
     ) -> None:
         """Create a transformer encoder.
 
@@ -49,7 +49,7 @@ class TransformerEncoder(Encoder):
         self.tokenizer_args = tokenizer_args
 
     def __call__(self, texts: Sequence[str]) -> np.ndarray:
-        inputs = self.tokenizer(texts, return_tensors="pt", **self.tokenizer_args)
+        inputs = self.tokenizer(list(texts), return_tensors="pt", **self.tokenizer_args)
         inputs.to(self.device)
         with torch.no_grad():
             return self.model(**inputs).pooler_output.detach().cpu().numpy()
@@ -117,7 +117,7 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
             outputs = self.model(**inputs)
             token_embeddings = outputs["last_hidden_state"][:, 4:, :]
             input_mask_expanded = (
-                inputs["attention_mask"][:, 4:]
+                inputs.attention_mask[:, 4:]
                 .unsqueeze(-1)
                 .expand(token_embeddings.size())
                 .float()
