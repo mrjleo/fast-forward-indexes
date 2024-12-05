@@ -178,7 +178,7 @@ class TestRanking(unittest.TestCase):
             Ranking.from_run(
                 {
                     "q1": {"d0": 0.5, "d1": 1, "d2": 0.5},
-                    "q2": {"d0": 1, "d0": 0.5},
+                    "q2": {"d0": 0.5},
                     "q3": {"d0": 0.5},
                 }
             ),
