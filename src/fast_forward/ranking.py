@@ -3,18 +3,18 @@
 """
 
 import logging
+from collections.abc import Iterator, Mapping
 from pathlib import Path
-from typing import Dict, Iterator, Set, Union
 
 import numpy as np
 import pandas as pd
 
-Run = Dict[str, Dict[str, Union[float, int]]]
+Run = Mapping[str, Mapping[str, float]]
 
 LOGGER = logging.getLogger(__name__)
 
 
-def _attach_queries(df: pd.DataFrame, queries: Dict[str, str]) -> pd.DataFrame:
+def _attach_queries(df: pd.DataFrame, queries: Mapping[str, str]) -> pd.DataFrame:
     """Attach queries to a data frame.
 
     Args:
@@ -77,9 +77,9 @@ class Ranking(object):
     def __init__(
         self,
         df: pd.DataFrame,
-        name: str = None,
-        queries: Dict[str, str] = None,
-        dtype: np.dtype = np.float32,
+        name: str | None = None,
+        queries: Mapping[str, str] | None = None,
+        dtype: np.dtype = np.dtype(np.float32),
         copy: bool = True,
         is_sorted: bool = False,
     ) -> None:
@@ -132,7 +132,7 @@ class Ranking(object):
         return "query" in self._df.columns
 
     @property
-    def q_ids(self) -> Set[str]:
+    def q_ids(self) -> set[str]:
         """The set of (unique) query IDs in this ranking. Only queries with at least one scored document are considered.
 
         Returns:
@@ -140,7 +140,7 @@ class Ranking(object):
         """
         return self._q_ids
 
-    def __getitem__(self, q_id: str) -> Dict[str, float]:
+    def __getitem__(self, q_id: str) -> dict[str, float]:
         """Return the ranking for a query.
 
         Args:
@@ -196,7 +196,7 @@ class Ranking(object):
         cols = ["q_id", "id", "score"]
         return df1[cols].equals(df2[cols])
 
-    def __add__(self, o: Union["Ranking", int, float]) -> "Ranking":
+    def __add__(self, o: "Ranking | float") -> "Ranking":
         """Add either a constant or the corresponding scores of another ranking to this ranking's scores.
         Missing scores in either ranking are treated as zero.
 
@@ -208,7 +208,7 @@ class Ranking(object):
         """
         if isinstance(o, Ranking):
             new_df = self._df.merge(
-                o._df, on=["q_id", "id"], suffixes=[None, "_other"], how="outer"
+                o._df, on=["q_id", "id"], suffixes=(None, "_other"), how="outer"
             ).fillna(0)
             new_df["score"] = new_df["score"] + new_df["score_other"]
             is_sorted = False
@@ -229,7 +229,7 @@ class Ranking(object):
 
     __radd__ = __add__
 
-    def __mul__(self, o: Union[int, float]) -> "Ranking":
+    def __mul__(self, o: float) -> "Ranking":
         """Multiply this ranking's scores by a constant.
 
         Args:
@@ -262,7 +262,7 @@ class Ranking(object):
         """
         return self._df.__repr__()
 
-    def attach_queries(self, queries: Dict[str, str]) -> "Ranking":
+    def attach_queries(self, queries: Mapping[str, str]) -> "Ranking":
         """Attach queries to the ranking.
 
         Args:
@@ -340,7 +340,7 @@ class Ranking(object):
         new_df = df1.merge(
             df2,
             on=["q_id", "id"],
-            suffixes=[None, "_other"],
+            suffixes=(None, "_other"),
             copy=not normalize,
             how="outer",
         ).fillna(0)
@@ -400,9 +400,9 @@ class Ranking(object):
     def from_run(
         cls,
         run: Run,
-        name: str = None,
-        queries: Dict[str, str] = None,
-        dtype: np.dtype = np.float32,
+        name: str | None = None,
+        queries: Mapping[str, str] | None = None,
+        dtype: np.dtype = np.dtype(np.float32),
     ) -> "Ranking":
         """Create a Ranking object from a TREC run.
 
@@ -415,7 +415,7 @@ class Ranking(object):
         Returns:
             Ranking: The resulting ranking.
         """
-        df = pd.DataFrame.from_dict(run).stack().reset_index()
+        df = pd.DataFrame.from_dict(dict(run)).stack().reset_index()
         df.columns = ("id", "q_id", "score")
         return cls(df, name=name, queries=queries, dtype=dtype, copy=False)
 
@@ -423,8 +423,8 @@ class Ranking(object):
     def from_file(
         cls,
         f: Path,
-        queries: Dict[str, str] = None,
-        dtype: np.dtype = np.float32,
+        queries: Mapping[str, str] | None = None,
+        dtype: np.dtype = np.dtype(np.float32),
     ) -> "Ranking":
         """Create a Ranking object from a runfile in TREC format.
 
