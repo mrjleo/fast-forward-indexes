@@ -5,22 +5,20 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "fast-forward-indexes"
 description = "Efficient interpolation-based ranking on CPUs"
-authors = [
-    {name = "Jurek Leonhardt"},
-]
+authors = [{ name = "Jurek Leonhardt" }]
 version = "0.5.1"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 keywords = ["information retrieval", "ranking", "search"]
-requires-python = ">= 3.8"
+requires-python = ">=3.9, <3.13"
 dependencies = [
-    "torch >= 2.0.0, < 3",
-    "numpy >= 1.24.0, < 2",
-    "pandas >= 2.0.3, < 3",
-    "transformers >= 4.28.0, < 5",
-    "h5py >= 3.0.0, < 4",
-    "tqdm >= 4.66.0, < 5",
-    "nanopq >= 0.2.1, < 0.3",
+    "torch>=2.0.0, <3",
+    "numpy>=1.24.0, <2",
+    "pandas>=2.0.3, <3",
+    "transformers>=4.28.0, <5",
+    "h5py>=3.0.0, <4",
+    "tqdm>=4.66.0, <5",
+    "nanopq>=0.2.1, <0.3",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -29,7 +27,7 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-pyterrier = ["python-terrier >= 0.10.0, < 1"]
+pyterrier = ["python-terrier>=0.10.0, <1"]
 
 [project.urls]
 Repository = "https://github.com/mrjleo/fast-forward-indexes"
@@ -38,3 +36,6 @@ Documentation = "https://mrjleo.github.io/fast-forward-indexes/docs/"
 [tool.pytest.ini_options]
 log_cli = true
 log_cli_level = "DEBUG"
+
+[dependency-groups]
+dev = ["pytest>=8.0.0, <9", "ruff>=0.8.1, <9"]
