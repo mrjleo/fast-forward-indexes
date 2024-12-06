@@ -15,13 +15,12 @@ class NanoPQ(Quantizer):
     def __init__(
         self, M: int, Ks: int, metric: str = "dot", verbose: bool = False
     ) -> None:
-        """Instantiate a nanopq quantizer.
+        """Instantiate a nanopq product quantizer.
 
-        Args:
-            M (int): The number of subspaces.
-            Ks (int): The number of codewords per subspace.
-            metric (str, optional): The metric to use. Defaults to "dot".
-            verbose (bool, optional): Enable verbosity. Defaults to False.
+        :param M: The number of subspaces.
+        :param Ks: The number of codewords per subspace.
+        :param metric: The metric to use.
+        :param verbose: Enable verbosity.
         """
         self._pq = nanopq.PQ(M=M, Ks=Ks, metric=metric, verbose=verbose)
         super().__init__()
@@ -87,11 +86,10 @@ class NanoOPQ(Quantizer):
     ) -> None:
         """Instantiate a nanopq optimized product quantizer.
 
-        Args:
-            M (int): The number of subspaces.
-            Ks (int): The number of codewords per subspace.
-            metric (str, optional): The metric to use. Defaults to "dot".
-            verbose (bool, optional): Enable verbosity. Defaults to False.
+        :param M: The number of subspaces.
+        :param Ks: The number of codewords per subspace.
+        :param metric: The metric to use.
+        :param verbose: Enable verbosity.
         """
         self._opq = nanopq.OPQ(M=M, Ks=Ks, metric=metric, verbose=verbose)
         super().__init__()
