@@ -1,6 +1,6 @@
 import logging
 from collections import defaultdict
-from typing import Iterable, Iterator, List, Optional, Set, Tuple
+from collections.abc import Iterable, Iterator
 
 import numpy as np
 from tqdm import tqdm
@@ -17,8 +17,8 @@ class InMemoryIndex(Index):
 
     def __init__(
         self,
-        query_encoder: Encoder = None,
-        quantizer: Quantizer = None,
+        query_encoder: Encoder | None = None,
+        quantizer: Quantizer | None = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -59,7 +59,7 @@ class InMemoryIndex(Index):
                 + self._idx_in_cur_shard
             )
 
-    def _get_internal_dim(self) -> Optional[int]:
+    def _get_internal_dim(self) -> int | None:
         if len(self._shards) > 0:
             return self._shards[0].shape[-1]
         return None
@@ -123,14 +123,14 @@ class InMemoryIndex(Index):
         self._idx_in_cur_shard = self._shards[0].shape[0]
 
     @property
-    def doc_ids(self) -> Set[str]:
+    def doc_ids(self) -> set[str]:
         return set(self._doc_id_to_idx.keys())
 
     @property
-    def psg_ids(self) -> Set[str]:
+    def psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _index_shards(self, idx: int) -> Tuple[int, int]:
+    def _index_shards(self, idx: int) -> tuple[int, int]:
         """Given an index in `[0, N]`, where `N` is the total number of vectors,
         compute the corresponding shard index and index within that shard.
 
@@ -150,7 +150,7 @@ class InMemoryIndex(Index):
             idx_in_shard = idx % self._alloc_size
         return shard_idx, idx_in_shard
 
-    def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
+    def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
         items_by_shard = defaultdict(list)
         for id in ids:
             if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
@@ -183,7 +183,7 @@ class InMemoryIndex(Index):
 
     def _batch_iter(
         self, batch_size: int
-    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+    ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         LOGGER.info("creating ID mappings for this index")
         idx_to_doc_id = {
             idx: doc_id

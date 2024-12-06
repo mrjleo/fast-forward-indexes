@@ -1,7 +1,8 @@
 import logging
 from collections import defaultdict
+from collections.abc import Iterable, Iterator
 from pathlib import Path
-from typing import Iterable, Iterator, List, Optional, Set, Tuple
+from typing import cast
 
 import h5py
 import numpy as np
@@ -25,13 +26,13 @@ class OnDiskIndex(Index):
     def __init__(
         self,
         index_file: Path,
-        query_encoder: Encoder = None,
-        quantizer: Quantizer = None,
+        query_encoder: Encoder | None = None,
+        quantizer: Quantizer | None = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
         resize_min_val: int = 2**10,
-        hdf5_chunk_size: int = None,
+        hdf5_chunk_size: int | None = None,
         max_id_length: int = 8,
         overwrite: bool = False,
         max_indexing_size: int = 2**10,
@@ -82,14 +83,14 @@ class OnDiskIndex(Index):
     @Index.quantizer.setter
     def quantizer(self, quantizer: Quantizer) -> None:
         # call the setter of the super class
-        Index.quantizer.fset(self, quantizer)
+        Index.quantizer.fset(self, quantizer)  # pyright: ignore[reportOptionalCall]
 
         # serialize the quantizer and store it on disk
         with h5py.File(self._index_file, "a") as fp:
             if "quantizer" in fp:
                 del fp["quantizer"]
 
-            meta, attributes, data = self.quantizer.serialize()
+            meta, attributes, data = quantizer.serialize()
             fp.create_group("quantizer/meta").attrs.update(meta)
             fp.create_group("quantizer/attributes").attrs.update(attributes)
             data_group = fp.create_group("quantizer/data")
@@ -134,12 +135,12 @@ class OnDiskIndex(Index):
 
     def __len__(self) -> int:
         with h5py.File(self._index_file, "r") as fp:
-            return fp.attrs["num_vectors"]
+            return fp.attrs["num_vectors"]  # pyright: ignore[reportReturnType]
 
-    def _get_internal_dim(self) -> Optional[int]:
+    def _get_internal_dim(self) -> int | None:
         with h5py.File(self._index_file, "r") as fp:
             if "vectors" in fp:
-                return fp["vectors"].shape[1]
+                return fp["vectors"].shape[1]  # pyright: ignore[reportAttributeAccessIssue]
         return None
 
     def to_memory(self, batch_size=None) -> InMemoryIndex:
@@ -159,16 +160,20 @@ class OnDiskIndex(Index):
             init_size=len(self),
         )
         with h5py.File(self._index_file, "r") as fp:
-            batch_size = batch_size or fp.attrs["num_vectors"]
-            for i_low in range(0, fp.attrs["num_vectors"], batch_size):
-                i_up = min(i_low + batch_size, fp.attrs["num_vectors"])
+            num_vectors = cast(int, fp.attrs["num_vectors"])
+
+            batch_size = batch_size or num_vectors
+            for i_low in range(0, num_vectors, batch_size):
+                i_up = min(i_low + batch_size, num_vectors)
+
+                doc_ids = fp["doc_ids"].asstr()[i_low:i_up]  # pyright: ignore[reportAttributeAccessIssue]
+                psg_ids = fp["psg_ids"].asstr()[i_low:i_up]  # pyright: ignore[reportAttributeAccessIssue]
+                vectors = fp["vectors"][i_low:i_up]  # pyright: ignore[reportIndexIssue]
 
                 # IDs that don't exist will be returned as empty strings here
-                doc_ids = fp["doc_ids"].asstr()[i_low:i_up]
-                doc_ids[doc_ids == ""] = None
-                psg_ids = fp["psg_ids"].asstr()[i_low:i_up]
-                psg_ids[psg_ids == ""] = None
-                index._add(fp["vectors"][i_low:i_up], doc_ids=doc_ids, psg_ids=psg_ids)
+                doc_ids[doc_ids == ""] = None  # pyright: ignore[reportIndexIssue]
+                psg_ids[psg_ids == ""] = None  # pyright: ignore[reportIndexIssue]
+                index._add(vectors, doc_ids=doc_ids, psg_ids=psg_ids)  # pyright: ignore[reportArgumentType]
         return index
 
     def _add(
@@ -183,13 +188,13 @@ class OnDiskIndex(Index):
                 self._create_ds(fp, vectors.shape[-1], vectors.dtype)
 
             # check all IDs first before adding anything
-            doc_id_size = fp["doc_ids"].dtype.itemsize
+            doc_id_size = fp["doc_ids"].dtype.itemsize  # pyright: ignore[reportAttributeAccessIssue]
             for doc_id in doc_ids:
                 if doc_id is not None and len(doc_id) > doc_id_size:
                     raise RuntimeError(
                         f"Document ID {doc_id} is longer than the maximum ({doc_id_size} characters)."
                     )
-            psg_id_size = fp["psg_ids"].dtype.itemsize
+            psg_id_size = fp["psg_ids"].dtype.itemsize  # pyright: ignore[reportAttributeAccessIssue]
             for psg_id in psg_ids:
                 if psg_id is not None and len(psg_id) > psg_id_size:
                     raise RuntimeError(
@@ -197,10 +202,10 @@ class OnDiskIndex(Index):
                     )
 
             num_new_vecs = vectors.shape[0]
-            capacity = fp["vectors"].shape[0]
+            capacity = fp["vectors"].shape[0]  # pyright: ignore[reportAttributeAccessIssue]
 
             # check if we have enough space, resize if necessary
-            cur_num_vectors = fp.attrs["num_vectors"]
+            cur_num_vectors = cast(int, fp.attrs["num_vectors"])
             space_left = capacity - cur_num_vectors
             if num_new_vecs > space_left:
                 new_size = max(
@@ -208,9 +213,8 @@ class OnDiskIndex(Index):
                     capacity + self._resize_min_val,
                 )
                 LOGGER.debug("resizing index from %s to %s", capacity, new_size)
-                fp["vectors"].resize(new_size, axis=0)
-                fp["doc_ids"].resize(new_size, axis=0)
-                fp["psg_ids"].resize(new_size, axis=0)
+                for ds in ("vectors", "doc_ids", "psg_ids"):
+                    fp[ds].resize(new_size, axis=0)  # pyright: ignore[reportAttributeAccessIssue]
 
             # add new document IDs to index and in-memory mappings
             doc_id_idxs, non_null_doc_ids = [], []
@@ -219,7 +223,7 @@ class OnDiskIndex(Index):
                     self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
                     doc_id_idxs.append(cur_num_vectors + i)
                     non_null_doc_ids.append(doc_id)
-            fp["doc_ids"][doc_id_idxs] = non_null_doc_ids
+            fp["doc_ids"][doc_id_idxs] = non_null_doc_ids  # pyright: ignore[reportIndexIssue]
 
             # add new passage IDs to index and in-memory mappings
             psg_id_idxs, non_null_psg_ids = [], []
@@ -228,21 +232,21 @@ class OnDiskIndex(Index):
                     self._psg_id_to_idx[psg_id] = cur_num_vectors + i
                     psg_id_idxs.append(cur_num_vectors + i)
                     non_null_psg_ids.append(psg_id)
-            fp["psg_ids"][psg_id_idxs] = non_null_psg_ids
+            fp["psg_ids"][psg_id_idxs] = non_null_psg_ids  # pyright: ignore[reportIndexIssue]
 
             # add new vectors
-            fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors
-            fp.attrs["num_vectors"] += num_new_vecs
+            fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors  # pyright: ignore[reportIndexIssue]
+            fp.attrs["num_vectors"] += num_new_vecs  # pyright: ignore[reportOperatorIssue]
 
     @property
-    def doc_ids(self) -> Set[str]:
+    def doc_ids(self) -> set[str]:
         return set(self._doc_id_to_idx.keys())
 
     @property
-    def psg_ids(self) -> Set[str]:
+    def psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
+    def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
         idx_pairs = []
         with h5py.File(self._index_file, "r") as fp:
             for id in ids:
@@ -268,9 +272,9 @@ class OnDiskIndex(Index):
                 id_to_idxs[id].append(id_idx)
 
             # reading all vectors at once slows h5py down significantly, so we read them in chunks and concatenate
-            vectors = np.concatenate(
+            vectors = np.concatenate(  # pyright: ignore[reportCallIssue]
                 [
-                    fp["vectors"][vec_idxs[i : i + self._max_indexing_size]]
+                    fp["vectors"][vec_idxs[i : i + self._max_indexing_size]]  # pyright: ignore[reportIndexIssue, reportArgumentType]
                     for i in range(0, len(vec_idxs), self._max_indexing_size)
                 ]
             )
@@ -278,26 +282,26 @@ class OnDiskIndex(Index):
 
     def _batch_iter(
         self, batch_size: int
-    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+    ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         with h5py.File(self._index_file, "r") as fp:
-            num_vectors = fp.attrs["num_vectors"]
+            num_vectors = cast(int, fp.attrs["num_vectors"])
             for i in range(0, num_vectors, batch_size):
                 j = min(i + batch_size, num_vectors)
-                doc_ids = fp["doc_ids"].asstr()[i:j]
-                doc_ids[doc_ids == ""] = None
-                psg_ids = fp["psg_ids"].asstr()[i:j]
-                psg_ids[psg_ids == ""] = None
+                doc_ids = fp["doc_ids"].asstr()[i:j]  # pyright: ignore[reportAttributeAccessIssue]
+                psg_ids = fp["psg_ids"].asstr()[i:j]  # pyright: ignore[reportAttributeAccessIssue]
+                doc_ids[doc_ids == ""] = None  # pyright: ignore[reportIndexIssue]
+                psg_ids[psg_ids == ""] = None  # pyright: ignore[reportIndexIssue]
                 yield (
-                    fp["vectors"][i:j],
-                    doc_ids.tolist(),
-                    psg_ids.tolist(),
+                    fp["vectors"][i:j],  # pyright: ignore[reportIndexIssue, reportReturnType]
+                    doc_ids.tolist(),  # pyright: ignore[reportAttributeAccessIssue]
+                    psg_ids.tolist(),  # pyright: ignore[reportAttributeAccessIssue]
                 )
 
     @classmethod
     def load(
         cls,
         index_file: Path,
-        query_encoder: Encoder = None,
+        query_encoder: Encoder | None = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         resize_min_val: int = 2**10,
@@ -333,22 +337,21 @@ class OnDiskIndex(Index):
         with h5py.File(index_file, "r") as fp:
             if "quantizer" in fp:
                 index._quantizer = Quantizer.deserialize(
-                    dict(fp["quantizer/meta"].attrs),
-                    dict(fp["quantizer/attributes"].attrs),
-                    {k: v[:] for k, v in fp["quantizer/data"].items()},
+                    dict(fp["quantizer/meta"].attrs),  # pyright: ignore[reportArgumentType]
+                    dict(fp["quantizer/attributes"].attrs),  # pyright: ignore[reportArgumentType]
+                    {k: v[:] for k, v in fp["quantizer/data"].items()},  # pyright: ignore[reportAttributeAccessIssue]
                 )
 
-        # read ID mappings
-        with h5py.File(index_file, "r") as fp:
+            # read ID mappings
             index._doc_id_to_idx = defaultdict(list)
             index._psg_id_to_idx = {}
 
-            num_vectors = fp.attrs["num_vectors"]
+            num_vectors = cast(int, fp.attrs["num_vectors"])
             if num_vectors == 0:
                 return index
 
-            doc_id_iter = fp["doc_ids"].asstr()[:num_vectors]
-            psg_id_iter = fp["psg_ids"].asstr()[:num_vectors]
+            doc_id_iter = fp["doc_ids"].asstr()[:num_vectors]  # pyright: ignore[reportAttributeAccessIssue]
+            psg_id_iter = fp["psg_ids"].asstr()[:num_vectors]  # pyright: ignore[reportAttributeAccessIssue]
             for i, (doc_id, psg_id) in tqdm(
                 enumerate(zip(doc_id_iter, psg_id_iter)),
                 total=num_vectors,

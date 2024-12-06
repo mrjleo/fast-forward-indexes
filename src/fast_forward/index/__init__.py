@@ -4,9 +4,10 @@
 
 import abc
 import logging
+from collections.abc import Iterable, Iterator, Sequence
 from enum import Enum
+from operator import itemgetter
 from time import perf_counter
-from typing import Iterable, Iterator, List, Optional, Sequence, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -28,19 +29,19 @@ class Mode(Enum):
     AVEP = 4
 
 
-IDSequence = Sequence[Optional[str]]
+IDSequence = Sequence[str | None]
 
 
 class Index(abc.ABC):
     """Abstract base class for Fast-Forward indexes."""
 
-    _query_encoder: Encoder = None
-    _quantizer: Quantizer = None
+    _query_encoder: Encoder | None = None
+    _quantizer: Quantizer | None = None
 
     def __init__(
         self,
-        query_encoder: Encoder = None,
-        quantizer: Quantizer = None,
+        query_encoder: Encoder | None = None,
+        quantizer: Quantizer | None = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
     ) -> None:
@@ -82,7 +83,7 @@ class Index(abc.ABC):
         return np.concatenate(result)
 
     @property
-    def query_encoder(self) -> Optional[Encoder]:
+    def query_encoder(self) -> Encoder | None:
         """Return the query encoder if it exists.
 
         Returns:
@@ -101,7 +102,7 @@ class Index(abc.ABC):
         self._query_encoder = encoder
 
     @property
-    def quantizer(self) -> Optional[Quantizer]:
+    def quantizer(self) -> Quantizer | None:
         """Return the quantizer if it exists.
 
         Returns:
@@ -146,7 +147,7 @@ class Index(abc.ABC):
         self._mode = mode
 
     @abc.abstractmethod
-    def _get_internal_dim(self) -> Optional[int]:
+    def _get_internal_dim(self) -> int | None:
         """Return the dimensionality of the vectors (or codes) in the index (internal method).
 
         If no vectors exist, return None. If a quantizer is used, return the dimension of the codes.
@@ -157,7 +158,7 @@ class Index(abc.ABC):
         pass
 
     @property
-    def dim(self) -> Optional[int]:
+    def dim(self) -> int | None:
         """Return the dimensionality of the vector index.
 
         May return None if there are no vectors.
@@ -173,7 +174,7 @@ class Index(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def doc_ids(self) -> Set[str]:
+    def doc_ids(self) -> set[str]:
         """Return all unique document IDs.
 
         Returns:
@@ -183,7 +184,7 @@ class Index(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def psg_ids(self) -> Set[str]:
+    def psg_ids(self) -> set[str]:
         """Return all unique passage IDs.
 
         Returns:
@@ -221,8 +222,8 @@ class Index(abc.ABC):
     def add(
         self,
         vectors: np.ndarray,
-        doc_ids: IDSequence = None,
-        psg_ids: IDSequence = None,
+        doc_ids: IDSequence | None = None,
+        psg_ids: IDSequence | None = None,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
 
@@ -271,7 +272,7 @@ class Index(abc.ABC):
         )
 
     @abc.abstractmethod
-    def _get_vectors(self, ids: Iterable[str]) -> Tuple[np.ndarray, List[List[int]]]:
+    def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
         """Return:
             * A single array containing all vectors necessary to compute the scores for each document/passage.
             * For each document/passage (in the same order as the IDs), a list of integers (depending on the mode).
@@ -289,7 +290,7 @@ class Index(abc.ABC):
         pass
 
     def _compute_scores(
-        self, df: pd.DataFrame, query_vectors: np.ndarray
+        self, data: pd.DataFrame | pd.Series, query_vectors: np.ndarray
     ) -> pd.DataFrame:
         """Computes scores for a data frame.
         The input data frame needs a "q_no" column with unique query numbers.
@@ -302,11 +303,11 @@ class Index(abc.ABC):
             pd.DataFrame: Data frame with computed scores.
         """
         # map doc/passage IDs to unique numbers (0 to n)
-        id_df = df[["id"]].drop_duplicates().reset_index(drop=True)
+        id_df = data[["id"]].drop_duplicates().reset_index(drop=True)
         id_df["id_no"] = id_df.index
 
         # attach doc/passage numbers to data frame
-        df = df.merge(id_df, on="id", suffixes=[None, "_"]).reset_index(drop=True)
+        df = data.merge(id_df, on="id", suffixes=(None, "_")).reset_index(drop=True)
 
         # get all required vectors from the FF index
         vectors, id_to_vec_idxs = self._get_vectors(id_df["id"].to_list())
@@ -336,7 +337,7 @@ class Index(abc.ABC):
         elif self.mode == Mode.AVEP:
             op = np.average
         else:
-            op = lambda x: x[0]
+            op = itemgetter(0)
 
         def _mapfunc(i):
             scores_i = select_scores[i]
@@ -370,7 +371,7 @@ class Index(abc.ABC):
             pd.DataFrame: Data frame with computed scores.
         """
         # data frame for computed scores
-        scores_so_far = None
+        scores_so_far = pd.DataFrame()
 
         # [a, b] is the interval for which the scores are computed in each step
         a = 0
@@ -396,7 +397,11 @@ class Index(abc.ABC):
             LOGGER.info("depth %s: %s queries left", b, len(q_ids_left))
 
             # take the next chunk with b-a docs/passages for each query
-            chunk = df.loc[df["q_id"].isin(q_ids_left)].groupby("q_id").nth(range(a, b))
+            chunk = (
+                df.loc[df["q_id"].isin(q_ids_left)]
+                .groupby("q_id")
+                .nth(list(range(a, b)))
+            )
 
             # stop if no pairs are left
             if len(chunk) == 0:
@@ -404,31 +409,28 @@ class Index(abc.ABC):
 
             # compute scores for the chunk and merge
             out = self._compute_scores(chunk, query_vectors)[["orig_index", "ff_score"]]
-            chunk_scores = chunk.merge(out, on="orig_index", suffixes=[None, "_"])
+            chunk_scores = chunk.merge(out, on="orig_index", suffixes=(None, "_"))
 
             # compute interpolated scores
             chunk_scores["int_score"] = (
                 alpha * chunk_scores["score"] + (1 - alpha) * chunk_scores["ff_score"]
             )
 
-            if scores_so_far is None:
-                scores_so_far = chunk_scores
-            else:
-                scores_so_far = pd.concat(
-                    [scores_so_far, chunk_scores],
-                    axis=0,
-                )
+            scores_so_far = pd.concat(
+                [scores_so_far, chunk_scores],
+                axis=0,
+            )
 
             a = b
-        return scores_so_far.join(df, on="orig_index", lsuffix=None, rsuffix="_")
+        return scores_so_far.join(df, on="orig_index", lsuffix="", rsuffix="_")
 
     def __call__(
         self,
         ranking: Ranking,
-        early_stopping: int = None,
-        early_stopping_alpha: float = None,
-        early_stopping_depths: Iterable[int] = None,
-        batch_size: int = None,
+        early_stopping: int | None = None,
+        early_stopping_alpha: float | None = None,
+        early_stopping_depths: Iterable[int] | None = None,
+        batch_size: int | None = None,
     ) -> Ranking:
         """Compute scores for a ranking.
 
@@ -459,7 +461,7 @@ class Index(abc.ABC):
             ranking._df[["q_id", "query"]].drop_duplicates().reset_index(drop=True)
         )
         query_df["q_no"] = query_df.index
-        df_with_q_no = ranking._df.merge(query_df, on="q_id", suffixes=[None, "_"])
+        df_with_q_no = ranking._df.merge(query_df, on="q_id", suffixes=(None, "_"))
 
         # early stopping splits the data frame, hence we need to keep track of the original index
         df_with_q_no["orig_index"] = df_with_q_no.index
@@ -470,6 +472,9 @@ class Index(abc.ABC):
         def _get_result(df):
             if early_stopping is None:
                 return self._compute_scores(df, query_vectors)
+
+            assert early_stopping_alpha is not None
+            assert early_stopping_depths is not None
             return self._early_stopping(
                 df,
                 query_vectors,
@@ -507,7 +512,7 @@ class Index(abc.ABC):
     @abc.abstractmethod
     def _batch_iter(
         self, batch_size: int
-    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+    ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         """Iterate over the index in batches (internal method).
 
         If a quantizer is used, the vectors are the quantized codes.
@@ -523,7 +528,7 @@ class Index(abc.ABC):
 
     def batch_iter(
         self, batch_size: int
-    ) -> Iterator[Tuple[np.ndarray, IDSequence, IDSequence]]:
+    ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         """Iterate over all vectors, document IDs, and passage IDs in batches.
         IDs may be either strings or None.
 
@@ -542,7 +547,7 @@ class Index(abc.ABC):
 
     def __iter__(
         self,
-    ) -> Iterator[Tuple[np.ndarray, Optional[str], Optional[str]]]:
+    ) -> Iterator[tuple[np.ndarray, str | None, str | None]]:
         """Iterate over all vectors, document IDs, and passage IDs.
 
         Yields:
