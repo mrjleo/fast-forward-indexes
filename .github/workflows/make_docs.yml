@@ -27,7 +27,7 @@ jobs:
       - name: Install packages
         run: uv sync --all-extras --dev
       - name: Generate documentation
-        run: uv run pdoc --math fast_forward -d google -o docs/${{ github.ref_name }}
+        run: uv run pdoc --math fast_forward -d restructuredtext -o docs/${{ github.ref_name }}
       - name: Store generated documentation
         uses: actions/upload-artifact@v4
         with:
