@@ -19,11 +19,8 @@ class Encoder(abc.ABC):
     def __call__(self, texts: Sequence[str]) -> np.ndarray:
         """Encode a list of texts.
 
-        Args:
-            texts (Sequence[str]): The texts to encode.
-
-        Returns:
-            np.ndarray: The resulting vector representations.
+        :param texts: The texts to encode.
+        :return: The resulting vector representations.
         """
         pass
 
@@ -36,10 +33,9 @@ class TransformerEncoder(Encoder):
     ) -> None:
         """Create a transformer encoder.
 
-        Args:
-            model (Union[str, Path]): Pre-trained transformer model (name or path).
-            device (str, optional): PyTorch device. Defaults to "cpu".
-            **tokenizer_args: Additional tokenizer arguments.
+        :param model: Pre-trained transformer model (name or path).
+        :param device: PyTorch device.
+        :param **tokenizer_args: Additional tokenizer arguments.
         """
         super().__init__()
         self.model = AutoModel.from_pretrained(model)
@@ -62,8 +58,7 @@ class LambdaEncoder(Encoder):
     def __init__(self, f: Callable[[str], np.ndarray]) -> None:
         """Create a lambda encoder.
 
-        Args:
-            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.
+        :param f: Function to encode a single piece of text.
         """
         super().__init__()
         self._f = f
