@@ -47,11 +47,10 @@ class Index(abc.ABC):
     ) -> None:
         """Create an index.
 
-        Args:
-            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
-            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
-            encoder_batch_size (int, optional): Encoder batch size. Defaults to 32.
+        :param query_encoder: The query encoder to use.
+        :param quantizer: The quantizer to use.
+        :param mode: The ranking mode.
+        :param encoder_batch_size: The encoder batch size.
         """
         super().__init__()
         if query_encoder is not None:
@@ -64,14 +63,9 @@ class Index(abc.ABC):
     def encode_queries(self, queries: Sequence[str]) -> np.ndarray:
         """Encode queries.
 
-        Args:
-            queries (Sequence[str]): The queries to encode.
-
-        Raises:
-            RuntimeError: When no query encoder exists.
-
-        Returns:
-            np.ndarray: The query representations.
+        :param queries: The queries to encode.
+        :raises RuntimeError: When no query encoder exists.
+        :return: The query representations.
         """
         if self.query_encoder is None:
             raise RuntimeError("Index does not have a query encoder.")
@@ -86,8 +80,7 @@ class Index(abc.ABC):
     def query_encoder(self) -> Encoder | None:
         """Return the query encoder if it exists.
 
-        Returns:
-            Optional[Encoder]: The query encoder (if any).
+        :return: The query encoder (if any).
         """
         return self._query_encoder
 
@@ -95,8 +88,7 @@ class Index(abc.ABC):
     def query_encoder(self, encoder: Encoder) -> None:
         """Set the query encoder.
 
-        Args:
-            encoder (Encoder): The new query encoder.
+        :param encoder: The query encoder to set.
         """
         assert isinstance(encoder, Encoder)
         self._query_encoder = encoder
@@ -105,8 +97,7 @@ class Index(abc.ABC):
     def quantizer(self) -> Quantizer | None:
         """Return the quantizer if it exists.
 
-        Returns:
-            Optional[Quantizer]: The quantizer (if any).
+        :return: The quantizer (if any).
         """
         return self._quantizer
 
@@ -114,11 +105,8 @@ class Index(abc.ABC):
     def quantizer(self, quantizer: Quantizer) -> None:
         """Set the quantizer. This is only possible before any vectors are added to the index.
 
-        Raises:
-            RuntimeError: When the index is not empty.
-
-        Args:
-            quantizer (Quantizer): The new quantizer.
+        :param quantizer: The new quantizer.
+        :raises RuntimeError: When the index is not empty.
         """
         assert isinstance(quantizer, Quantizer)
 
@@ -131,8 +119,7 @@ class Index(abc.ABC):
     def mode(self) -> Mode:
         """Return the ranking mode.
 
-        Returns:
-            Mode: The ranking mode.
+        :return: The ranking mode.
         """
         return self._mode
 
@@ -140,8 +127,7 @@ class Index(abc.ABC):
     def mode(self, mode: Mode) -> None:
         """Set the ranking mode.
 
-        Args:
-            mode (Mode): The new ranking mode.
+        :param mode: The ranking mode to set.
         """
         assert isinstance(mode, Mode)
         self._mode = mode
@@ -149,24 +135,19 @@ class Index(abc.ABC):
     @abc.abstractmethod
     def _get_internal_dim(self) -> int | None:
         """Return the dimensionality of the vectors (or codes) in the index (internal method).
+        If no vectors exist, return `None`. If a quantizer is used, return the dimension of the codes.
 
-        If no vectors exist, return None. If a quantizer is used, return the dimension of the codes.
-
-        Returns:
-            Optional[int]: The dimensionality (if any).
+        :return: The dimensionality (if any).
         """
         pass
 
     @property
     def dim(self) -> int | None:
         """Return the dimensionality of the vector index.
+        May return `None` if there are no vectors.
+        If a quantizer is used, the dimension before quantization (or after reconstruction) is returned.
 
-        May return None if there are no vectors.
-
-        If a quantizer is used, the dimension before quantization is returned.
-
-        Returns:
-            Optional[int]: The dimensionality (if any).
+        :return: The dimensionality (if any).
         """
         if self._quantizer is not None:
             return self._quantizer.dims[0]
@@ -177,8 +158,7 @@ class Index(abc.ABC):
     def doc_ids(self) -> set[str]:
         """Return all unique document IDs.
 
-        Returns:
-            Set[str]: The document IDs.
+        :return: The document IDs.
         """
         pass
 
@@ -187,17 +167,15 @@ class Index(abc.ABC):
     def psg_ids(self) -> set[str]:
         """Return all unique passage IDs.
 
-        Returns:
-            Set[str]: The passage IDs.
+        :return: The passage IDs.
         """
         pass
 
     @abc.abstractmethod
     def __len__(self) -> int:
-        """The number of vectors in the index.
+        """Return the index size.
 
-        Returns:
-            int: The index size.
+        :return: The number of vectors in the index.
         """
         pass
 
@@ -209,13 +187,11 @@ class Index(abc.ABC):
         psg_ids: IDSequence,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
-
         Document IDs may have duplicates, passage IDs are assumed to be unique. Vectors may be quantized.
 
-        Args:
-            vectors (np.ndarray): The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.
-            doc_ids (IDSequence): The corresponding document IDs.
-            psg_ids (IDSequence): The corresponding passage IDs.
+        :param vectors: The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.
+        :param doc_ids: The corresponding document IDs.
+        :param psg_ids: The corresponding passage IDs.
         """
         pass
 
@@ -226,23 +202,18 @@ class Index(abc.ABC):
         psg_ids: IDSequence | None = None,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
-
-        Only one of `doc_ids` and `psg_ids` may be None. Individual IDs in the sequence may also be None,
+        Only one of `doc_ids` and `psg_ids` may be `None`. Individual IDs in the sequence may also be `None`,
         but each vector must have at least one associated ID.
-
         Document IDs may have duplicates, passage IDs must be unique.
 
-        Args:
-            vectors (np.ndarray): The representations, shape `(num_vectors, dim)`.
-            doc_id (IDSequence, optional): The corresponding document IDs (may be duplicate). Defaults to None.
-            psg_id (IDSequence, optional): The corresponding passage IDs (must be unique). Defaults to None.
-
-        Raises:
-            ValueError: When there are no document IDs and no passage IDs.
-            ValueError: When the number of IDs does not match the number of vectors.
-            ValueError: When the input vector and index dimensionalities don't match.
-            ValueError: When a vector has neither a document nor a passage ID.
-            RuntimeError: When items can't be added to the index for any reason.
+        :param vectors: The representations, shape `(num_vectors, dim)`.
+        :param doc_ids: The corresponding document IDs (may be duplicate).
+        :param psg_ids: The corresponding passage IDs (must be unique).
+        :raises ValueError: When there are no document IDs and no passage IDs.
+        :raises ValueError: When the number of IDs does not match the number of vectors.
+        :raises ValueError: When the input vector and index dimensionalities don't match.
+        :raises ValueError: When a vector has neither a document nor a passage ID.
+        :raises RuntimeError: When items can't be added to the index for any reason.
         """
         if doc_ids is None and psg_ids is None:
             raise ValueError("At least one of doc_ids and psg_ids must be provided.")
@@ -281,11 +252,8 @@ class Index(abc.ABC):
         The output of this function depends on the current mode.
         If a quantizer is used, this function returns quantized vectors.
 
-        Args:
-            ids (Iterable[str]): The document/passage IDs to get the representations for.
-
-        Returns:
-            Tuple[np.ndarray, List[List[int]]]: The vectors and corresponding indices.
+        :param ids: The document/passage IDs to get the representations for.
+        :return: The vectors and corresponding indices.
         """
         pass
 
@@ -295,12 +263,9 @@ class Index(abc.ABC):
         """Computes scores for a data frame.
         The input data frame needs a "q_no" column with unique query numbers.
 
-        Args:
-            df (pd.DataFrame): Input data frame.
-            query_vectors (np.ndarray): All query vectors indexed by "q_no".
-
-        Returns:
-            pd.DataFrame: Data frame with computed scores.
+        :param data: Input data frame (or series).
+        :param query_vectors: All query vectors indexed by "q_no".
+        :return: Data frame with computed scores.
         """
         # map doc/passage IDs to unique numbers (0 to n)
         id_df = data[["id"]].drop_duplicates().reset_index(drop=True)
@@ -360,15 +325,12 @@ class Index(abc.ABC):
         """Compute scores with early stopping for a data frame.
         The input data frame needs a "q_no" column with unique query numbers.
 
-        Args:
-            df (pd.DataFrame): Input data frame.
-            query_vectors (np.ndarray): All query vectors indexed by "q_no".
-            cutoff (int): Cut-off depth for early stopping.
-            alpha (float): Interpolation parameter.
-            depths (Iterable[int]): Depths to compute scores at.
-
-        Returns:
-            pd.DataFrame: Data frame with computed scores.
+        :param df: Input data frame.
+        :param query_vectors: All query vectors indexed by "q_no".
+        :param cutoff: Cut-off depth for early stopping.
+        :param alpha: Interpolation parameter.
+        :param depths: Depths to compute scores at.
+        :return: Data frame with computed scores.
         """
         # data frame for computed scores
         scores_so_far = pd.DataFrame()
@@ -434,19 +396,14 @@ class Index(abc.ABC):
     ) -> Ranking:
         """Compute scores for a ranking.
 
-        Args:
-            ranking (Ranking): The ranking to compute scores for. Must have queries attached.
-            early_stopping (int, optional): Perform early stopping at this cut-off depth. Defaults to None.
-            early_stopping_alpha (float, optional): Interpolation parameter for early stopping. Defaults to None.
-            early_stopping_depths (Iterable[int], optional): Depths for early stopping. Defaults to None.
-            batch_size (int, optional): How many queries to process at once. Defaults to None.
-
-        Returns:
-            Ranking: Ranking with the computed scores.
-
-        Raises:
-            ValueError: When the ranking has no queries attached.
-            ValueError: When early stopping is enabled but arguments are missing.
+        :param ranking: The ranking to compute scores for. Must have queries attached.
+        :param early_stopping: Perform early stopping at this cut-off depth.
+        :param early_stopping_alpha: Interpolation parameter for early stopping.
+        :param early_stopping_depths: Depths for early stopping.
+        :param batch_size: How many queries to process at once.
+        :raises ValueError: When the ranking has no queries attached.
+        :raises ValueError: When early stopping is enabled but arguments are missing.
+        :return: Ranking with the computed scores.
         """
         if not ranking.has_queries:
             raise ValueError("Input ranking has no queries attached.")
@@ -514,15 +471,11 @@ class Index(abc.ABC):
         self, batch_size: int
     ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         """Iterate over the index in batches (internal method).
-
         If a quantizer is used, the vectors are the quantized codes.
-        When an ID does not exist, it must be set to None.
+        When an ID does not exist, it must be set to `None`.
 
-        Args:
-            batch_size (int): Batch size.
-
-        Yields:
-            Tuple[np.ndarray, IDSequence, IDSequence]: Vectors, document IDs, passage IDs in batches.
+        :param batch_size: The batch size.
+        :yield: Vectors, document IDs, passage IDs (in batches).
         """
         pass
 
@@ -530,13 +483,10 @@ class Index(abc.ABC):
         self, batch_size: int
     ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         """Iterate over all vectors, document IDs, and passage IDs in batches.
-        IDs may be either strings or None.
+        IDs may be either strings or `None`.
 
-        Args:
-            batch_size (int): Batch size.
-
-        Yields:
-            Tuple[np.ndarray, IDSequence, IDSequence]: Batches of vectors, document IDs (if any), passage IDs (if any).
+        :param batch_size: Batch size.
+        :yield: Batches of vectors, document IDs (if any), passage IDs (if any).
         """
         if self._quantizer is None:
             yield from self._batch_iter(batch_size)
@@ -550,8 +500,7 @@ class Index(abc.ABC):
     ) -> Iterator[tuple[np.ndarray, str | None, str | None]]:
         """Iterate over all vectors, document IDs, and passage IDs.
 
-        Yields:
-            Tuple[np.ndarray, Optional[str], Optional[str]]: Vector, document ID (if any), passage ID (if any).
+        :yield: Vector, document ID (if any), passage ID (if any).
         """
         for vectors, doc_ids, psg_ids in self.batch_iter(2**9):
             yield from zip(vectors, doc_ids, psg_ids)

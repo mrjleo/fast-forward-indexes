@@ -26,13 +26,12 @@ class InMemoryIndex(Index):
     ) -> None:
         """Create an index.
 
-        Args:
-            query_encoder (Encoder, optional): The query encoder to use. Defaults to None.
-            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
-            encoder_batch_size (int, optional): Query encoder batch size. Defaults to 32.
-            init_size (int, optional): Initial index size. Defaults to 2**14.
-            alloc_size (int, optional): Size of shard allocated when index is full. Defaults to 2**14.
+        :param query_encoder: The query encoder to use.
+        :param quantizer: The quantizer to use.
+        :param mode: The ranking mode.
+        :param encoder_batch_size: Batch size for the query encoder.
+        :param init_size: Initial index size. (number of vectors), defaults to 2**14
+        :param alloc_size: Size of shard (number of vectors) allocated when index is full.
         """
         self._shards = []
         self._init_size = init_size
@@ -134,11 +133,8 @@ class InMemoryIndex(Index):
         """Given an index in `[0, N]`, where `N` is the total number of vectors,
         compute the corresponding shard index and index within that shard.
 
-        Args:
-            idx (int): The input index.
-
-        Returns:
-            Tuple[int, int]: Shard index and index within that shard.
+        :param idx: The input index.
+        :return: Shard index and index within that shard.
         """
         # the first shard might be larger
         if idx < self._shards[0].shape[0]:

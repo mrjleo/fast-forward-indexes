@@ -39,21 +39,18 @@ class OnDiskIndex(Index):
     ) -> None:
         """Create an index.
 
-        Args:
-            index_file (Path): Index file to create (or overwrite).
-            query_encoder (Encoder, optional): Query encoder. Defaults to None.
-            quantizer (Quantizer, optional): The quantizer to use. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
-            encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
-            init_size (int, optional): Initial size to allocate (number of vectors). Defaults to 2**14.
-            resize_min_val (int, optional): Minimum number of vectors to increase index size by. Defaults to 2**10.
-            hdf5_chunk_size (int, optional): Override chunk size used by HDF5. Defaults to None.
-            max_id_length (int, optional): Maximum length of document and passage IDs (number of characters). Defaults to 8.
-            overwrite (bool, optional): Overwrite index file if it exists. Defaults to False.
-            max_indexing_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
-
-        Raises:
-            ValueError: When the file exists and `overwrite=False`.
+        :param index_file: The index file to create (or overwrite).
+        :param query_encoder: The query encoder.
+        :param quantizer: The quantizer to use.
+        :param mode: The ranking mode.
+        :param encoder_batch_size: Batch size for the query encoder.
+        :param init_size: Initial size to allocate (number of vectors).
+        :param resize_min_val: Minimum number of vectors to increase index size by.
+        :param hdf5_chunk_size: Override chunk size used by HDF5.
+        :param max_id_length: Maximum length of document and passage IDs (number of characters).
+        :param overwrite: Overwrite index file if it exists.
+        :param max_indexing_size: Maximum number of vectors to retrieve from the HDF5 dataset at once.
+        :raises ValueError: When the file exists and `overwrite=False`.
         """
         if index_file.exists() and not overwrite:
             raise ValueError(f"File {index_file} exists.")
@@ -100,10 +97,9 @@ class OnDiskIndex(Index):
     def _create_ds(self, fp: h5py.File, dim: int, dtype: np.dtype) -> None:
         """Create the HDF5 datasets for vectors and IDs.
 
-        Args:
-            fp (h5py.File): Index file (write permissions).
-            dim (int): Dimension of the vectors.
-            dtype (np.dtype): Type of the vectors.
+        :param fp: Index file (write permissions).
+        :param dim: Dimension of the vectors.
+        :param dtype: Type of the vectors.
         """
         fp.create_dataset(
             "vectors",
@@ -146,11 +142,8 @@ class OnDiskIndex(Index):
     def to_memory(self, batch_size=None) -> InMemoryIndex:
         """Load the index entirely into memory.
 
-        Args:
-            batch_size (int, optional): Use batches instead of adding all vectors at once. Defaults to None.
-
-        Returns:
-            InMemoryIndex: The loaded index.
+        :param batch_size: Use batches instead of adding all vectors at once.
+        :return: The loaded index.
         """
         index = InMemoryIndex(
             query_encoder=self._query_encoder,
@@ -309,16 +302,13 @@ class OnDiskIndex(Index):
     ) -> "OnDiskIndex":
         """Open an existing index on disk.
 
-        Args:
-            index_file (Path): Index file to open.
-            query_encoder (Encoder, optional): Query encoder. Defaults to None.
-            mode (Mode, optional): Ranking mode. Defaults to Mode.MAXP.
-            encoder_batch_size (int, optional): Batch size for query encoder. Defaults to 32.
-            resize_min_val (int, optional): Minimum value to increase index size by. Defaults to 2**10.
-            max_indexing_size (int, optional): Maximum number of vectors to retrieve from the HDF5 dataset at once. Defaults to 2**10.
-
-        Returns:
-            OnDiskIndex: The index.
+        :param index_file: The index file to open.
+        :param query_encoder: The query encoder.
+        :param mode: The ranking mode.
+        :param encoder_batch_size: Batch size for the query encoder.
+        :param resize_min_val: Minimum value to increase index size by.
+        :param max_indexing_size: Maximum number of vectors to retrieve from the HDF5 dataset at once.
+        :return: The index.
         """
         LOGGER.debug("reading file %s", index_file)
 
