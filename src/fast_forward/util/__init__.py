@@ -15,11 +15,8 @@ from fast_forward.ranking import Ranking
 def to_ir_measures(ranking: Ranking) -> pd.DataFrame:
     """Return a ranking as a data frame suitable for the ir-measures library.
 
-    Args:
-        ranking (Ranking): The input ranking.
-
-    Returns:
-        pd.DataFrame: The data frame.
+    :param ranking: The input ranking.
+    :return: The data frame.
     """
     return ranking._df[["q_id", "id", "score"]].rename(
         columns={"q_id": "query_id", "id": "doc_id"}
@@ -29,12 +26,9 @@ def to_ir_measures(ranking: Ranking) -> pd.DataFrame:
 def cos_dist(a: np.ndarray, b: np.ndarray) -> float:
     """Cosine distance of two vectors.
 
-    Args:
-        a (np.ndarray): First vector.
-        b (np.ndarray): Second vector.
-
-    Returns:
-        np.ndarray: Cosine distance.
+    :param a: First vector.
+    :param b: Second vector.
+    :return: Cosine distance.
     """
     assert len(a.shape) == len(b.shape) == 1
     return float(1 - np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
@@ -49,12 +43,11 @@ def create_coalesced_index(
 ) -> None:
     """Create a compressed index using sequential coalescing.
 
-    Args:
-        source_index (Index): The source index. Should contain multiple vectors for each document.
-        target_index (Index): The target index. Must be empty.
-        delta (float): The coalescing threshold.
-        distance_function (Callable[[np.ndarray, np.ndarray], float]): The distance function. Defaults to cos_dist.
-        batch_size (int, optional): Use batches instead of adding all vectors at the end. Defaults to None.
+    :param source_index: The source index. Should contain multiple vectors for each document.
+    :param target_index: The target index. Must be empty.
+    :param delta: The coalescing threshold.
+    :param distance_function: The distance function.
+    :param batch_size: Use batches instead of adding all vectors at the end.
     """
     assert len(target_index.doc_ids) == 0
     batch_size = batch_size or len(source_index.doc_ids)
