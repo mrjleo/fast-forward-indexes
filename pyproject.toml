@@ -42,3 +42,4 @@ log_cli_level = "DEBUG"
 
 [tool.pyright]
 include = ["src", "tests"]
+typeCheckingMode = "standard"
