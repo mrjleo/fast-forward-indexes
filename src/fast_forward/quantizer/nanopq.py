@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple
+from typing import Any
 
 import nanopq
 import numpy as np
@@ -34,7 +34,7 @@ class NanoPQ(Quantizer):
         return np.dtype(self._pq.code_dtype)
 
     @property
-    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+    def dims(self) -> tuple[int | None, int | None]:
         if self._pq.Ds is None:
             return None, self._pq.M
         return self._pq.Ds * self._pq.M, self._pq.M
@@ -45,7 +45,7 @@ class NanoPQ(Quantizer):
     def _decode(self, codes: np.ndarray) -> np.ndarray:
         return self._pq.decode(codes=codes)
 
-    def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
+    def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
         attributes, data = {}, {}
 
         for a in ("M", "Ks", "Ds", "metric", "verbose"):
@@ -104,7 +104,7 @@ class NanoOPQ(Quantizer):
         return np.dtype(self._opq.code_dtype)
 
     @property
-    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+    def dims(self) -> tuple[int | None, int | None]:
         if self._opq.pq.Ds is None:
             return None, self._opq.pq.M
         return self._opq.pq.Ds * self._opq.pq.M, self._opq.pq.M
@@ -115,7 +115,7 @@ class NanoOPQ(Quantizer):
     def _decode(self, codes: np.ndarray) -> np.ndarray:
         return self._opq.decode(codes=codes)
 
-    def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
+    def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
         attributes, data = {}, {}
 
         for a in ("M", "Ks", "Ds", "metric"):

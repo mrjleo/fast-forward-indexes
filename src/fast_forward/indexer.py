@@ -3,7 +3,7 @@
 """
 
 import logging
-from typing import Dict, Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 import numpy as np
 from tqdm import tqdm
@@ -142,7 +142,7 @@ class Indexer(object):
             result.append(self._encoder(batch))
         return np.concatenate(result)
 
-    def from_dicts(self, data: Iterable[Dict[str, str]]) -> None:
+    def from_dicts(self, data: Iterable[dict[str, str]]) -> None:
         """Index data from dictionaries.
 
         The dictionaries should have the key "text" and at least one of "doc_id" and "psg_id".

@@ -3,8 +3,9 @@
 """
 
 import abc
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any, Callable, Sequence
+from typing import Any
 
 import numpy as np
 import torch
