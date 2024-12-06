@@ -17,7 +17,7 @@ class FFScore(pt.Transformer):
         self._index = index
         super().__init__()
 
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
         """Compute the scores for all query-document pairs in the data frame.
         The previous scores are moved to the "score_0" column.
 
@@ -29,16 +29,16 @@ class FFScore(pt.Transformer):
         """
         ff_scores = self._index(
             Ranking(
-                df.rename(columns={"qid": "q_id", "docno": "id"}),
+                topics_or_res.rename(columns={"qid": "q_id", "docno": "id"}),
                 copy=False,
                 is_sorted=True,
             )
         )._df.rename(columns={"q_id": "qid", "id": "docno"})
 
-        return df[["qid", "docno", "score"]].merge(
+        return topics_or_res[["qid", "docno", "score"]].merge(
             ff_scores[["qid", "docno", "score", "query"]],
             on=["qid", "docno"],
-            suffixes=["_0", None],
+            suffixes=("_0", None),
         )
 
     def __repr__(self) -> str:
@@ -64,7 +64,7 @@ class FFInterpolate(pt.Transformer):
         self.alpha = alpha
         super().__init__()
 
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
         """Interpolate the scores for all query-document pairs in the data frame as
         `alpha * score_0 + (1 - alpha) * score`.
 
@@ -74,6 +74,9 @@ class FFInterpolate(pt.Transformer):
         Returns:
             pd.DataFrame: A new data frame with the interpolated scores.
         """
-        new_df = df[["qid", "docno", "query"]].copy()
-        new_df["score"] = self.alpha * df["score_0"] + (1 - self.alpha) * df["score"]
+        new_df = topics_or_res[["qid", "docno", "query"]].copy()
+        new_df["score"] = (
+            self.alpha * topics_or_res["score_0"]
+            + (1 - self.alpha) * topics_or_res["score"]
+        )
         return new_df

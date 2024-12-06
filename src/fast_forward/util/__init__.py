@@ -2,13 +2,13 @@
 .. include:: ../docs/util.md
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from fast_forward.index import Index, Mode
+from fast_forward.index import Index
 from fast_forward.ranking import Ranking
 
 
@@ -26,7 +26,7 @@ def to_ir_measures(ranking: Ranking) -> pd.DataFrame:
     )
 
 
-def cos_dist(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+def cos_dist(a: np.ndarray, b: np.ndarray) -> float:
     """Cosine distance of two vectors.
 
     Args:
@@ -36,7 +36,8 @@ def cos_dist(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Cosine distance.
     """
-    return 1 - np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    assert len(a.shape) == len(b.shape) == 1
+    return float(1 - np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
 
 
 def create_coalesced_index(
@@ -44,7 +45,7 @@ def create_coalesced_index(
     target_index: Index,
     delta: float,
     distance_function: Callable[[np.ndarray, np.ndarray], float] = cos_dist,
-    batch_size: int = None,
+    batch_size: int | None = None,
 ) -> None:
     """Create a compressed index using sequential coalescing.
 
@@ -57,12 +58,11 @@ def create_coalesced_index(
     """
     assert len(target_index.doc_ids) == 0
     batch_size = batch_size or len(source_index.doc_ids)
-    source_index.mode = Mode.MAXP
 
     def _coalesce(P):
         P_new = []
         A = []
-        A_avg = None
+        A_avg = np.empty(())
         first_iteration = True
         for v in P:
             if first_iteration:
@@ -77,7 +77,6 @@ def create_coalesced_index(
 
     vectors, doc_ids = [], []
     for doc_id in tqdm(source_index.doc_ids):
-
         # check if batch is full
         if len(vectors) == batch_size:
             target_index.add(np.array(vectors), doc_ids=doc_ids)
