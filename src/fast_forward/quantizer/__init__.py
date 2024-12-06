@@ -5,15 +5,16 @@
 import abc
 import importlib
 import logging
-from typing import Any, Dict, Optional, Tuple, Union
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
 LOGGER = logging.getLogger(__name__)
 
 
-QuantizerAttributes = Dict[str, Union[str, bool, int, float]]
-QuantizerData = Dict[str, np.ndarray]
+QuantizerAttributes = Mapping[str, str | bool | float]
+QuantizerData = Mapping[str, np.ndarray]
 
 
 class Quantizer(abc.ABC):
@@ -98,7 +99,7 @@ class Quantizer(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+    def dims(self) -> tuple[int | None, int | None]:
         """The dimensions before and after quantization.
 
         May return None values before the quantizer is trained.
@@ -159,7 +160,7 @@ class Quantizer(abc.ABC):
         return self._decode(codes)
 
     @abc.abstractmethod
-    def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
+    def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
         """Return key-value pairs that represent the state of the quantizer (internal method).
 
         This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).
@@ -171,7 +172,7 @@ class Quantizer(abc.ABC):
 
     def serialize(
         self,
-    ) -> Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]:
+    ) -> tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]:
         """Return a serialized representation of the quantizer that can be stored in the index.
 
         Returns:
@@ -219,8 +220,8 @@ class Quantizer(abc.ABC):
             Quantizer: The loaded quantizer.
         """
         LOGGER.debug("reconstructing %s.%s", meta["__module__"], meta["__name__"])
-        quantizer_mod = importlib.import_module(meta["__module__"])
-        quantizer_cls = getattr(quantizer_mod, meta["__name__"])
+        quantizer_mod = importlib.import_module(str(meta["__module__"]))
+        quantizer_cls = getattr(quantizer_mod, str(meta["__name__"]))
         quantizer = quantizer_cls._from_state(attributes, data)
         quantizer._trained = meta["_trained"]
         return quantizer

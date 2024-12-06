@@ -31,7 +31,7 @@ class NanoPQ(Quantizer):
 
     @property
     def dtype(self) -> np.dtype:
-        return self._pq.code_dtype
+        return np.dtype(self._pq.code_dtype)
 
     @property
     def dims(self) -> Tuple[Optional[int], Optional[int]]:
@@ -64,13 +64,13 @@ class NanoPQ(Quantizer):
         cls, attributes: QuantizerAttributes, data: QuantizerData
     ) -> "NanoPQ":
         quantizer = cls(
-            M=attributes["M"],
-            Ks=attributes["Ks"],
-            metric=attributes["metric"],
-            verbose=attributes["verbose"],
+            M=int(attributes["M"]),
+            Ks=int(attributes["Ks"]),
+            metric=str(attributes["metric"]),
+            verbose=bool(attributes["verbose"]),
         )
-        if "Ds" in attributes:
-            quantizer._pq.Ds = attributes["Ds"]
+        if attributes.get("Ds") is not None:
+            quantizer._pq.Ds = int(attributes["Ds"])
         if "codewords" in data:
             quantizer._pq.codewords = data["codewords"]
         return quantizer
@@ -101,7 +101,7 @@ class NanoOPQ(Quantizer):
 
     @property
     def dtype(self) -> np.dtype:
-        return self._opq.code_dtype
+        return np.dtype(self._opq.code_dtype)
 
     @property
     def dims(self) -> Tuple[Optional[int], Optional[int]]:
@@ -139,13 +139,13 @@ class NanoOPQ(Quantizer):
         cls, attributes: QuantizerAttributes, data: QuantizerData
     ) -> "NanoOPQ":
         quantizer = cls(
-            M=attributes["M"],
-            Ks=attributes["Ks"],
-            metric=attributes["metric"],
-            verbose=attributes["verbose"],
+            M=int(attributes["M"]),
+            Ks=int(attributes["Ks"]),
+            metric=str(attributes["metric"]),
+            verbose=bool(attributes["verbose"]),
         )
-        if "Ds" in attributes:
-            quantizer._opq.pq.Ds = attributes["Ds"]
+        if attributes.get("Ds") is not None:
+            quantizer._opq.pq.Ds = int(attributes["Ds"])
         if "codewords" in data:
             quantizer._opq.pq.codewords = data["codewords"]
         if "R" in data:

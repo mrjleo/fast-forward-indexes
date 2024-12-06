@@ -4,7 +4,7 @@
 
 import abc
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Any, Callable, Sequence
 
 import numpy as np
 import torch
@@ -31,7 +31,7 @@ class TransformerEncoder(Encoder):
     """Uses a pre-trained transformer model for encoding. Returns the pooler output."""
 
     def __init__(
-        self, model: str | Path, device: str = "cpu", **tokenizer_args
+        self, model: str | Path, device: str = "cpu", **tokenizer_args: Any
     ) -> None:
         """Create a transformer encoder.
 
