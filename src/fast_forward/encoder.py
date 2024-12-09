@@ -14,13 +14,16 @@ class Encoder(abc.ABC):
     """Base class for encoders."""
 
     @abc.abstractmethod
+    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+        pass
+
     def __call__(self, texts: Sequence[str]) -> np.ndarray:
         """Encode a list of texts.
 
         :param texts: The texts to encode.
         :return: The resulting vector representations.
         """
-        pass
+        return self._encode(texts)
 
 
 class TransformerEncoder(Encoder):
@@ -43,7 +46,7 @@ class TransformerEncoder(Encoder):
         self.device = device
         self.tokenizer_args = tokenizer_args
 
-    def __call__(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: Sequence[str]) -> np.ndarray:
         inputs = self.tokenizer(list(texts), return_tensors="pt", **self.tokenizer_args)
         inputs.to(self.device)
         with torch.no_grad():
@@ -61,7 +64,7 @@ class LambdaEncoder(Encoder):
         super().__init__()
         self._f = f
 
-    def __call__(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: Sequence[str]) -> np.ndarray:
         return np.array(list(map(self._f, texts)))
 
 
@@ -72,10 +75,10 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72
     """
 
-    def __call__(self, queries: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: Sequence[str]) -> np.ndarray:
         max_length = 36
         inputs = self.tokenizer(
-            ["[CLS] [Q] " + q + "[MASK]" * max_length for q in queries],
+            ["[CLS] [Q] " + q + "[MASK]" * max_length for q in texts],
             max_length=max_length,
             truncation=True,
             add_special_tokens=False,
@@ -95,7 +98,7 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27
     """
 
-    def __call__(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: Sequence[str]) -> np.ndarray:
         max_length = 512
         inputs = self.tokenizer(
             ["[CLS] [D] " + text for text in texts],

@@ -47,7 +47,7 @@ class InMemoryIndex(Index):
             encoder_batch_size=encoder_batch_size,
         )
 
-    def __len__(self) -> int:
+    def _get_num_vectors(self) -> int:
         # account for the fact that the first shard might be larger
         if len(self._shards) < 2:
             return self._idx_in_cur_shard
@@ -121,12 +121,10 @@ class InMemoryIndex(Index):
         ]
         self._idx_in_cur_shard = self._shards[0].shape[0]
 
-    @property
-    def doc_ids(self) -> set[str]:
+    def _get_doc_ids(self) -> set[str]:
         return set(self._doc_id_to_idx.keys())
 
-    @property
-    def psg_ids(self) -> set[str]:
+    def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
     def _index_shards(self, idx: int) -> tuple[int, int]:

@@ -77,17 +77,15 @@ class OnDiskIndex(Index):
             encoder_batch_size=encoder_batch_size,
         )
 
-    @Index.quantizer.setter
-    def quantizer(self, quantizer: Quantizer) -> None:
-        # call the setter of the super class
-        Index.quantizer.fset(self, quantizer)  # pyright: ignore[reportOptionalCall]
+    def _on_quantizer_set(self) -> None:
+        assert self.quantizer is not None
 
         # serialize the quantizer and store it on disk
         with h5py.File(self._index_file, "a") as fp:
             if "quantizer" in fp:
                 del fp["quantizer"]
 
-            meta, attributes, data = quantizer.serialize()
+            meta, attributes, data = self.quantizer.serialize()
             fp.create_group("quantizer/meta").attrs.update(meta)
             fp.create_group("quantizer/attributes").attrs.update(attributes)
             data_group = fp.create_group("quantizer/data")
@@ -129,7 +127,7 @@ class OnDiskIndex(Index):
             ),
         )
 
-    def __len__(self) -> int:
+    def _get_num_vectors(self) -> int:
         with h5py.File(self._index_file, "r") as fp:
             return fp.attrs["num_vectors"]  # pyright: ignore[reportReturnType]
 
@@ -231,12 +229,10 @@ class OnDiskIndex(Index):
             fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors  # pyright: ignore[reportIndexIssue]
             fp.attrs["num_vectors"] += num_new_vecs  # pyright: ignore[reportOperatorIssue]
 
-    @property
-    def doc_ids(self) -> set[str]:
+    def _get_doc_ids(self) -> set[str]:
         return set(self._doc_id_to_idx.keys())
 
-    @property
-    def psg_ids(self) -> set[str]:
+    def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
     def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:

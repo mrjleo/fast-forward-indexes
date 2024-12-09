@@ -28,12 +28,10 @@ class NanoPQ(Quantizer):
     def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         self._pq.fit(vecs=vectors, **kwargs)
 
-    @property
-    def dtype(self) -> np.dtype:
+    def _get_dtype(self) -> np.dtype:
         return np.dtype(self._pq.code_dtype)
 
-    @property
-    def dims(self) -> tuple[int | None, int | None]:
+    def _get_dims(self) -> tuple[int | None, int | None]:
         if self._pq.Ds is None:
             return None, self._pq.M
         return self._pq.Ds * self._pq.M, self._pq.M
@@ -97,12 +95,10 @@ class NanoOPQ(Quantizer):
     def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         self._opq.fit(vecs=vectors, **kwargs)
 
-    @property
-    def dtype(self) -> np.dtype:
+    def _get_dtype(self) -> np.dtype:
         return np.dtype(self._opq.code_dtype)
 
-    @property
-    def dims(self) -> tuple[int | None, int | None]:
+    def _get_dims(self) -> tuple[int | None, int | None]:
         if self._opq.pq.Ds is None:
             return None, self._opq.pq.M
         return self._opq.pq.Ds * self._opq.pq.M, self._opq.pq.M

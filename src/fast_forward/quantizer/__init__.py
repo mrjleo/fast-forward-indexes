@@ -58,11 +58,6 @@ class Quantizer(abc.ABC):
 
     @abc.abstractmethod
     def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
-        """Fit the quantizer (internal method).
-
-        :param vectors: The training vectors.
-        :param **kwargs: Arguments specific to the quantizer.
-        """
         pass
 
     def fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
@@ -81,17 +76,23 @@ class Quantizer(abc.ABC):
         self._fit(vectors, **kwargs)
         self._trained = True
 
-    @property
     @abc.abstractmethod
+    def _get_dtype(self) -> np.dtype:
+        pass
+
+    @property
     def dtype(self) -> np.dtype:
         """The data type of the codes produced by this quantizer.
 
         :return: The data type of the codes.
         """
+        return self._get_dtype()
+
+    @abc.abstractmethod
+    def _get_dims(self) -> tuple[int | None, int | None]:
         pass
 
     @property
-    @abc.abstractmethod
     def dims(self) -> tuple[int | None, int | None]:
         """The dimensions before and after quantization.
 
@@ -99,15 +100,10 @@ class Quantizer(abc.ABC):
 
         :return: Dimension of the original vectors and dimension of the codes.
         """
-        pass
+        return self._get_dims()
 
     @abc.abstractmethod
     def _encode(self, vectors: np.ndarray) -> np.ndarray:
-        """Encode vectors (internal method).
-
-        :param vectors: The vectors to be encoded.
-        :return: The codes corresponding to the vectors.
-        """
         pass
 
     def encode(self, vectors: np.ndarray) -> np.ndarray:
@@ -122,11 +118,6 @@ class Quantizer(abc.ABC):
 
     @abc.abstractmethod
     def _decode(self, codes: np.ndarray) -> np.ndarray:
-        """Reconstruct vectors (internal method).
-
-        :param codes: The codes to be decoded.
-        :return: The reconstructed vectors.
-        """
         pass
 
     def decode(self, codes: np.ndarray) -> np.ndarray:
@@ -142,7 +133,7 @@ class Quantizer(abc.ABC):
 
     @abc.abstractmethod
     def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
-        """Return key-value pairs that represent the state of the quantizer (internal method).
+        """Return key-value pairs that represent the state of the quantizer (specific to quantizer implementation).
 
         This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).
 

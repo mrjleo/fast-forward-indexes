@@ -99,6 +99,10 @@ class Index(abc.ABC):
         """
         return self._quantizer
 
+    def _on_quantizer_set(self) -> None:
+        """Handle a quantizer being attached to this index."""
+        pass
+
     @quantizer.setter
     def quantizer(self, quantizer: Quantizer) -> None:
         """Set the quantizer. This is only possible before any vectors are added to the index.
@@ -111,6 +115,7 @@ class Index(abc.ABC):
         if len(self) > 0:
             raise RuntimeError("Quantizers can only be attached to empty indexes.")
         self._quantizer = quantizer
+        self._on_quantizer_set()
         quantizer.set_attached()
 
     @property
@@ -132,20 +137,13 @@ class Index(abc.ABC):
 
     @abc.abstractmethod
     def _get_internal_dim(self) -> int | None:
-        """Return the dimensionality of the vectors (or codes) in the index (internal method).
-
-        If no vectors exist, return `None`. If a quantizer is used, return the dimension of the codes.
-
-        :return: The dimensionality (if any).
-        """
         pass
 
     @property
     def dim(self) -> int | None:
         """Return the dimensionality of the vector index.
 
-        May return `None` if there are no vectors.
-        If a quantizer is used, the dimension before quantization (or after reconstruction) is returned.
+        If no vectors exist, return `None`. If a quantizer is used, return the dimension of the codes.
 
         :return: The dimensionality (if any).
         """
@@ -153,31 +151,40 @@ class Index(abc.ABC):
             return self._quantizer.dims[0]
         return self._get_internal_dim()
 
-    @property
     @abc.abstractmethod
+    def _get_doc_ids(self) -> set[str]:
+        pass
+
+    @property
     def doc_ids(self) -> set[str]:
         """Return all unique document IDs.
 
         :return: The document IDs.
         """
+        return self._get_doc_ids()
+
+    @abc.abstractmethod
+    def _get_psg_ids(self) -> set[str]:
         pass
 
     @property
-    @abc.abstractmethod
     def psg_ids(self) -> set[str]:
         """Return all unique passage IDs.
 
         :return: The passage IDs.
         """
-        pass
+        return self._get_psg_ids()
 
     @abc.abstractmethod
+    def _get_num_vectors(self) -> int:
+        pass
+
     def __len__(self) -> int:
         """Return the index size.
 
         :return: The number of vectors in the index.
         """
-        pass
+        return self._get_num_vectors()
 
     @abc.abstractmethod
     def _add(
@@ -186,7 +193,7 @@ class Index(abc.ABC):
         doc_ids: IDSequence,
         psg_ids: IDSequence,
     ) -> None:
-        """Add vector representations and corresponding IDs to the index.
+        """Add vector representations and corresponding IDs to the index (specific to index implementation).
 
         Document IDs may have duplicates, passage IDs are assumed to be unique. Vectors may be quantized.
 
@@ -246,7 +253,7 @@ class Index(abc.ABC):
 
     @abc.abstractmethod
     def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
-        """Get vectors and corresponding IDs from the index.
+        """Get vectors and corresponding IDs from the index (specific to index implementation).
 
         Returns a tuple containing:
             * A single array containing all vectors necessary to compute the scores for each document/passage.
@@ -476,7 +483,7 @@ class Index(abc.ABC):
     def _batch_iter(
         self, batch_size: int
     ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
-        """Iterate over the index in batches (internal method).
+        """Iterate over the index in batches (specific to index implementation).
 
         If a quantizer is used, the vectors are the quantized codes.
         When an ID does not exist, it must be set to `None`.
