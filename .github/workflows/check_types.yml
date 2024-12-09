@@ -1,0 +1,26 @@
+name: Run type checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  run_type_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out ${{ github.ref_name }}
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.6"
+      - name: Install packages
+        run: uv sync --all-extras --dev
+      - name: Run pyright
+        run: uv run pyright
