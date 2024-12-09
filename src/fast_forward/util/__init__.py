@@ -48,9 +48,10 @@ def create_coalesced_index(
     :param delta: The coalescing threshold.
     :param distance_function: The distance function.
     :param batch_size: Use batches instead of adding all vectors at the end.
+    :raises ValueError: When the target index is not empty.
     """
-    assert len(target_index.doc_ids) == 0
-    batch_size = batch_size or len(source_index.doc_ids)
+    if len(target_index) > 0:
+        raise ValueError("Target index is not empty.")
 
     def _coalesce(P):
         P_new = []
@@ -68,6 +69,7 @@ def create_coalesced_index(
         P_new.append(A_avg)
         return P_new
 
+    batch_size = batch_size or len(source_index.doc_ids)
     vectors, doc_ids = [], []
     for doc_id in tqdm(source_index.doc_ids):
         # check if batch is full
@@ -79,7 +81,6 @@ def create_coalesced_index(
         v_new = _coalesce(v_old)
         vectors.extend(v_new)
         doc_ids.extend([doc_id] * len(v_new))
-
     if len(vectors) > 0:
         target_index.add(np.array(vectors), doc_ids=doc_ids)
 

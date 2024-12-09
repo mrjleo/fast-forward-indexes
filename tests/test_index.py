@@ -352,6 +352,10 @@ class TestIndex(unittest.TestCase):
             for v1, v2 in zip(vectors_1, vectors_2):
                 self.assertTrue(np.array_equal(v1, v2))
 
+        # target index is not empty anymore
+        with self.assertRaises(ValueError):
+            create_coalesced_index(self.doc_index, self.coalesced_indexes[0], 0.3)
+
     def test_iter(self):
         for index in self.iter_indexes:
             index.add(DUMMY_VECTORS, doc_ids=DUMMY_DOC_IDS, psg_ids=DUMMY_PSG_IDS)
