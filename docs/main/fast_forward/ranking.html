@@ -53,10 +53,10 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="variable" href="#Run">Run</a>
+                    <a class="variable" href="#LOGGER">LOGGER</a>
             </li>
             <li>
-                    <a class="variable" href="#LOGGER">LOGGER</a>
+                    <a class="variable" href="#Run">Run</a>
             </li>
             <li>
                     <a class="class" href="#Ranking">Ranking</a>
@@ -199,9 +199,9 @@
 </span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="n">Run</span> <span class="o">=</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="n">LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="n">Run</span> <span class="o">=</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="k">def</span> <span class="nf">_attach_queries</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -578,18 +578,6 @@
 
 
             </section>
-                <section id="Run">
-                    <div class="attr variable">
-            <span class="name">Run</span>        =
-<span class="default_value">collections.abc.Mapping[str, collections.abc.Mapping[str, float]]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Run"></a>
-    
-    
-
-                </section>
                 <section id="LOGGER">
                     <div class="attr variable">
             <span class="name">LOGGER</span>        =
@@ -598,6 +586,18 @@
         
     </div>
     <a class="headerlink" href="#LOGGER"></a>
+    
+    
+
+                </section>
+                <section id="Run">
+                    <div class="attr variable">
+            <span class="name">Run</span>        =
+<span class="default_value">collections.abc.Mapping[str, collections.abc.Mapping[str, float]]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Run"></a>
     
     
 
