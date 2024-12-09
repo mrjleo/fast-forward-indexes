@@ -4,7 +4,7 @@
 
 import logging
 from collections.abc import Iterable, Sequence
-from typing import NotRequired, TypedDict
+from typing import TypedDict
 
 import numpy as np
 from tqdm import tqdm
@@ -17,7 +17,7 @@ LOGGER = logging.getLogger(__name__)
 
 IndexingDict = TypedDict(
     "IndexingDict",
-    {"text": str, "doc_id": NotRequired[str], "psg_id": NotRequired[str]},
+    {"text": str, "doc_id": str | None, "psg_id": str | None},
 )
 
 
@@ -142,7 +142,6 @@ class Indexer(object):
 
     def from_dicts(self, data: Iterable[IndexingDict]) -> None:
         """Index data from dictionaries.
-        The dictionaries should have the key "text" and at least one of "doc_id" and "psg_id".
 
         :param data: An iterable of the dictionaries.
         """
