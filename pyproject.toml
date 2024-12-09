@@ -34,7 +34,12 @@ Repository = "https://github.com/mrjleo/fast-forward-indexes"
 Documentation = "https://mrjleo.github.io/fast-forward-indexes/docs/"
 
 [dependency-groups]
-dev = ["pdoc>=15.0.0", "pyright>=1.1.390", "pytest>=8.0.0"]
+dev = [
+    "pandas-stubs>=2.2.3.241126",
+    "pdoc>=15.0.0",
+    "pyright>=1.1.390",
+    "pytest>=8.0.0",
+]
 
 [tool.pytest.ini_options]
 log_cli = true
