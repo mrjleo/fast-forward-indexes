@@ -53,7 +53,7 @@ def create_coalesced_index(
     if len(target_index) > 0:
         raise ValueError("Target index is not empty.")
 
-    def _coalesce(P: np.ndarray):
+    def _coalesce(P: np.ndarray) -> list[np.ndarray]:
         P_new = []
         A = []
         A_avg = np.empty(())

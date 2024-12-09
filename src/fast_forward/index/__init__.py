@@ -304,7 +304,7 @@ class Index(abc.ABC):
         else:
             op = itemgetter(0)
 
-        def _mapfunc(i: int):
+        def _mapfunc(i: int) -> float:
             scores_i = select_scores[i]
             if len(scores_i) == 0:
                 return np.nan
@@ -426,7 +426,7 @@ class Index(abc.ABC):
         # batch encode queries
         query_vectors = self.encode_queries(list(query_df["query"]))
 
-        def _get_result(df: pd.DataFrame):
+        def _get_result(df: pd.DataFrame) -> pd.DataFrame:
             if early_stopping is None:
                 return self._compute_scores(df, query_vectors)
 

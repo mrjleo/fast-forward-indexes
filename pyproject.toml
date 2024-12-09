@@ -51,3 +51,18 @@ ignore = ["tests"]
 typeCheckingMode = "standard"
 useLibraryCodeForTypes = true
 reportMissingParameterType = true
+
+[tool.ruff]
+include = ["pyproject.toml", "src/**/*.py"]
+
+[tool.ruff.lint]
+select = [
+    "E4",  # pycodestyle
+    "E7",  # pycodestyle
+    "E9",  # pycodestyle
+    "F",   # Pyflakes
+    "ANN", # flake8
+]
+ignore = [
+    "ANN401", # any-type
+]
