@@ -50,3 +50,4 @@ include = ["src"]
 ignore = ["tests"]
 typeCheckingMode = "standard"
 useLibraryCodeForTypes = true
+reportMissingParameterType = true

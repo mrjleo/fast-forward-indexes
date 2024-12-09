@@ -139,7 +139,7 @@ class OnDiskIndex(Index):
                 return fp["vectors"].shape[1]  # pyright: ignore[reportAttributeAccessIssue]
         return None
 
-    def to_memory(self, batch_size=None) -> InMemoryIndex:
+    def to_memory(self, batch_size: int | None = None) -> InMemoryIndex:
         """Load the index entirely into memory.
 
         :param batch_size: Use batches instead of adding all vectors at once.
