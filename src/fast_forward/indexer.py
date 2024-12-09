@@ -4,6 +4,7 @@
 
 import logging
 from collections.abc import Iterable, Sequence
+from typing import NotRequired, TypedDict
 
 import numpy as np
 from tqdm import tqdm
@@ -13,6 +14,11 @@ from fast_forward.index import IDSequence, Index
 from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
+
+IndexingDict = TypedDict(
+    "IndexingDict",
+    {"text": str, "doc_id": NotRequired[str], "psg_id": NotRequired[str]},
+)
 
 
 class Indexer(object):
@@ -134,7 +140,7 @@ class Indexer(object):
             result.append(self._encoder(batch))
         return np.concatenate(result)
 
-    def from_dicts(self, data: Iterable[dict[str, str]]) -> None:
+    def from_dicts(self, data: Iterable[IndexingDict]) -> None:
         """Index data from dictionaries.
         The dictionaries should have the key "text" and at least one of "doc_id" and "psg_id".
 

@@ -9,9 +9,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-Run = Mapping[str, Mapping[str, float]]
-
 LOGGER = logging.getLogger(__name__)
+
+Run = Mapping[str, Mapping[str, float]]
 
 
 def _attach_queries(df: pd.DataFrame, queries: Mapping[str, str]) -> pd.DataFrame:
