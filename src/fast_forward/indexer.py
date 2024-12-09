@@ -1,6 +1,4 @@
-"""
-.. include:: docs/indexer.md
-"""
+""".. include:: docs/indexer.md"""  # noqa: D400, D415
 
 import logging
 from collections.abc import Iterable, Sequence
@@ -160,6 +158,7 @@ class Indexer(object):
 
     def from_index(self, index: Index) -> None:
         """Transfer vectors and IDs from another index.
+
         If the source index uses quantized representations, the vectors are reconstructed first.
 
         :param index: The source index.

@@ -1,6 +1,4 @@
-"""
-.. include:: docs/encoder.md
-"""
+""".. include:: docs/encoder.md"""  # noqa: D400, D415
 
 import abc
 from collections.abc import Callable, Sequence

@@ -1,6 +1,4 @@
-"""
-.. include:: docs/main.md
-"""
+""".. include:: docs/main.md"""  # noqa: D400, D415
 
 import importlib.metadata
 

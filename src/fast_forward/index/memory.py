@@ -130,8 +130,9 @@ class InMemoryIndex(Index):
         return set(self._psg_id_to_idx.keys())
 
     def _index_shards(self, idx: int) -> tuple[int, int]:
-        """Given an index in `[0, N]`, where `N` is the total number of vectors,
-        compute the corresponding shard index and index within that shard.
+        """Given an index, compute the shard index and index within that shard.
+
+        The input index may be in `[0, N]`, where `N` is the total number of vectors.
 
         :param idx: The input index.
         :return: Shard index and index within that shard.

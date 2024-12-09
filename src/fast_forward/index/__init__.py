@@ -1,6 +1,4 @@
-"""
-.. include:: ../docs/index.md
-"""
+""".. include:: ../docs/index.md"""  # noqa: D400, D415
 
 import abc
 import logging
@@ -135,6 +133,7 @@ class Index(abc.ABC):
     @abc.abstractmethod
     def _get_internal_dim(self) -> int | None:
         """Return the dimensionality of the vectors (or codes) in the index (internal method).
+
         If no vectors exist, return `None`. If a quantizer is used, return the dimension of the codes.
 
         :return: The dimensionality (if any).
@@ -144,6 +143,7 @@ class Index(abc.ABC):
     @property
     def dim(self) -> int | None:
         """Return the dimensionality of the vector index.
+
         May return `None` if there are no vectors.
         If a quantizer is used, the dimension before quantization (or after reconstruction) is returned.
 
@@ -187,6 +187,7 @@ class Index(abc.ABC):
         psg_ids: IDSequence,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
+
         Document IDs may have duplicates, passage IDs are assumed to be unique. Vectors may be quantized.
 
         :param vectors: The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.
@@ -202,6 +203,7 @@ class Index(abc.ABC):
         psg_ids: IDSequence | None = None,
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
+
         Only one of `doc_ids` and `psg_ids` may be `None`. Individual IDs in the sequence may also be `None`,
         but each vector must have at least one associated ID.
         Document IDs may have duplicates, passage IDs must be unique.
@@ -244,7 +246,9 @@ class Index(abc.ABC):
 
     @abc.abstractmethod
     def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
-        """Return:
+        """Get vectors and corresponding IDs from the index.
+
+        Returns a tuple containing:
             * A single array containing all vectors necessary to compute the scores for each document/passage.
             * For each document/passage (in the same order as the IDs), a list of integers (depending on the mode).
 
@@ -260,7 +264,8 @@ class Index(abc.ABC):
     def _compute_scores(
         self, data: pd.DataFrame | pd.Series, query_vectors: np.ndarray
     ) -> pd.DataFrame:
-        """Computes scores for a data frame.
+        """Compute scores for a data frame.
+
         The input data frame needs a "q_no" column with unique query numbers.
 
         :param data: Input data frame (or series).
@@ -323,6 +328,7 @@ class Index(abc.ABC):
         depths: Iterable[int],
     ) -> pd.DataFrame:
         """Compute scores with early stopping for a data frame.
+
         The input data frame needs a "q_no" column with unique query numbers.
 
         :param df: Input data frame.
@@ -471,6 +477,7 @@ class Index(abc.ABC):
         self, batch_size: int
     ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         """Iterate over the index in batches (internal method).
+
         If a quantizer is used, the vectors are the quantized codes.
         When an ID does not exist, it must be set to `None`.
 
@@ -483,6 +490,7 @@ class Index(abc.ABC):
         self, batch_size: int
     ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
         """Iterate over all vectors, document IDs, and passage IDs in batches.
+
         IDs may be either strings or `None`.
 
         :param batch_size: Batch size.

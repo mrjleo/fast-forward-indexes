@@ -1,6 +1,4 @@
-"""
-.. include:: docs/ranking.md
-"""
+""".. include:: docs/ranking.md"""  # noqa: D400, D415
 
 import logging
 from collections.abc import Iterator, Mapping
@@ -30,8 +28,9 @@ def _attach_queries(df: pd.DataFrame, queries: Mapping[str, str]) -> pd.DataFram
 
 
 def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
-    """Add a new column ("rank") to a data frame that contains ranks of documents w.r.t. the queries
-    (based on the document scores). Ranks start from `1`.
+    """Add a new column ("rank") to a data frame.
+
+    The new column contains ranks of documents w.r.t. the queries (based on the document scores). Ranks start from `1`.
 
     :param df: The data frame to add the column to.
     :return: The data frame with the new column added.
@@ -43,6 +42,7 @@ def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
 
 def _minmax_normalize_scores(df: pd.DataFrame) -> pd.DataFrame:
     """Return a copy of a data frame with normalized scores (min-max).
+
     If all scores are equal, they are set to `0`.
 
     :param df: The input data frame.
@@ -169,7 +169,8 @@ class Ranking(object):
         return df1[cols].equals(df2[cols])
 
     def __add__(self, o: "Ranking | float") -> "Ranking":
-        """Add either a constant or the corresponding scores of another ranking to this ranking's scores.
+        """Add a constant or the corresponding scores of another ranking to this ranking's scores.
+
         Missing scores in either ranking are treated as zero.
 
         :param o: A ranking or a constant.
@@ -245,6 +246,7 @@ class Ranking(object):
 
     def normalize(self) -> "Ranking":
         """Normalize the scores (min-max) to be in `[0, 1]`.
+
         If all scores are equal, they are set to `0`.
 
         :return: A ranking with normalized scores.
@@ -278,6 +280,7 @@ class Ranking(object):
         normalize: bool = False,
     ) -> "Ranking":
         """Interpolate as `score = self.score * alpha + other.score * (1 - alpha)`.
+
         Missing scores in either ranking are treated as zero.
 
         :param other: Ranking to interpolate with.
@@ -306,8 +309,11 @@ class Ranking(object):
         )
 
     def rr_scores(self, k: int = 60) -> "Ranking":
-        """Re-score documents/passages using reciprocal rank (as used by [RRF](https://dl.acm.org/doi/10.1145/1571941.1572114)).
+        """Re-score documents/passages using reciprocal rank.
+
         A score is computed as `1 / (rank + k)`.
+
+        Used by [RRF](https://dl.acm.org/doi/10.1145/1571941.1572114).
 
         :param k: RR scoring parameter.
         :return: A  ranking with RR scores.

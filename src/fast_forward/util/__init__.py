@@ -1,6 +1,4 @@
-"""
-.. include:: ../docs/util.md
-"""
+""".. include:: ../docs/util.md"""  # noqa: D400, D415
 
 from collections.abc import Callable
 

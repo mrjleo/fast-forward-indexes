@@ -62,7 +62,9 @@ select = [
     "E9",  # pycodestyle
     "F",   # Pyflakes
     "ANN", # flake8
+    "D",   # pydocstyle
 ]
 ignore = [
     "ANN401", # any-type
+    "D100",   # undocumented-public-module
 ]

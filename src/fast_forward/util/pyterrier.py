@@ -18,6 +18,7 @@ class FFScore(pt.Transformer):
 
     def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
         """Compute the scores for all query-document pairs in the data frame.
+
         The previous scores are moved to the "score_0" column.
 
         :param topics_or_res: The PyTerrier data frame.
@@ -39,6 +40,7 @@ class FFScore(pt.Transformer):
 
     def __repr__(self) -> str:
         """Return a string representation.
+
         The representation is unique w.r.t. the index and its query encoder.
 
         :return: The representation.
@@ -59,8 +61,7 @@ class FFInterpolate(pt.Transformer):
         super().__init__()
 
     def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
-        """Interpolate the scores for all query-document pairs in the data frame as
-        `alpha * score_0 + (1 - alpha) * score`.
+        """Interpolate the scores as `alpha * score_0 + (1 - alpha) * score`.
 
         :param topics_or_res: The PyTerrier data frame.
         :return: A data frame with the interpolated scores.

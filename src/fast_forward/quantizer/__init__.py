@@ -1,6 +1,4 @@
-"""
-.. include:: ../docs/quantizer.md
-"""
+""".. include:: ../docs/quantizer.md"""  # noqa: D400, D415
 
 import abc
 import importlib
@@ -69,6 +67,7 @@ class Quantizer(abc.ABC):
 
     def fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         """Fit (train) the quantizer.
+
         Quantizers can only be trained before being attached to an index to avoid inconsistencies.
 
         :param vectors: The training vectors.
@@ -95,6 +94,7 @@ class Quantizer(abc.ABC):
     @abc.abstractmethod
     def dims(self) -> tuple[int | None, int | None]:
         """The dimensions before and after quantization.
+
         May return `None` values before the quantizer is trained.
 
         :return: Dimension of the original vectors and dimension of the codes.
@@ -143,6 +143,7 @@ class Quantizer(abc.ABC):
     @abc.abstractmethod
     def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
         """Return key-value pairs that represent the state of the quantizer (internal method).
+
         This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).
 
         :return: Attributes and data of the quantizer.
