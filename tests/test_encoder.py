@@ -11,11 +11,11 @@ from fast_forward.encoder import (
 
 class TestTCTColBERTEncoder(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.query_encoder = TCTColBERTQueryEncoder(
+    def setUpClass(cls):
+        cls.query_encoder = TCTColBERTQueryEncoder(
             "castorini/tct_colbert-msmarco", device="cpu"
         )
-        self.doc_encoder = TCTColBERTDocumentEncoder(
+        cls.doc_encoder = TCTColBERTDocumentEncoder(
             "castorini/tct_colbert-msmarco", device="cpu"
         )
 
@@ -30,8 +30,8 @@ class TestTCTColBERTEncoder(unittest.TestCase):
 
 class TestLambdaEncoder(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.encoder = LambdaEncoder(lambda q: np.zeros(shape=(768,)))
+    def setUpClass(cls):
+        cls.encoder = LambdaEncoder(lambda q: np.zeros(shape=(768,)))
 
     def test_encode(self):
         q_enc = self.encoder(["test query 1", "test query 2"])

@@ -10,7 +10,7 @@ version = "0.5.1"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["information retrieval", "ranking", "search"]
-requires-python = ">=3.9, <3.13"
+requires-python = ">=3.10, <3.13"
 dependencies = [
     "torch>=2.0.0, <3",
     "numpy>=1.24.0, <2",
@@ -33,9 +33,14 @@ pyterrier = ["python-terrier>=0.10.0, <1"]
 Repository = "https://github.com/mrjleo/fast-forward-indexes"
 Documentation = "https://mrjleo.github.io/fast-forward-indexes/docs/"
 
+[dependency-groups]
+dev = ["pdoc>=15.0.0", "pyright>=1.1.390", "pytest>=8.0.0"]
+
 [tool.pytest.ini_options]
 log_cli = true
 log_cli_level = "DEBUG"
 
-[dependency-groups]
-dev = ["pdoc>=15.0.0, <16", "pytest>=8.0.0, <9"]
+[tool.pyright]
+include = ["src"]
+ignore = ["tests"]
+typeCheckingMode = "standard"

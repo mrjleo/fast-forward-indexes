@@ -3,8 +3,9 @@
 """
 
 import abc
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Callable, Sequence, Union
+from typing import Any
 
 import numpy as np
 import torch
@@ -18,11 +19,8 @@ class Encoder(abc.ABC):
     def __call__(self, texts: Sequence[str]) -> np.ndarray:
         """Encode a list of texts.
 
-        Args:
-            texts (Sequence[str]): The texts to encode.
-
-        Returns:
-            np.ndarray: The resulting vector representations.
+        :param texts: The texts to encode.
+        :return: The resulting vector representations.
         """
         pass
 
@@ -31,14 +29,13 @@ class TransformerEncoder(Encoder):
     """Uses a pre-trained transformer model for encoding. Returns the pooler output."""
 
     def __init__(
-        self, model: Union[str, Path], device: str = "cpu", **tokenizer_args
+        self, model: str | Path, device: str = "cpu", **tokenizer_args: Any
     ) -> None:
         """Create a transformer encoder.
 
-        Args:
-            model (Union[str, Path]): Pre-trained transformer model (name or path).
-            device (str, optional): PyTorch device. Defaults to "cpu".
-            **tokenizer_args: Additional tokenizer arguments.
+        :param model: Pre-trained transformer model (name or path).
+        :param device: PyTorch device.
+        :param **tokenizer_args: Additional tokenizer arguments.
         """
         super().__init__()
         self.model = AutoModel.from_pretrained(model)
@@ -49,7 +46,7 @@ class TransformerEncoder(Encoder):
         self.tokenizer_args = tokenizer_args
 
     def __call__(self, texts: Sequence[str]) -> np.ndarray:
-        inputs = self.tokenizer(texts, return_tensors="pt", **self.tokenizer_args)
+        inputs = self.tokenizer(list(texts), return_tensors="pt", **self.tokenizer_args)
         inputs.to(self.device)
         with torch.no_grad():
             return self.model(**inputs).pooler_output.detach().cpu().numpy()
@@ -61,8 +58,7 @@ class LambdaEncoder(Encoder):
     def __init__(self, f: Callable[[str], np.ndarray]) -> None:
         """Create a lambda encoder.
 
-        Args:
-            f (Callable[[str], np.ndarray]): Function to encode a single piece of text.
+        :param f: Function to encode a single piece of text.
         """
         super().__init__()
         self._f = f
@@ -117,7 +113,7 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
             outputs = self.model(**inputs)
             token_embeddings = outputs["last_hidden_state"][:, 4:, :]
             input_mask_expanded = (
-                inputs["attention_mask"][:, 4:]
+                inputs.attention_mask[:, 4:]
                 .unsqueeze(-1)
                 .expand(token_embeddings.size())
                 .float()

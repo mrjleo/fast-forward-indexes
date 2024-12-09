@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple
+from typing import Any
 
 import nanopq
 import numpy as np
@@ -15,13 +15,12 @@ class NanoPQ(Quantizer):
     def __init__(
         self, M: int, Ks: int, metric: str = "dot", verbose: bool = False
     ) -> None:
-        """Instantiate a nanopq quantizer.
+        """Instantiate a nanopq product quantizer.
 
-        Args:
-            M (int): The number of subspaces.
-            Ks (int): The number of codewords per subspace.
-            metric (str, optional): The metric to use. Defaults to "dot".
-            verbose (bool, optional): Enable verbosity. Defaults to False.
+        :param M: The number of subspaces.
+        :param Ks: The number of codewords per subspace.
+        :param metric: The metric to use.
+        :param verbose: Enable verbosity.
         """
         self._pq = nanopq.PQ(M=M, Ks=Ks, metric=metric, verbose=verbose)
         super().__init__()
@@ -31,10 +30,10 @@ class NanoPQ(Quantizer):
 
     @property
     def dtype(self) -> np.dtype:
-        return self._pq.code_dtype
+        return np.dtype(self._pq.code_dtype)
 
     @property
-    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+    def dims(self) -> tuple[int | None, int | None]:
         if self._pq.Ds is None:
             return None, self._pq.M
         return self._pq.Ds * self._pq.M, self._pq.M
@@ -45,7 +44,7 @@ class NanoPQ(Quantizer):
     def _decode(self, codes: np.ndarray) -> np.ndarray:
         return self._pq.decode(codes=codes)
 
-    def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
+    def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
         attributes, data = {}, {}
 
         for a in ("M", "Ks", "Ds", "metric", "verbose"):
@@ -64,13 +63,13 @@ class NanoPQ(Quantizer):
         cls, attributes: QuantizerAttributes, data: QuantizerData
     ) -> "NanoPQ":
         quantizer = cls(
-            M=attributes["M"],
-            Ks=attributes["Ks"],
-            metric=attributes["metric"],
-            verbose=attributes["verbose"],
+            M=int(attributes["M"]),
+            Ks=int(attributes["Ks"]),
+            metric=str(attributes["metric"]),
+            verbose=bool(attributes["verbose"]),
         )
-        if "Ds" in attributes:
-            quantizer._pq.Ds = attributes["Ds"]
+        if attributes.get("Ds") is not None:
+            quantizer._pq.Ds = int(attributes["Ds"])
         if "codewords" in data:
             quantizer._pq.codewords = data["codewords"]
         return quantizer
@@ -87,11 +86,10 @@ class NanoOPQ(Quantizer):
     ) -> None:
         """Instantiate a nanopq optimized product quantizer.
 
-        Args:
-            M (int): The number of subspaces.
-            Ks (int): The number of codewords per subspace.
-            metric (str, optional): The metric to use. Defaults to "dot".
-            verbose (bool, optional): Enable verbosity. Defaults to False.
+        :param M: The number of subspaces.
+        :param Ks: The number of codewords per subspace.
+        :param metric: The metric to use.
+        :param verbose: Enable verbosity.
         """
         self._opq = nanopq.OPQ(M=M, Ks=Ks, metric=metric, verbose=verbose)
         super().__init__()
@@ -101,10 +99,10 @@ class NanoOPQ(Quantizer):
 
     @property
     def dtype(self) -> np.dtype:
-        return self._opq.code_dtype
+        return np.dtype(self._opq.code_dtype)
 
     @property
-    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+    def dims(self) -> tuple[int | None, int | None]:
         if self._opq.pq.Ds is None:
             return None, self._opq.pq.M
         return self._opq.pq.Ds * self._opq.pq.M, self._opq.pq.M
@@ -115,7 +113,7 @@ class NanoOPQ(Quantizer):
     def _decode(self, codes: np.ndarray) -> np.ndarray:
         return self._opq.decode(codes=codes)
 
-    def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
+    def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
         attributes, data = {}, {}
 
         for a in ("M", "Ks", "Ds", "metric"):
@@ -139,13 +137,13 @@ class NanoOPQ(Quantizer):
         cls, attributes: QuantizerAttributes, data: QuantizerData
     ) -> "NanoOPQ":
         quantizer = cls(
-            M=attributes["M"],
-            Ks=attributes["Ks"],
-            metric=attributes["metric"],
-            verbose=attributes["verbose"],
+            M=int(attributes["M"]),
+            Ks=int(attributes["Ks"]),
+            metric=str(attributes["metric"]),
+            verbose=bool(attributes["verbose"]),
         )
-        if "Ds" in attributes:
-            quantizer._opq.pq.Ds = attributes["Ds"]
+        if attributes.get("Ds") is not None:
+            quantizer._opq.pq.Ds = int(attributes["Ds"])
         if "codewords" in data:
             quantizer._opq.pq.codewords = data["codewords"]
         if "R" in data:

@@ -5,15 +5,16 @@
 import abc
 import importlib
 import logging
-from typing import Any, Dict, Optional, Tuple, Union
+from collections.abc import Mapping
+from typing import Any
 
 import numpy as np
 
 LOGGER = logging.getLogger(__name__)
 
 
-QuantizerAttributes = Dict[str, Union[str, bool, int, float]]
-QuantizerData = Dict[str, np.ndarray]
+QuantizerAttributes = Mapping[str, str | bool | float]
+QuantizerData = Mapping[str, np.ndarray]
 
 
 class Quantizer(abc.ABC):
@@ -25,11 +26,8 @@ class Quantizer(abc.ABC):
     def __eq__(self, o: object) -> bool:
         """Check whether this quantizer is identical to another one.
 
-        Args:
-            o (object): The other quantizer.
-
-        Returns:
-            bool: Whether the two quantizers are identical.
+        :param o: The other quantizer.
+        :return: Whether the two quantizers are identical.
         """
         if not isinstance(o, Quantizer):
             return False
@@ -50,7 +48,10 @@ class Quantizer(abc.ABC):
         return True
 
     def set_attached(self) -> None:
-        """Set the quantizer as attached, preventing calls to `Quantizer.fit`."""
+        """Set the quantizer as attached, preventing calls to `Quantizer.fit`.
+
+        :raises RuntimeError: When the quantizer has not been fit.
+        """
         if not self._trained:
             raise RuntimeError(
                 f"Call {self.__class__.__name__}.fit before attaching the quantizer to an index."
@@ -61,23 +62,18 @@ class Quantizer(abc.ABC):
     def _fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         """Fit the quantizer (internal method).
 
-        Args:
-            vectors (np.ndarray): The training vectors.
-            **kwargs (Any): Arguments specific to the quantizer.
+        :param vectors: The training vectors.
+        :param **kwargs: Arguments specific to the quantizer.
         """
         pass
 
     def fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         """Fit (train) the quantizer.
-
         Quantizers can only be trained before being attached to an index to avoid inconsistencies.
 
-        Args:
-            vectors (np.ndarray): The training vectors.
-            **kwargs (Any): Arguments specific to the quantizer.
-
-        Raises:
-            RuntimeError: When the quantizer is aready attached to an index.
+        :param vectors: The training vectors.
+        :param **kwargs: Arguments specific to the quantizer.
+        :raises RuntimeError: When the quantizer is aready attached to an index.
         """
         if self._attached:
             raise RuntimeError(
@@ -91,20 +87,17 @@ class Quantizer(abc.ABC):
     def dtype(self) -> np.dtype:
         """The data type of the codes produced by this quantizer.
 
-        Returns:
-            np.dtype: The data type.
+        :return: The data type of the codes.
         """
         pass
 
     @property
     @abc.abstractmethod
-    def dims(self) -> Tuple[Optional[int], Optional[int]]:
+    def dims(self) -> tuple[int | None, int | None]:
         """The dimensions before and after quantization.
+        May return `None` values before the quantizer is trained.
 
-        May return None values before the quantizer is trained.
-
-        Returns:
-            Tuple[Optional[int], Optional[int]]: Dimension of the original vectors and dimension of the codes.
+        :return: Dimension of the original vectors and dimension of the codes.
         """
         pass
 
@@ -112,22 +105,16 @@ class Quantizer(abc.ABC):
     def _encode(self, vectors: np.ndarray) -> np.ndarray:
         """Encode vectors (internal method).
 
-        Args:
-            vectors (np.ndarray): The vectors to be encoded.
-
-        Returns:
-            np.ndarray: The codes corresponding to the vectors.
+        :param vectors: The vectors to be encoded.
+        :return: The codes corresponding to the vectors.
         """
         pass
 
     def encode(self, vectors: np.ndarray) -> np.ndarray:
         """Encode a batch of vectors.
 
-        Args:
-            vectors (np.ndarray): The vectors to be encoded.
-
-        Returns:
-            np.ndarray: The codes corresponding to the vectors.
+        :param vectors: The vectors to be encoded.
+        :return: The codes corresponding to the vectors.
         """
         if not self._trained:
             raise RuntimeError(f"Call {self.__class__.__name__}.fit first.")
@@ -137,45 +124,37 @@ class Quantizer(abc.ABC):
     def _decode(self, codes: np.ndarray) -> np.ndarray:
         """Reconstruct vectors (internal method).
 
-        Args:
-            codes (np.ndarray): The codes to be decoded.
-
-        Returns:
-            np.ndarray: The reconstructed vectors.
+        :param codes: The codes to be decoded.
+        :return: The reconstructed vectors.
         """
         pass
 
     def decode(self, codes: np.ndarray) -> np.ndarray:
         """Decode a batch of codes to obtain approximate vector representations.
 
-        Args:
-            codes (np.ndarray): The codes to be decoded.
-
-        Returns:
-            np.ndarray: The approximated vectors.
+        :param codes: The codes to be decoded.
+        :raises RuntimeError: When the quantizer has not been fit.
+        :return: The approximated vectors.
         """
         if not self._trained:
             raise RuntimeError(f"Call {self.__class__.__name__}.fit first.")
         return self._decode(codes)
 
     @abc.abstractmethod
-    def _get_state(self) -> Tuple[QuantizerAttributes, QuantizerData]:
+    def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
         """Return key-value pairs that represent the state of the quantizer (internal method).
-
         This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).
 
-        Returns:
-            Tuple[QuantizerAttributes, QuantizerData]: Attributes and data of the quantizer.
+        :return: Attributes and data of the quantizer.
         """
         pass
 
     def serialize(
         self,
-    ) -> Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]:
+    ) -> tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]:
         """Return a serialized representation of the quantizer that can be stored in the index.
 
-        Returns:
-            Tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]: The serialized quantizer.
+        :return: The serialized quantizer.
         """
         meta = {
             "__module__": self.__class__.__module__,
@@ -192,12 +171,9 @@ class Quantizer(abc.ABC):
     ) -> "Quantizer":
         """Instantiate a quantizer based on its state.
 
-        Args:
-            attributes (QuantizerAttributes): The quantizer attributes.
-            data (QuantizerData): The quantizer data.
-
-        Returns:
-            Quantizer: The resulting quantizer.
+        :param attributes: The quantizer attributes.
+        :param data: The quantizer data.
+        :return: The resulting quantizer.
         """
         pass
 
@@ -210,17 +186,14 @@ class Quantizer(abc.ABC):
     ) -> "Quantizer":
         """Reconstruct a serialized quantizer.
 
-        Args:
-            meta (QuantizerAttributes): The quantizer metadata.
-            attributes (QuantizerAttributes): The quantizer attributes.
-            data (QuantizerData): The quantizer data.
-
-        Returns:
-            Quantizer: The loaded quantizer.
+        :param meta: The quantizer metadata.
+        :param attributes: The quantizer attributes.
+        :param data: The quantizer data.
+        :return: The loaded quantizer.
         """
         LOGGER.debug("reconstructing %s.%s", meta["__module__"], meta["__name__"])
-        quantizer_mod = importlib.import_module(meta["__module__"])
-        quantizer_cls = getattr(quantizer_mod, meta["__name__"])
+        quantizer_mod = importlib.import_module(str(meta["__module__"]))
+        quantizer_cls = getattr(quantizer_mod, str(meta["__name__"]))
         quantizer = quantizer_cls._from_state(attributes, data)
         quantizer._trained = meta["_trained"]
         return quantizer
