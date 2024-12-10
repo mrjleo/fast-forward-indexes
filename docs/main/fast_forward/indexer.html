@@ -194,7 +194,7 @@
 </span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate an indexer.</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>
-</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">        Optionally, a quantizer can be automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a><span class="sd">        Optionally, a quantizer can automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.</span>
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a><span class="sd">        If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a><span class="sd">        :param index: The target index.</span>
@@ -238,8 +238,8 @@
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a batch to the index.</span>
 </span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for fitting has been obtained.</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        Afterwards, the quantizer is fit and attached to the index, and all buffered</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">        fitting has been obtained. Afterwards, the quantizer is fit and attached to the index, and all buffered</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">        inputs are added at once.</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>
 </span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">        :param vectors: The vectors.</span>
@@ -413,7 +413,7 @@
 </span><span id="Indexer-34"><a href="#Indexer-34"><span class="linenos"> 34</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Indexer-35"><a href="#Indexer-35"><span class="linenos"> 35</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate an indexer.</span>
 </span><span id="Indexer-36"><a href="#Indexer-36"><span class="linenos"> 36</span></a>
-</span><span id="Indexer-37"><a href="#Indexer-37"><span class="linenos"> 37</span></a><span class="sd">        Optionally, a quantizer can be automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.</span>
+</span><span id="Indexer-37"><a href="#Indexer-37"><span class="linenos"> 37</span></a><span class="sd">        Optionally, a quantizer can automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.</span>
 </span><span id="Indexer-38"><a href="#Indexer-38"><span class="linenos"> 38</span></a><span class="sd">        If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.</span>
 </span><span id="Indexer-39"><a href="#Indexer-39"><span class="linenos"> 39</span></a>
 </span><span id="Indexer-40"><a href="#Indexer-40"><span class="linenos"> 40</span></a><span class="sd">        :param index: The target index.</span>
@@ -457,8 +457,8 @@
 </span><span id="Indexer-78"><a href="#Indexer-78"><span class="linenos"> 78</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Indexer-79"><a href="#Indexer-79"><span class="linenos"> 79</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a batch to the index.</span>
 </span><span id="Indexer-80"><a href="#Indexer-80"><span class="linenos"> 80</span></a>
-</span><span id="Indexer-81"><a href="#Indexer-81"><span class="linenos"> 81</span></a><span class="sd">        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for fitting has been obtained.</span>
-</span><span id="Indexer-82"><a href="#Indexer-82"><span class="linenos"> 82</span></a><span class="sd">        Afterwards, the quantizer is fit and attached to the index, and all buffered</span>
+</span><span id="Indexer-81"><a href="#Indexer-81"><span class="linenos"> 81</span></a><span class="sd">        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for</span>
+</span><span id="Indexer-82"><a href="#Indexer-82"><span class="linenos"> 82</span></a><span class="sd">        fitting has been obtained. Afterwards, the quantizer is fit and attached to the index, and all buffered</span>
 </span><span id="Indexer-83"><a href="#Indexer-83"><span class="linenos"> 83</span></a><span class="sd">        inputs are added at once.</span>
 </span><span id="Indexer-84"><a href="#Indexer-84"><span class="linenos"> 84</span></a>
 </span><span id="Indexer-85"><a href="#Indexer-85"><span class="linenos"> 85</span></a><span class="sd">        :param vectors: The vectors.</span>
@@ -573,7 +573,7 @@
 </span><span id="Indexer.__init__-34"><a href="#Indexer.__init__-34"><span class="linenos">34</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="Indexer.__init__-35"><a href="#Indexer.__init__-35"><span class="linenos">35</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate an indexer.</span>
 </span><span id="Indexer.__init__-36"><a href="#Indexer.__init__-36"><span class="linenos">36</span></a>
-</span><span id="Indexer.__init__-37"><a href="#Indexer.__init__-37"><span class="linenos">37</span></a><span class="sd">        Optionally, a quantizer can be automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.</span>
+</span><span id="Indexer.__init__-37"><a href="#Indexer.__init__-37"><span class="linenos">37</span></a><span class="sd">        Optionally, a quantizer can automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.</span>
 </span><span id="Indexer.__init__-38"><a href="#Indexer.__init__-38"><span class="linenos">38</span></a><span class="sd">        If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.</span>
 </span><span id="Indexer.__init__-39"><a href="#Indexer.__init__-39"><span class="linenos">39</span></a>
 </span><span id="Indexer.__init__-40"><a href="#Indexer.__init__-40"><span class="linenos">40</span></a><span class="sd">        :param index: The target index.</span>
@@ -613,7 +613,7 @@
 
             <div class="docstring"><p>Instantiate an indexer.</p>
 
-<p>Optionally, a quantizer can be automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.
+<p>Optionally, a quantizer can automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.
 If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.</p>
 
 <h6 id="parameters">Parameters</h6>
