@@ -61,10 +61,11 @@ select = [
     "F",   # Pyflakes
     "E",   # pycodestyle
     "W",   # pycodestyle
+    "I",   # isort
     "D",   # pydocstyle
     "UP",  # pyupgrade
     "ANN", # flake8-annotations
-    "I",   # isort
+    "ICN", # flake8-import-conventions
 ]
 ignore = [
     "ANN401", # any-type
