@@ -33,7 +33,7 @@ class Indexer(object):
     ) -> None:
         """Instantiate an indexer.
 
-        Optionally, a quantizer can be automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.
+        Optionally, a quantizer can automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.
         If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.
 
         :param index: The target index.
@@ -77,8 +77,8 @@ class Indexer(object):
     ) -> None:
         """Add a batch to the index.
 
-        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for fitting has been obtained.
-        Afterwards, the quantizer is fit and attached to the index, and all buffered
+        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for
+        fitting has been obtained. Afterwards, the quantizer is fit and attached to the index, and all buffered
         inputs are added at once.
 
         :param vectors: The vectors.

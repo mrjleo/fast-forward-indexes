@@ -316,7 +316,7 @@ class Ranking(object):
         Used by [RRF](https://dl.acm.org/doi/10.1145/1571941.1572114).
 
         :param k: RR scoring parameter.
-        :return: A  ranking with RR scores.
+        :return: A ranking with RR scores.
         """
         new_df = _add_ranks(self._df)
         new_df["score"] = 1 / (new_df["rank"] + k)
