@@ -120,10 +120,10 @@ class Indexer:
             self._quantizer = None
 
             LOGGER.info("adding buffered vectors to index")
-            for vectors, doc_ids, psg_ids in zip(
+            for b_vectors, b_doc_ids, b_psg_ids in zip(
                 self._buf_vectors, self._buf_doc_ids, self._buf_psg_ids
             ):
-                self._index.add(vectors, doc_ids, psg_ids)
+                self._index.add(b_vectors, b_doc_ids, b_psg_ids)
 
             del self._buf_vectors
             del self._buf_doc_ids

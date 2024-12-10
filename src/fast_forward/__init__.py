@@ -2,6 +2,7 @@
 
 import importlib.metadata
 
+# ruff: noqa: PLC0414
 from fast_forward.index import Mode as Mode
 from fast_forward.index.disk import OnDiskIndex as OnDiskIndex
 from fast_forward.index.memory import InMemoryIndex as InMemoryIndex

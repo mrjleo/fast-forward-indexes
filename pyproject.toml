@@ -73,10 +73,13 @@ select = [
     "TC",  # flake8-type-checking
     "ARG", # flake8-unused-arguments
     "PTH", # flake8-use-pathlib
+    "PL",  # Pylint
 ]
 ignore = [
-    "ANN401", # any-type
-    "D100",   # undocumented-public-module
-    "D203",   # one-blank-line-before-class
-    "D213",   # multi-line-summary-second-line
+    "D100",    # undocumented-public-module
+    "D203",    # one-blank-line-before-class
+    "D213",    # multi-line-summary-second-line
+    "ANN401",  # any-type
+    "PLR0913", # too-many-arguments
+    "PLR2004", # magic-value-comparison
 ]
