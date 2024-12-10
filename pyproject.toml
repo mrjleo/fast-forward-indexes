@@ -68,6 +68,7 @@ select = [
     "ICN", # flake8-import-conventions
     "LOG", # flake8-logging
     "G",   # flake8-logging-format
+    "RET", # flake8-return
 ]
 ignore = [
     "ANN401", # any-type

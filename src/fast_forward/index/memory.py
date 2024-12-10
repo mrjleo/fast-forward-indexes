@@ -51,12 +51,11 @@ class InMemoryIndex(Index):
         # account for the fact that the first shard might be larger
         if len(self._shards) < 2:
             return self._idx_in_cur_shard
-        else:
-            return (
-                self._shards[0].shape[0]
-                + (len(self._shards) - 2) * self._alloc_size
-                + self._idx_in_cur_shard
-            )
+        return (
+            self._shards[0].shape[0]
+            + (len(self._shards) - 2) * self._alloc_size
+            + self._idx_in_cur_shard
+        )
 
     def _get_internal_dim(self) -> int | None:
         if len(self._shards) > 0:
