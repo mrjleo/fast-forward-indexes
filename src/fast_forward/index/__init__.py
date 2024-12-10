@@ -218,15 +218,11 @@ class Index(abc.ABC):
         :param vectors: The representations, shape `(num_vectors, dim)`.
         :param doc_ids: The corresponding document IDs (may be duplicate).
         :param psg_ids: The corresponding passage IDs (must be unique).
-        :raises ValueError: When there are no document IDs and no passage IDs.
         :raises ValueError: When the number of IDs does not match the number of vectors.
         :raises ValueError: When the input vector and index dimensionalities don't match.
         :raises ValueError: When a vector has neither a document nor a passage ID.
         :raises RuntimeError: When items can't be added to the index for any reason.
         """
-        if doc_ids is None and psg_ids is None:
-            raise ValueError("At least one of doc_ids and psg_ids must be provided.")
-
         num_vectors, dim = vectors.shape
 
         if doc_ids is None:
