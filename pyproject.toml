@@ -71,6 +71,7 @@ select = [
     "RET", # flake8-return
     "TID", # flake8-tidy-imports
     "TC",  # flake8-type-checking
+    "ARG", # flake8-unused-arguments
 ]
 ignore = [
     "ANN401", # any-type
