@@ -197,143 +197,150 @@
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>                <span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit before attaching the quantizer to an index.&quot;</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>            <span class="p">)</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="k">pass</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit (train) the quantizer.</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">        Quantizers can only be trained before being attached to an index to avoid inconsistencies.</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">        :param vectors: The training vectors.</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">        :param **kwargs: Arguments specific to the quantizer.</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">        :raises RuntimeError: When the quantizer is aready attached to an index.</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span><span class="p">:</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>                <span class="s2">&quot;Quantizers can only be fitted before they are attached to an index.&quot;</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>            <span class="p">)</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>    <span class="k">def</span> <span class="nf">_get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="k">pass</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>    <span class="nd">@property</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The data type of the codes produced by this quantizer.</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">        :return: The data type of the codes.</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dtype</span><span class="p">()</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="k">def</span> <span class="nf">_get_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>        <span class="k">pass</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>    <span class="nd">@property</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>    <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimensions before and after quantization.</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">        May return `None` values before the quantizer is trained.</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>                <span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit before attaching the quantizer to &quot;</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>                <span class="s2">&quot;an index.&quot;</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>            <span class="p">)</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="k">pass</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit (train) the quantizer.</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">        Quantizers can only be trained before being attached to an index in order to</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">        avoid inconsistencies.</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">        :param vectors: The training vectors.</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">        :param **kwargs: Arguments specific to the quantizer.</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">        :raises RuntimeError: When the quantizer is aready attached to an index.</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span><span class="p">:</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>                <span class="s2">&quot;Quantizers can only be fitted before they are attached to an index.&quot;</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>            <span class="p">)</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="k">def</span> <span class="nf">_get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="k">pass</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="nd">@property</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The data type of the codes produced by this quantizer.</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">        :return: The data type of the codes.</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dtype</span><span class="p">()</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>    <span class="k">def</span> <span class="nf">_get_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="k">pass</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>    <span class="nd">@property</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimensions before and after quantization.</span>
 </span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        :return: Dimension of the original vectors and dimension of the codes.</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">()</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>    <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>        <span class="k">pass</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a batch of vectors.</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">        :param vectors: The vectors to be encoded.</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">        :return: The codes corresponding to the vectors.</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="k">def</span> <span class="nf">_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="k">pass</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Decode a batch of codes to obtain approximate vector representations.</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        :param codes: The codes to be decoded.</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        :raises RuntimeError: When the quantizer has not been fit.</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">        :return: The approximated vectors.</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>    <span class="k">def</span> <span class="nf">_get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return key-value pairs that represent the state of the quantizer (specific to quantizer implementation).</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">        This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        May return `None` values before the quantizer is trained.</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        :return: Dimension of the original vectors and dimension of the codes.</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">()</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="k">pass</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a batch of vectors.</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">        :param vectors: The vectors to be encoded.</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">        :return: The codes corresponding to the vectors.</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>    <span class="k">def</span> <span class="nf">_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="k">pass</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Decode a batch of codes to obtain approximate vector representations.</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">        :param codes: The codes to be decoded.</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        :raises RuntimeError: When the quantizer has not been fit.</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">        :return: The approximated vectors.</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>    <span class="k">def</span> <span class="nf">_get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return key-value pairs that represent the state of the quantizer.</span>
 </span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">        :return: Attributes and data of the quantizer.</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>        <span class="k">pass</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a serialized representation of the quantizer that can be stored in the index.</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">        This method returns a tuple of quantizer attributes (values) and quantizer data</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">        (numpy arrays).</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">        Specific to quantizer implementation.</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">        :return: Attributes and data of the quantizer.</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>        <span class="k">pass</span>
 </span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="sd">        :return: The serialized quantizer.</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>            <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>            <span class="s2">&quot;__name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="s2">&quot;_trained&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">,</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>        <span class="p">}</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state</span><span class="p">()</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>    <span class="nd">@classmethod</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>    <span class="k">def</span> <span class="nf">_from_state</span><span class="p">(</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>        <span class="bp">cls</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate a quantizer based on its state.</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a serialized representation of the quantizer.</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">        This representations is used to be stored in the index.</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="sd">        :return: The serialized quantizer.</span>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>            <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>            <span class="s2">&quot;__name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>            <span class="s2">&quot;_trained&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">,</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>        <span class="p">}</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>        <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state</span><span class="p">()</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span>
 </span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a><span class="sd">        :param data: The quantizer data.</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="sd">        :return: The resulting quantizer.</span>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>        <span class="k">pass</span>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>    <span class="nd">@classmethod</span>
-</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span>
-</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="bp">cls</span><span class="p">,</span>
-</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="n">meta</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
-</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>        <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
-</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span><span class="p">,</span>
-</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
-</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct a serialized quantizer.</span>
-</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>
-</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a><span class="sd">        :param meta: The quantizer metadata.</span>
-</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
-</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="sd">        :param data: The quantizer data.</span>
-</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a><span class="sd">        :return: The loaded quantizer.</span>
-</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reconstructing </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">])</span>
-</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>        <span class="n">quantizer_mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">]))</span>
-</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a>        <span class="n">quantizer_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantizer_mod</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]))</span>
-</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a>        <span class="n">quantizer</span> <span class="o">=</span> <span class="n">quantizer_cls</span><span class="o">.</span><span class="n">_from_state</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a>        <span class="n">quantizer</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;_trained&quot;</span><span class="p">]</span>
-</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a>        <span class="k">return</span> <span class="n">quantizer</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>    <span class="k">def</span> <span class="nf">_from_state</span><span class="p">(</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>        <span class="bp">cls</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate a quantizer based on its state.</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a><span class="sd">        :param data: The quantizer data.</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a><span class="sd">        :return: The resulting quantizer.</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="k">pass</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>    <span class="nd">@classmethod</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>        <span class="bp">cls</span><span class="p">,</span>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>        <span class="n">meta</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a>        <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span><span class="p">,</span>
+</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
+</span><span id="L-186"><a href="#L-186"><span class="linenos">186</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct a serialized quantizer.</span>
+</span><span id="L-187"><a href="#L-187"><span class="linenos">187</span></a>
+</span><span id="L-188"><a href="#L-188"><span class="linenos">188</span></a><span class="sd">        :param meta: The quantizer metadata.</span>
+</span><span id="L-189"><a href="#L-189"><span class="linenos">189</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
+</span><span id="L-190"><a href="#L-190"><span class="linenos">190</span></a><span class="sd">        :param data: The quantizer data.</span>
+</span><span id="L-191"><a href="#L-191"><span class="linenos">191</span></a><span class="sd">        :return: The loaded quantizer.</span>
+</span><span id="L-192"><a href="#L-192"><span class="linenos">192</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-193"><a href="#L-193"><span class="linenos">193</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reconstructing </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">])</span>
+</span><span id="L-194"><a href="#L-194"><span class="linenos">194</span></a>        <span class="n">quantizer_mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">]))</span>
+</span><span id="L-195"><a href="#L-195"><span class="linenos">195</span></a>        <span class="n">quantizer_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantizer_mod</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]))</span>
+</span><span id="L-196"><a href="#L-196"><span class="linenos">196</span></a>        <span class="n">quantizer</span> <span class="o">=</span> <span class="n">quantizer_cls</span><span class="o">.</span><span class="n">_from_state</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</span><span id="L-197"><a href="#L-197"><span class="linenos">197</span></a>        <span class="n">quantizer</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;_trained&quot;</span><span class="p">]</span>
+</span><span id="L-198"><a href="#L-198"><span class="linenos">198</span></a>        <span class="k">return</span> <span class="n">quantizer</span>
 </span></pre></div>
 
 
@@ -422,143 +429,150 @@
 </span><span id="Quantizer-53"><a href="#Quantizer-53"><span class="linenos"> 53</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Quantizer-54"><a href="#Quantizer-54"><span class="linenos"> 54</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
 </span><span id="Quantizer-55"><a href="#Quantizer-55"><span class="linenos"> 55</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="Quantizer-56"><a href="#Quantizer-56"><span class="linenos"> 56</span></a>                <span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit before attaching the quantizer to an index.&quot;</span>
-</span><span id="Quantizer-57"><a href="#Quantizer-57"><span class="linenos"> 57</span></a>            <span class="p">)</span>
-</span><span id="Quantizer-58"><a href="#Quantizer-58"><span class="linenos"> 58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="Quantizer-59"><a href="#Quantizer-59"><span class="linenos"> 59</span></a>
-</span><span id="Quantizer-60"><a href="#Quantizer-60"><span class="linenos"> 60</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="Quantizer-61"><a href="#Quantizer-61"><span class="linenos"> 61</span></a>    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Quantizer-62"><a href="#Quantizer-62"><span class="linenos"> 62</span></a>        <span class="k">pass</span>
-</span><span id="Quantizer-63"><a href="#Quantizer-63"><span class="linenos"> 63</span></a>
-</span><span id="Quantizer-64"><a href="#Quantizer-64"><span class="linenos"> 64</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Quantizer-65"><a href="#Quantizer-65"><span class="linenos"> 65</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit (train) the quantizer.</span>
-</span><span id="Quantizer-66"><a href="#Quantizer-66"><span class="linenos"> 66</span></a>
-</span><span id="Quantizer-67"><a href="#Quantizer-67"><span class="linenos"> 67</span></a><span class="sd">        Quantizers can only be trained before being attached to an index to avoid inconsistencies.</span>
-</span><span id="Quantizer-68"><a href="#Quantizer-68"><span class="linenos"> 68</span></a>
-</span><span id="Quantizer-69"><a href="#Quantizer-69"><span class="linenos"> 69</span></a><span class="sd">        :param vectors: The training vectors.</span>
-</span><span id="Quantizer-70"><a href="#Quantizer-70"><span class="linenos"> 70</span></a><span class="sd">        :param **kwargs: Arguments specific to the quantizer.</span>
-</span><span id="Quantizer-71"><a href="#Quantizer-71"><span class="linenos"> 71</span></a><span class="sd">        :raises RuntimeError: When the quantizer is aready attached to an index.</span>
-</span><span id="Quantizer-72"><a href="#Quantizer-72"><span class="linenos"> 72</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-73"><a href="#Quantizer-73"><span class="linenos"> 73</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span><span class="p">:</span>
-</span><span id="Quantizer-74"><a href="#Quantizer-74"><span class="linenos"> 74</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="Quantizer-75"><a href="#Quantizer-75"><span class="linenos"> 75</span></a>                <span class="s2">&quot;Quantizers can only be fitted before they are attached to an index.&quot;</span>
-</span><span id="Quantizer-76"><a href="#Quantizer-76"><span class="linenos"> 76</span></a>            <span class="p">)</span>
-</span><span id="Quantizer-77"><a href="#Quantizer-77"><span class="linenos"> 77</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Quantizer-78"><a href="#Quantizer-78"><span class="linenos"> 78</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="Quantizer-79"><a href="#Quantizer-79"><span class="linenos"> 79</span></a>
-</span><span id="Quantizer-80"><a href="#Quantizer-80"><span class="linenos"> 80</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="Quantizer-81"><a href="#Quantizer-81"><span class="linenos"> 81</span></a>    <span class="k">def</span> <span class="nf">_get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-</span><span id="Quantizer-82"><a href="#Quantizer-82"><span class="linenos"> 82</span></a>        <span class="k">pass</span>
-</span><span id="Quantizer-83"><a href="#Quantizer-83"><span class="linenos"> 83</span></a>
-</span><span id="Quantizer-84"><a href="#Quantizer-84"><span class="linenos"> 84</span></a>    <span class="nd">@property</span>
-</span><span id="Quantizer-85"><a href="#Quantizer-85"><span class="linenos"> 85</span></a>    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-</span><span id="Quantizer-86"><a href="#Quantizer-86"><span class="linenos"> 86</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The data type of the codes produced by this quantizer.</span>
-</span><span id="Quantizer-87"><a href="#Quantizer-87"><span class="linenos"> 87</span></a>
-</span><span id="Quantizer-88"><a href="#Quantizer-88"><span class="linenos"> 88</span></a><span class="sd">        :return: The data type of the codes.</span>
-</span><span id="Quantizer-89"><a href="#Quantizer-89"><span class="linenos"> 89</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-90"><a href="#Quantizer-90"><span class="linenos"> 90</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dtype</span><span class="p">()</span>
-</span><span id="Quantizer-91"><a href="#Quantizer-91"><span class="linenos"> 91</span></a>
-</span><span id="Quantizer-92"><a href="#Quantizer-92"><span class="linenos"> 92</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="Quantizer-93"><a href="#Quantizer-93"><span class="linenos"> 93</span></a>    <span class="k">def</span> <span class="nf">_get_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-</span><span id="Quantizer-94"><a href="#Quantizer-94"><span class="linenos"> 94</span></a>        <span class="k">pass</span>
-</span><span id="Quantizer-95"><a href="#Quantizer-95"><span class="linenos"> 95</span></a>
-</span><span id="Quantizer-96"><a href="#Quantizer-96"><span class="linenos"> 96</span></a>    <span class="nd">@property</span>
-</span><span id="Quantizer-97"><a href="#Quantizer-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-</span><span id="Quantizer-98"><a href="#Quantizer-98"><span class="linenos"> 98</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimensions before and after quantization.</span>
-</span><span id="Quantizer-99"><a href="#Quantizer-99"><span class="linenos"> 99</span></a>
-</span><span id="Quantizer-100"><a href="#Quantizer-100"><span class="linenos">100</span></a><span class="sd">        May return `None` values before the quantizer is trained.</span>
+</span><span id="Quantizer-56"><a href="#Quantizer-56"><span class="linenos"> 56</span></a>                <span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit before attaching the quantizer to &quot;</span>
+</span><span id="Quantizer-57"><a href="#Quantizer-57"><span class="linenos"> 57</span></a>                <span class="s2">&quot;an index.&quot;</span>
+</span><span id="Quantizer-58"><a href="#Quantizer-58"><span class="linenos"> 58</span></a>            <span class="p">)</span>
+</span><span id="Quantizer-59"><a href="#Quantizer-59"><span class="linenos"> 59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="Quantizer-60"><a href="#Quantizer-60"><span class="linenos"> 60</span></a>
+</span><span id="Quantizer-61"><a href="#Quantizer-61"><span class="linenos"> 61</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Quantizer-62"><a href="#Quantizer-62"><span class="linenos"> 62</span></a>    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Quantizer-63"><a href="#Quantizer-63"><span class="linenos"> 63</span></a>        <span class="k">pass</span>
+</span><span id="Quantizer-64"><a href="#Quantizer-64"><span class="linenos"> 64</span></a>
+</span><span id="Quantizer-65"><a href="#Quantizer-65"><span class="linenos"> 65</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Quantizer-66"><a href="#Quantizer-66"><span class="linenos"> 66</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit (train) the quantizer.</span>
+</span><span id="Quantizer-67"><a href="#Quantizer-67"><span class="linenos"> 67</span></a>
+</span><span id="Quantizer-68"><a href="#Quantizer-68"><span class="linenos"> 68</span></a><span class="sd">        Quantizers can only be trained before being attached to an index in order to</span>
+</span><span id="Quantizer-69"><a href="#Quantizer-69"><span class="linenos"> 69</span></a><span class="sd">        avoid inconsistencies.</span>
+</span><span id="Quantizer-70"><a href="#Quantizer-70"><span class="linenos"> 70</span></a>
+</span><span id="Quantizer-71"><a href="#Quantizer-71"><span class="linenos"> 71</span></a><span class="sd">        :param vectors: The training vectors.</span>
+</span><span id="Quantizer-72"><a href="#Quantizer-72"><span class="linenos"> 72</span></a><span class="sd">        :param **kwargs: Arguments specific to the quantizer.</span>
+</span><span id="Quantizer-73"><a href="#Quantizer-73"><span class="linenos"> 73</span></a><span class="sd">        :raises RuntimeError: When the quantizer is aready attached to an index.</span>
+</span><span id="Quantizer-74"><a href="#Quantizer-74"><span class="linenos"> 74</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-75"><a href="#Quantizer-75"><span class="linenos"> 75</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span><span class="p">:</span>
+</span><span id="Quantizer-76"><a href="#Quantizer-76"><span class="linenos"> 76</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+</span><span id="Quantizer-77"><a href="#Quantizer-77"><span class="linenos"> 77</span></a>                <span class="s2">&quot;Quantizers can only be fitted before they are attached to an index.&quot;</span>
+</span><span id="Quantizer-78"><a href="#Quantizer-78"><span class="linenos"> 78</span></a>            <span class="p">)</span>
+</span><span id="Quantizer-79"><a href="#Quantizer-79"><span class="linenos"> 79</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Quantizer-80"><a href="#Quantizer-80"><span class="linenos"> 80</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="Quantizer-81"><a href="#Quantizer-81"><span class="linenos"> 81</span></a>
+</span><span id="Quantizer-82"><a href="#Quantizer-82"><span class="linenos"> 82</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Quantizer-83"><a href="#Quantizer-83"><span class="linenos"> 83</span></a>    <span class="k">def</span> <span class="nf">_get_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+</span><span id="Quantizer-84"><a href="#Quantizer-84"><span class="linenos"> 84</span></a>        <span class="k">pass</span>
+</span><span id="Quantizer-85"><a href="#Quantizer-85"><span class="linenos"> 85</span></a>
+</span><span id="Quantizer-86"><a href="#Quantizer-86"><span class="linenos"> 86</span></a>    <span class="nd">@property</span>
+</span><span id="Quantizer-87"><a href="#Quantizer-87"><span class="linenos"> 87</span></a>    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+</span><span id="Quantizer-88"><a href="#Quantizer-88"><span class="linenos"> 88</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The data type of the codes produced by this quantizer.</span>
+</span><span id="Quantizer-89"><a href="#Quantizer-89"><span class="linenos"> 89</span></a>
+</span><span id="Quantizer-90"><a href="#Quantizer-90"><span class="linenos"> 90</span></a><span class="sd">        :return: The data type of the codes.</span>
+</span><span id="Quantizer-91"><a href="#Quantizer-91"><span class="linenos"> 91</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-92"><a href="#Quantizer-92"><span class="linenos"> 92</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dtype</span><span class="p">()</span>
+</span><span id="Quantizer-93"><a href="#Quantizer-93"><span class="linenos"> 93</span></a>
+</span><span id="Quantizer-94"><a href="#Quantizer-94"><span class="linenos"> 94</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Quantizer-95"><a href="#Quantizer-95"><span class="linenos"> 95</span></a>    <span class="k">def</span> <span class="nf">_get_dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+</span><span id="Quantizer-96"><a href="#Quantizer-96"><span class="linenos"> 96</span></a>        <span class="k">pass</span>
+</span><span id="Quantizer-97"><a href="#Quantizer-97"><span class="linenos"> 97</span></a>
+</span><span id="Quantizer-98"><a href="#Quantizer-98"><span class="linenos"> 98</span></a>    <span class="nd">@property</span>
+</span><span id="Quantizer-99"><a href="#Quantizer-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+</span><span id="Quantizer-100"><a href="#Quantizer-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimensions before and after quantization.</span>
 </span><span id="Quantizer-101"><a href="#Quantizer-101"><span class="linenos">101</span></a>
-</span><span id="Quantizer-102"><a href="#Quantizer-102"><span class="linenos">102</span></a><span class="sd">        :return: Dimension of the original vectors and dimension of the codes.</span>
-</span><span id="Quantizer-103"><a href="#Quantizer-103"><span class="linenos">103</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-104"><a href="#Quantizer-104"><span class="linenos">104</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">()</span>
-</span><span id="Quantizer-105"><a href="#Quantizer-105"><span class="linenos">105</span></a>
-</span><span id="Quantizer-106"><a href="#Quantizer-106"><span class="linenos">106</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="Quantizer-107"><a href="#Quantizer-107"><span class="linenos">107</span></a>    <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Quantizer-108"><a href="#Quantizer-108"><span class="linenos">108</span></a>        <span class="k">pass</span>
-</span><span id="Quantizer-109"><a href="#Quantizer-109"><span class="linenos">109</span></a>
-</span><span id="Quantizer-110"><a href="#Quantizer-110"><span class="linenos">110</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Quantizer-111"><a href="#Quantizer-111"><span class="linenos">111</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a batch of vectors.</span>
-</span><span id="Quantizer-112"><a href="#Quantizer-112"><span class="linenos">112</span></a>
-</span><span id="Quantizer-113"><a href="#Quantizer-113"><span class="linenos">113</span></a><span class="sd">        :param vectors: The vectors to be encoded.</span>
-</span><span id="Quantizer-114"><a href="#Quantizer-114"><span class="linenos">114</span></a><span class="sd">        :return: The codes corresponding to the vectors.</span>
-</span><span id="Quantizer-115"><a href="#Quantizer-115"><span class="linenos">115</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-116"><a href="#Quantizer-116"><span class="linenos">116</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
-</span><span id="Quantizer-117"><a href="#Quantizer-117"><span class="linenos">117</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
-</span><span id="Quantizer-118"><a href="#Quantizer-118"><span class="linenos">118</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
-</span><span id="Quantizer-119"><a href="#Quantizer-119"><span class="linenos">119</span></a>
-</span><span id="Quantizer-120"><a href="#Quantizer-120"><span class="linenos">120</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="Quantizer-121"><a href="#Quantizer-121"><span class="linenos">121</span></a>    <span class="k">def</span> <span class="nf">_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Quantizer-122"><a href="#Quantizer-122"><span class="linenos">122</span></a>        <span class="k">pass</span>
-</span><span id="Quantizer-123"><a href="#Quantizer-123"><span class="linenos">123</span></a>
-</span><span id="Quantizer-124"><a href="#Quantizer-124"><span class="linenos">124</span></a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Quantizer-125"><a href="#Quantizer-125"><span class="linenos">125</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Decode a batch of codes to obtain approximate vector representations.</span>
-</span><span id="Quantizer-126"><a href="#Quantizer-126"><span class="linenos">126</span></a>
-</span><span id="Quantizer-127"><a href="#Quantizer-127"><span class="linenos">127</span></a><span class="sd">        :param codes: The codes to be decoded.</span>
-</span><span id="Quantizer-128"><a href="#Quantizer-128"><span class="linenos">128</span></a><span class="sd">        :raises RuntimeError: When the quantizer has not been fit.</span>
-</span><span id="Quantizer-129"><a href="#Quantizer-129"><span class="linenos">129</span></a><span class="sd">        :return: The approximated vectors.</span>
-</span><span id="Quantizer-130"><a href="#Quantizer-130"><span class="linenos">130</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-131"><a href="#Quantizer-131"><span class="linenos">131</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
-</span><span id="Quantizer-132"><a href="#Quantizer-132"><span class="linenos">132</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
-</span><span id="Quantizer-133"><a href="#Quantizer-133"><span class="linenos">133</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
-</span><span id="Quantizer-134"><a href="#Quantizer-134"><span class="linenos">134</span></a>
-</span><span id="Quantizer-135"><a href="#Quantizer-135"><span class="linenos">135</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="Quantizer-136"><a href="#Quantizer-136"><span class="linenos">136</span></a>    <span class="k">def</span> <span class="nf">_get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
-</span><span id="Quantizer-137"><a href="#Quantizer-137"><span class="linenos">137</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return key-value pairs that represent the state of the quantizer (specific to quantizer implementation).</span>
-</span><span id="Quantizer-138"><a href="#Quantizer-138"><span class="linenos">138</span></a>
-</span><span id="Quantizer-139"><a href="#Quantizer-139"><span class="linenos">139</span></a><span class="sd">        This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).</span>
+</span><span id="Quantizer-102"><a href="#Quantizer-102"><span class="linenos">102</span></a><span class="sd">        May return `None` values before the quantizer is trained.</span>
+</span><span id="Quantizer-103"><a href="#Quantizer-103"><span class="linenos">103</span></a>
+</span><span id="Quantizer-104"><a href="#Quantizer-104"><span class="linenos">104</span></a><span class="sd">        :return: Dimension of the original vectors and dimension of the codes.</span>
+</span><span id="Quantizer-105"><a href="#Quantizer-105"><span class="linenos">105</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-106"><a href="#Quantizer-106"><span class="linenos">106</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">()</span>
+</span><span id="Quantizer-107"><a href="#Quantizer-107"><span class="linenos">107</span></a>
+</span><span id="Quantizer-108"><a href="#Quantizer-108"><span class="linenos">108</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Quantizer-109"><a href="#Quantizer-109"><span class="linenos">109</span></a>    <span class="k">def</span> <span class="nf">_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Quantizer-110"><a href="#Quantizer-110"><span class="linenos">110</span></a>        <span class="k">pass</span>
+</span><span id="Quantizer-111"><a href="#Quantizer-111"><span class="linenos">111</span></a>
+</span><span id="Quantizer-112"><a href="#Quantizer-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Quantizer-113"><a href="#Quantizer-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a batch of vectors.</span>
+</span><span id="Quantizer-114"><a href="#Quantizer-114"><span class="linenos">114</span></a>
+</span><span id="Quantizer-115"><a href="#Quantizer-115"><span class="linenos">115</span></a><span class="sd">        :param vectors: The vectors to be encoded.</span>
+</span><span id="Quantizer-116"><a href="#Quantizer-116"><span class="linenos">116</span></a><span class="sd">        :return: The codes corresponding to the vectors.</span>
+</span><span id="Quantizer-117"><a href="#Quantizer-117"><span class="linenos">117</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-118"><a href="#Quantizer-118"><span class="linenos">118</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+</span><span id="Quantizer-119"><a href="#Quantizer-119"><span class="linenos">119</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
+</span><span id="Quantizer-120"><a href="#Quantizer-120"><span class="linenos">120</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
+</span><span id="Quantizer-121"><a href="#Quantizer-121"><span class="linenos">121</span></a>
+</span><span id="Quantizer-122"><a href="#Quantizer-122"><span class="linenos">122</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Quantizer-123"><a href="#Quantizer-123"><span class="linenos">123</span></a>    <span class="k">def</span> <span class="nf">_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Quantizer-124"><a href="#Quantizer-124"><span class="linenos">124</span></a>        <span class="k">pass</span>
+</span><span id="Quantizer-125"><a href="#Quantizer-125"><span class="linenos">125</span></a>
+</span><span id="Quantizer-126"><a href="#Quantizer-126"><span class="linenos">126</span></a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Quantizer-127"><a href="#Quantizer-127"><span class="linenos">127</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Decode a batch of codes to obtain approximate vector representations.</span>
+</span><span id="Quantizer-128"><a href="#Quantizer-128"><span class="linenos">128</span></a>
+</span><span id="Quantizer-129"><a href="#Quantizer-129"><span class="linenos">129</span></a><span class="sd">        :param codes: The codes to be decoded.</span>
+</span><span id="Quantizer-130"><a href="#Quantizer-130"><span class="linenos">130</span></a><span class="sd">        :raises RuntimeError: When the quantizer has not been fit.</span>
+</span><span id="Quantizer-131"><a href="#Quantizer-131"><span class="linenos">131</span></a><span class="sd">        :return: The approximated vectors.</span>
+</span><span id="Quantizer-132"><a href="#Quantizer-132"><span class="linenos">132</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-133"><a href="#Quantizer-133"><span class="linenos">133</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+</span><span id="Quantizer-134"><a href="#Quantizer-134"><span class="linenos">134</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
+</span><span id="Quantizer-135"><a href="#Quantizer-135"><span class="linenos">135</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+</span><span id="Quantizer-136"><a href="#Quantizer-136"><span class="linenos">136</span></a>
+</span><span id="Quantizer-137"><a href="#Quantizer-137"><span class="linenos">137</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Quantizer-138"><a href="#Quantizer-138"><span class="linenos">138</span></a>    <span class="k">def</span> <span class="nf">_get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
+</span><span id="Quantizer-139"><a href="#Quantizer-139"><span class="linenos">139</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return key-value pairs that represent the state of the quantizer.</span>
 </span><span id="Quantizer-140"><a href="#Quantizer-140"><span class="linenos">140</span></a>
-</span><span id="Quantizer-141"><a href="#Quantizer-141"><span class="linenos">141</span></a><span class="sd">        :return: Attributes and data of the quantizer.</span>
-</span><span id="Quantizer-142"><a href="#Quantizer-142"><span class="linenos">142</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-143"><a href="#Quantizer-143"><span class="linenos">143</span></a>        <span class="k">pass</span>
-</span><span id="Quantizer-144"><a href="#Quantizer-144"><span class="linenos">144</span></a>
-</span><span id="Quantizer-145"><a href="#Quantizer-145"><span class="linenos">145</span></a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span>
-</span><span id="Quantizer-146"><a href="#Quantizer-146"><span class="linenos">146</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="Quantizer-147"><a href="#Quantizer-147"><span class="linenos">147</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
-</span><span id="Quantizer-148"><a href="#Quantizer-148"><span class="linenos">148</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a serialized representation of the quantizer that can be stored in the index.</span>
+</span><span id="Quantizer-141"><a href="#Quantizer-141"><span class="linenos">141</span></a><span class="sd">        This method returns a tuple of quantizer attributes (values) and quantizer data</span>
+</span><span id="Quantizer-142"><a href="#Quantizer-142"><span class="linenos">142</span></a><span class="sd">        (numpy arrays).</span>
+</span><span id="Quantizer-143"><a href="#Quantizer-143"><span class="linenos">143</span></a>
+</span><span id="Quantizer-144"><a href="#Quantizer-144"><span class="linenos">144</span></a><span class="sd">        Specific to quantizer implementation.</span>
+</span><span id="Quantizer-145"><a href="#Quantizer-145"><span class="linenos">145</span></a>
+</span><span id="Quantizer-146"><a href="#Quantizer-146"><span class="linenos">146</span></a><span class="sd">        :return: Attributes and data of the quantizer.</span>
+</span><span id="Quantizer-147"><a href="#Quantizer-147"><span class="linenos">147</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-148"><a href="#Quantizer-148"><span class="linenos">148</span></a>        <span class="k">pass</span>
 </span><span id="Quantizer-149"><a href="#Quantizer-149"><span class="linenos">149</span></a>
-</span><span id="Quantizer-150"><a href="#Quantizer-150"><span class="linenos">150</span></a><span class="sd">        :return: The serialized quantizer.</span>
-</span><span id="Quantizer-151"><a href="#Quantizer-151"><span class="linenos">151</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-152"><a href="#Quantizer-152"><span class="linenos">152</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="Quantizer-153"><a href="#Quantizer-153"><span class="linenos">153</span></a>            <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
-</span><span id="Quantizer-154"><a href="#Quantizer-154"><span class="linenos">154</span></a>            <span class="s2">&quot;__name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-</span><span id="Quantizer-155"><a href="#Quantizer-155"><span class="linenos">155</span></a>            <span class="s2">&quot;_trained&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">,</span>
-</span><span id="Quantizer-156"><a href="#Quantizer-156"><span class="linenos">156</span></a>        <span class="p">}</span>
-</span><span id="Quantizer-157"><a href="#Quantizer-157"><span class="linenos">157</span></a>        <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state</span><span class="p">()</span>
-</span><span id="Quantizer-158"><a href="#Quantizer-158"><span class="linenos">158</span></a>        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span>
-</span><span id="Quantizer-159"><a href="#Quantizer-159"><span class="linenos">159</span></a>
-</span><span id="Quantizer-160"><a href="#Quantizer-160"><span class="linenos">160</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Quantizer-161"><a href="#Quantizer-161"><span class="linenos">161</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
-</span><span id="Quantizer-162"><a href="#Quantizer-162"><span class="linenos">162</span></a>    <span class="k">def</span> <span class="nf">_from_state</span><span class="p">(</span>
-</span><span id="Quantizer-163"><a href="#Quantizer-163"><span class="linenos">163</span></a>        <span class="bp">cls</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span>
-</span><span id="Quantizer-164"><a href="#Quantizer-164"><span class="linenos">164</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
-</span><span id="Quantizer-165"><a href="#Quantizer-165"><span class="linenos">165</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate a quantizer based on its state.</span>
+</span><span id="Quantizer-150"><a href="#Quantizer-150"><span class="linenos">150</span></a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span>
+</span><span id="Quantizer-151"><a href="#Quantizer-151"><span class="linenos">151</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Quantizer-152"><a href="#Quantizer-152"><span class="linenos">152</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
+</span><span id="Quantizer-153"><a href="#Quantizer-153"><span class="linenos">153</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a serialized representation of the quantizer.</span>
+</span><span id="Quantizer-154"><a href="#Quantizer-154"><span class="linenos">154</span></a>
+</span><span id="Quantizer-155"><a href="#Quantizer-155"><span class="linenos">155</span></a><span class="sd">        This representations is used to be stored in the index.</span>
+</span><span id="Quantizer-156"><a href="#Quantizer-156"><span class="linenos">156</span></a>
+</span><span id="Quantizer-157"><a href="#Quantizer-157"><span class="linenos">157</span></a><span class="sd">        :return: The serialized quantizer.</span>
+</span><span id="Quantizer-158"><a href="#Quantizer-158"><span class="linenos">158</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-159"><a href="#Quantizer-159"><span class="linenos">159</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="Quantizer-160"><a href="#Quantizer-160"><span class="linenos">160</span></a>            <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+</span><span id="Quantizer-161"><a href="#Quantizer-161"><span class="linenos">161</span></a>            <span class="s2">&quot;__name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+</span><span id="Quantizer-162"><a href="#Quantizer-162"><span class="linenos">162</span></a>            <span class="s2">&quot;_trained&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">,</span>
+</span><span id="Quantizer-163"><a href="#Quantizer-163"><span class="linenos">163</span></a>        <span class="p">}</span>
+</span><span id="Quantizer-164"><a href="#Quantizer-164"><span class="linenos">164</span></a>        <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state</span><span class="p">()</span>
+</span><span id="Quantizer-165"><a href="#Quantizer-165"><span class="linenos">165</span></a>        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span>
 </span><span id="Quantizer-166"><a href="#Quantizer-166"><span class="linenos">166</span></a>
-</span><span id="Quantizer-167"><a href="#Quantizer-167"><span class="linenos">167</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
-</span><span id="Quantizer-168"><a href="#Quantizer-168"><span class="linenos">168</span></a><span class="sd">        :param data: The quantizer data.</span>
-</span><span id="Quantizer-169"><a href="#Quantizer-169"><span class="linenos">169</span></a><span class="sd">        :return: The resulting quantizer.</span>
-</span><span id="Quantizer-170"><a href="#Quantizer-170"><span class="linenos">170</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-171"><a href="#Quantizer-171"><span class="linenos">171</span></a>        <span class="k">pass</span>
-</span><span id="Quantizer-172"><a href="#Quantizer-172"><span class="linenos">172</span></a>
-</span><span id="Quantizer-173"><a href="#Quantizer-173"><span class="linenos">173</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Quantizer-174"><a href="#Quantizer-174"><span class="linenos">174</span></a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span>
-</span><span id="Quantizer-175"><a href="#Quantizer-175"><span class="linenos">175</span></a>        <span class="bp">cls</span><span class="p">,</span>
-</span><span id="Quantizer-176"><a href="#Quantizer-176"><span class="linenos">176</span></a>        <span class="n">meta</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
-</span><span id="Quantizer-177"><a href="#Quantizer-177"><span class="linenos">177</span></a>        <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
-</span><span id="Quantizer-178"><a href="#Quantizer-178"><span class="linenos">178</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span><span class="p">,</span>
-</span><span id="Quantizer-179"><a href="#Quantizer-179"><span class="linenos">179</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
-</span><span id="Quantizer-180"><a href="#Quantizer-180"><span class="linenos">180</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct a serialized quantizer.</span>
-</span><span id="Quantizer-181"><a href="#Quantizer-181"><span class="linenos">181</span></a>
-</span><span id="Quantizer-182"><a href="#Quantizer-182"><span class="linenos">182</span></a><span class="sd">        :param meta: The quantizer metadata.</span>
-</span><span id="Quantizer-183"><a href="#Quantizer-183"><span class="linenos">183</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
-</span><span id="Quantizer-184"><a href="#Quantizer-184"><span class="linenos">184</span></a><span class="sd">        :param data: The quantizer data.</span>
-</span><span id="Quantizer-185"><a href="#Quantizer-185"><span class="linenos">185</span></a><span class="sd">        :return: The loaded quantizer.</span>
-</span><span id="Quantizer-186"><a href="#Quantizer-186"><span class="linenos">186</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer-187"><a href="#Quantizer-187"><span class="linenos">187</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reconstructing </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">])</span>
-</span><span id="Quantizer-188"><a href="#Quantizer-188"><span class="linenos">188</span></a>        <span class="n">quantizer_mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">]))</span>
-</span><span id="Quantizer-189"><a href="#Quantizer-189"><span class="linenos">189</span></a>        <span class="n">quantizer_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantizer_mod</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]))</span>
-</span><span id="Quantizer-190"><a href="#Quantizer-190"><span class="linenos">190</span></a>        <span class="n">quantizer</span> <span class="o">=</span> <span class="n">quantizer_cls</span><span class="o">.</span><span class="n">_from_state</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-</span><span id="Quantizer-191"><a href="#Quantizer-191"><span class="linenos">191</span></a>        <span class="n">quantizer</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;_trained&quot;</span><span class="p">]</span>
-</span><span id="Quantizer-192"><a href="#Quantizer-192"><span class="linenos">192</span></a>        <span class="k">return</span> <span class="n">quantizer</span>
+</span><span id="Quantizer-167"><a href="#Quantizer-167"><span class="linenos">167</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Quantizer-168"><a href="#Quantizer-168"><span class="linenos">168</span></a>    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+</span><span id="Quantizer-169"><a href="#Quantizer-169"><span class="linenos">169</span></a>    <span class="k">def</span> <span class="nf">_from_state</span><span class="p">(</span>
+</span><span id="Quantizer-170"><a href="#Quantizer-170"><span class="linenos">170</span></a>        <span class="bp">cls</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span>
+</span><span id="Quantizer-171"><a href="#Quantizer-171"><span class="linenos">171</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
+</span><span id="Quantizer-172"><a href="#Quantizer-172"><span class="linenos">172</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Instantiate a quantizer based on its state.</span>
+</span><span id="Quantizer-173"><a href="#Quantizer-173"><span class="linenos">173</span></a>
+</span><span id="Quantizer-174"><a href="#Quantizer-174"><span class="linenos">174</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
+</span><span id="Quantizer-175"><a href="#Quantizer-175"><span class="linenos">175</span></a><span class="sd">        :param data: The quantizer data.</span>
+</span><span id="Quantizer-176"><a href="#Quantizer-176"><span class="linenos">176</span></a><span class="sd">        :return: The resulting quantizer.</span>
+</span><span id="Quantizer-177"><a href="#Quantizer-177"><span class="linenos">177</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-178"><a href="#Quantizer-178"><span class="linenos">178</span></a>        <span class="k">pass</span>
+</span><span id="Quantizer-179"><a href="#Quantizer-179"><span class="linenos">179</span></a>
+</span><span id="Quantizer-180"><a href="#Quantizer-180"><span class="linenos">180</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Quantizer-181"><a href="#Quantizer-181"><span class="linenos">181</span></a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span>
+</span><span id="Quantizer-182"><a href="#Quantizer-182"><span class="linenos">182</span></a>        <span class="bp">cls</span><span class="p">,</span>
+</span><span id="Quantizer-183"><a href="#Quantizer-183"><span class="linenos">183</span></a>        <span class="n">meta</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
+</span><span id="Quantizer-184"><a href="#Quantizer-184"><span class="linenos">184</span></a>        <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
+</span><span id="Quantizer-185"><a href="#Quantizer-185"><span class="linenos">185</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span><span class="p">,</span>
+</span><span id="Quantizer-186"><a href="#Quantizer-186"><span class="linenos">186</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
+</span><span id="Quantizer-187"><a href="#Quantizer-187"><span class="linenos">187</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct a serialized quantizer.</span>
+</span><span id="Quantizer-188"><a href="#Quantizer-188"><span class="linenos">188</span></a>
+</span><span id="Quantizer-189"><a href="#Quantizer-189"><span class="linenos">189</span></a><span class="sd">        :param meta: The quantizer metadata.</span>
+</span><span id="Quantizer-190"><a href="#Quantizer-190"><span class="linenos">190</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
+</span><span id="Quantizer-191"><a href="#Quantizer-191"><span class="linenos">191</span></a><span class="sd">        :param data: The quantizer data.</span>
+</span><span id="Quantizer-192"><a href="#Quantizer-192"><span class="linenos">192</span></a><span class="sd">        :return: The loaded quantizer.</span>
+</span><span id="Quantizer-193"><a href="#Quantizer-193"><span class="linenos">193</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer-194"><a href="#Quantizer-194"><span class="linenos">194</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reconstructing </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">])</span>
+</span><span id="Quantizer-195"><a href="#Quantizer-195"><span class="linenos">195</span></a>        <span class="n">quantizer_mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">]))</span>
+</span><span id="Quantizer-196"><a href="#Quantizer-196"><span class="linenos">196</span></a>        <span class="n">quantizer_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantizer_mod</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]))</span>
+</span><span id="Quantizer-197"><a href="#Quantizer-197"><span class="linenos">197</span></a>        <span class="n">quantizer</span> <span class="o">=</span> <span class="n">quantizer_cls</span><span class="o">.</span><span class="n">_from_state</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</span><span id="Quantizer-198"><a href="#Quantizer-198"><span class="linenos">198</span></a>        <span class="n">quantizer</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;_trained&quot;</span><span class="p">]</span>
+</span><span id="Quantizer-199"><a href="#Quantizer-199"><span class="linenos">199</span></a>        <span class="k">return</span> <span class="n">quantizer</span>
 </span></pre></div>
 
 
@@ -584,9 +598,10 @@
 </span><span id="Quantizer.set_attached-53"><a href="#Quantizer.set_attached-53"><span class="linenos">53</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Quantizer.set_attached-54"><a href="#Quantizer.set_attached-54"><span class="linenos">54</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
 </span><span id="Quantizer.set_attached-55"><a href="#Quantizer.set_attached-55"><span class="linenos">55</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="Quantizer.set_attached-56"><a href="#Quantizer.set_attached-56"><span class="linenos">56</span></a>                <span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit before attaching the quantizer to an index.&quot;</span>
-</span><span id="Quantizer.set_attached-57"><a href="#Quantizer.set_attached-57"><span class="linenos">57</span></a>            <span class="p">)</span>
-</span><span id="Quantizer.set_attached-58"><a href="#Quantizer.set_attached-58"><span class="linenos">58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="Quantizer.set_attached-56"><a href="#Quantizer.set_attached-56"><span class="linenos">56</span></a>                <span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit before attaching the quantizer to &quot;</span>
+</span><span id="Quantizer.set_attached-57"><a href="#Quantizer.set_attached-57"><span class="linenos">57</span></a>                <span class="s2">&quot;an index.&quot;</span>
+</span><span id="Quantizer.set_attached-58"><a href="#Quantizer.set_attached-58"><span class="linenos">58</span></a>            <span class="p">)</span>
+</span><span id="Quantizer.set_attached-59"><a href="#Quantizer.set_attached-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span> <span class="o">=</span> <span class="kc">True</span>
 </span></pre></div>
 
 
@@ -612,27 +627,29 @@
 
     </div>
     <a class="headerlink" href="#Quantizer.fit"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.fit-64"><a href="#Quantizer.fit-64"><span class="linenos">64</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="Quantizer.fit-65"><a href="#Quantizer.fit-65"><span class="linenos">65</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit (train) the quantizer.</span>
-</span><span id="Quantizer.fit-66"><a href="#Quantizer.fit-66"><span class="linenos">66</span></a>
-</span><span id="Quantizer.fit-67"><a href="#Quantizer.fit-67"><span class="linenos">67</span></a><span class="sd">        Quantizers can only be trained before being attached to an index to avoid inconsistencies.</span>
-</span><span id="Quantizer.fit-68"><a href="#Quantizer.fit-68"><span class="linenos">68</span></a>
-</span><span id="Quantizer.fit-69"><a href="#Quantizer.fit-69"><span class="linenos">69</span></a><span class="sd">        :param vectors: The training vectors.</span>
-</span><span id="Quantizer.fit-70"><a href="#Quantizer.fit-70"><span class="linenos">70</span></a><span class="sd">        :param **kwargs: Arguments specific to the quantizer.</span>
-</span><span id="Quantizer.fit-71"><a href="#Quantizer.fit-71"><span class="linenos">71</span></a><span class="sd">        :raises RuntimeError: When the quantizer is aready attached to an index.</span>
-</span><span id="Quantizer.fit-72"><a href="#Quantizer.fit-72"><span class="linenos">72</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer.fit-73"><a href="#Quantizer.fit-73"><span class="linenos">73</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span><span class="p">:</span>
-</span><span id="Quantizer.fit-74"><a href="#Quantizer.fit-74"><span class="linenos">74</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-</span><span id="Quantizer.fit-75"><a href="#Quantizer.fit-75"><span class="linenos">75</span></a>                <span class="s2">&quot;Quantizers can only be fitted before they are attached to an index.&quot;</span>
-</span><span id="Quantizer.fit-76"><a href="#Quantizer.fit-76"><span class="linenos">76</span></a>            <span class="p">)</span>
-</span><span id="Quantizer.fit-77"><a href="#Quantizer.fit-77"><span class="linenos">77</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Quantizer.fit-78"><a href="#Quantizer.fit-78"><span class="linenos">78</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.fit-65"><a href="#Quantizer.fit-65"><span class="linenos">65</span></a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Quantizer.fit-66"><a href="#Quantizer.fit-66"><span class="linenos">66</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit (train) the quantizer.</span>
+</span><span id="Quantizer.fit-67"><a href="#Quantizer.fit-67"><span class="linenos">67</span></a>
+</span><span id="Quantizer.fit-68"><a href="#Quantizer.fit-68"><span class="linenos">68</span></a><span class="sd">        Quantizers can only be trained before being attached to an index in order to</span>
+</span><span id="Quantizer.fit-69"><a href="#Quantizer.fit-69"><span class="linenos">69</span></a><span class="sd">        avoid inconsistencies.</span>
+</span><span id="Quantizer.fit-70"><a href="#Quantizer.fit-70"><span class="linenos">70</span></a>
+</span><span id="Quantizer.fit-71"><a href="#Quantizer.fit-71"><span class="linenos">71</span></a><span class="sd">        :param vectors: The training vectors.</span>
+</span><span id="Quantizer.fit-72"><a href="#Quantizer.fit-72"><span class="linenos">72</span></a><span class="sd">        :param **kwargs: Arguments specific to the quantizer.</span>
+</span><span id="Quantizer.fit-73"><a href="#Quantizer.fit-73"><span class="linenos">73</span></a><span class="sd">        :raises RuntimeError: When the quantizer is aready attached to an index.</span>
+</span><span id="Quantizer.fit-74"><a href="#Quantizer.fit-74"><span class="linenos">74</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer.fit-75"><a href="#Quantizer.fit-75"><span class="linenos">75</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attached</span><span class="p">:</span>
+</span><span id="Quantizer.fit-76"><a href="#Quantizer.fit-76"><span class="linenos">76</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+</span><span id="Quantizer.fit-77"><a href="#Quantizer.fit-77"><span class="linenos">77</span></a>                <span class="s2">&quot;Quantizers can only be fitted before they are attached to an index.&quot;</span>
+</span><span id="Quantizer.fit-78"><a href="#Quantizer.fit-78"><span class="linenos">78</span></a>            <span class="p">)</span>
+</span><span id="Quantizer.fit-79"><a href="#Quantizer.fit-79"><span class="linenos">79</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">vectors</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Quantizer.fit-80"><a href="#Quantizer.fit-80"><span class="linenos">80</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="kc">True</span>
 </span></pre></div>
 
 
             <div class="docstring"><p>Fit (train) the quantizer.</p>
 
-<p>Quantizers can only be trained before being attached to an index to avoid inconsistencies.</p>
+<p>Quantizers can only be trained before being attached to an index in order to
+avoid inconsistencies.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -659,13 +676,13 @@
 
     </div>
     <a class="headerlink" href="#Quantizer.dtype"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.dtype-84"><a href="#Quantizer.dtype-84"><span class="linenos">84</span></a>    <span class="nd">@property</span>
-</span><span id="Quantizer.dtype-85"><a href="#Quantizer.dtype-85"><span class="linenos">85</span></a>    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-</span><span id="Quantizer.dtype-86"><a href="#Quantizer.dtype-86"><span class="linenos">86</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The data type of the codes produced by this quantizer.</span>
-</span><span id="Quantizer.dtype-87"><a href="#Quantizer.dtype-87"><span class="linenos">87</span></a>
-</span><span id="Quantizer.dtype-88"><a href="#Quantizer.dtype-88"><span class="linenos">88</span></a><span class="sd">        :return: The data type of the codes.</span>
-</span><span id="Quantizer.dtype-89"><a href="#Quantizer.dtype-89"><span class="linenos">89</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer.dtype-90"><a href="#Quantizer.dtype-90"><span class="linenos">90</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dtype</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.dtype-86"><a href="#Quantizer.dtype-86"><span class="linenos">86</span></a>    <span class="nd">@property</span>
+</span><span id="Quantizer.dtype-87"><a href="#Quantizer.dtype-87"><span class="linenos">87</span></a>    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+</span><span id="Quantizer.dtype-88"><a href="#Quantizer.dtype-88"><span class="linenos">88</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The data type of the codes produced by this quantizer.</span>
+</span><span id="Quantizer.dtype-89"><a href="#Quantizer.dtype-89"><span class="linenos">89</span></a>
+</span><span id="Quantizer.dtype-90"><a href="#Quantizer.dtype-90"><span class="linenos">90</span></a><span class="sd">        :return: The data type of the codes.</span>
+</span><span id="Quantizer.dtype-91"><a href="#Quantizer.dtype-91"><span class="linenos">91</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer.dtype-92"><a href="#Quantizer.dtype-92"><span class="linenos">92</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dtype</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -689,15 +706,15 @@
 
     </div>
     <a class="headerlink" href="#Quantizer.dims"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.dims-96"><a href="#Quantizer.dims-96"><span class="linenos"> 96</span></a>    <span class="nd">@property</span>
-</span><span id="Quantizer.dims-97"><a href="#Quantizer.dims-97"><span class="linenos"> 97</span></a>    <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-</span><span id="Quantizer.dims-98"><a href="#Quantizer.dims-98"><span class="linenos"> 98</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimensions before and after quantization.</span>
-</span><span id="Quantizer.dims-99"><a href="#Quantizer.dims-99"><span class="linenos"> 99</span></a>
-</span><span id="Quantizer.dims-100"><a href="#Quantizer.dims-100"><span class="linenos">100</span></a><span class="sd">        May return `None` values before the quantizer is trained.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.dims-98"><a href="#Quantizer.dims-98"><span class="linenos"> 98</span></a>    <span class="nd">@property</span>
+</span><span id="Quantizer.dims-99"><a href="#Quantizer.dims-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">dims</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+</span><span id="Quantizer.dims-100"><a href="#Quantizer.dims-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimensions before and after quantization.</span>
 </span><span id="Quantizer.dims-101"><a href="#Quantizer.dims-101"><span class="linenos">101</span></a>
-</span><span id="Quantizer.dims-102"><a href="#Quantizer.dims-102"><span class="linenos">102</span></a><span class="sd">        :return: Dimension of the original vectors and dimension of the codes.</span>
-</span><span id="Quantizer.dims-103"><a href="#Quantizer.dims-103"><span class="linenos">103</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer.dims-104"><a href="#Quantizer.dims-104"><span class="linenos">104</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">()</span>
+</span><span id="Quantizer.dims-102"><a href="#Quantizer.dims-102"><span class="linenos">102</span></a><span class="sd">        May return `None` values before the quantizer is trained.</span>
+</span><span id="Quantizer.dims-103"><a href="#Quantizer.dims-103"><span class="linenos">103</span></a>
+</span><span id="Quantizer.dims-104"><a href="#Quantizer.dims-104"><span class="linenos">104</span></a><span class="sd">        :return: Dimension of the original vectors and dimension of the codes.</span>
+</span><span id="Quantizer.dims-105"><a href="#Quantizer.dims-105"><span class="linenos">105</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer.dims-106"><a href="#Quantizer.dims-106"><span class="linenos">106</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dims</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -725,15 +742,15 @@
 
     </div>
     <a class="headerlink" href="#Quantizer.encode"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.encode-110"><a href="#Quantizer.encode-110"><span class="linenos">110</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Quantizer.encode-111"><a href="#Quantizer.encode-111"><span class="linenos">111</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a batch of vectors.</span>
-</span><span id="Quantizer.encode-112"><a href="#Quantizer.encode-112"><span class="linenos">112</span></a>
-</span><span id="Quantizer.encode-113"><a href="#Quantizer.encode-113"><span class="linenos">113</span></a><span class="sd">        :param vectors: The vectors to be encoded.</span>
-</span><span id="Quantizer.encode-114"><a href="#Quantizer.encode-114"><span class="linenos">114</span></a><span class="sd">        :return: The codes corresponding to the vectors.</span>
-</span><span id="Quantizer.encode-115"><a href="#Quantizer.encode-115"><span class="linenos">115</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer.encode-116"><a href="#Quantizer.encode-116"><span class="linenos">116</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
-</span><span id="Quantizer.encode-117"><a href="#Quantizer.encode-117"><span class="linenos">117</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
-</span><span id="Quantizer.encode-118"><a href="#Quantizer.encode-118"><span class="linenos">118</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.encode-112"><a href="#Quantizer.encode-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Quantizer.encode-113"><a href="#Quantizer.encode-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Encode a batch of vectors.</span>
+</span><span id="Quantizer.encode-114"><a href="#Quantizer.encode-114"><span class="linenos">114</span></a>
+</span><span id="Quantizer.encode-115"><a href="#Quantizer.encode-115"><span class="linenos">115</span></a><span class="sd">        :param vectors: The vectors to be encoded.</span>
+</span><span id="Quantizer.encode-116"><a href="#Quantizer.encode-116"><span class="linenos">116</span></a><span class="sd">        :return: The codes corresponding to the vectors.</span>
+</span><span id="Quantizer.encode-117"><a href="#Quantizer.encode-117"><span class="linenos">117</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer.encode-118"><a href="#Quantizer.encode-118"><span class="linenos">118</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+</span><span id="Quantizer.encode-119"><a href="#Quantizer.encode-119"><span class="linenos">119</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
+</span><span id="Quantizer.encode-120"><a href="#Quantizer.encode-120"><span class="linenos">120</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -765,16 +782,16 @@
 
     </div>
     <a class="headerlink" href="#Quantizer.decode"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.decode-124"><a href="#Quantizer.decode-124"><span class="linenos">124</span></a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-</span><span id="Quantizer.decode-125"><a href="#Quantizer.decode-125"><span class="linenos">125</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Decode a batch of codes to obtain approximate vector representations.</span>
-</span><span id="Quantizer.decode-126"><a href="#Quantizer.decode-126"><span class="linenos">126</span></a>
-</span><span id="Quantizer.decode-127"><a href="#Quantizer.decode-127"><span class="linenos">127</span></a><span class="sd">        :param codes: The codes to be decoded.</span>
-</span><span id="Quantizer.decode-128"><a href="#Quantizer.decode-128"><span class="linenos">128</span></a><span class="sd">        :raises RuntimeError: When the quantizer has not been fit.</span>
-</span><span id="Quantizer.decode-129"><a href="#Quantizer.decode-129"><span class="linenos">129</span></a><span class="sd">        :return: The approximated vectors.</span>
-</span><span id="Quantizer.decode-130"><a href="#Quantizer.decode-130"><span class="linenos">130</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer.decode-131"><a href="#Quantizer.decode-131"><span class="linenos">131</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
-</span><span id="Quantizer.decode-132"><a href="#Quantizer.decode-132"><span class="linenos">132</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
-</span><span id="Quantizer.decode-133"><a href="#Quantizer.decode-133"><span class="linenos">133</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.decode-126"><a href="#Quantizer.decode-126"><span class="linenos">126</span></a>    <span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">codes</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="Quantizer.decode-127"><a href="#Quantizer.decode-127"><span class="linenos">127</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Decode a batch of codes to obtain approximate vector representations.</span>
+</span><span id="Quantizer.decode-128"><a href="#Quantizer.decode-128"><span class="linenos">128</span></a>
+</span><span id="Quantizer.decode-129"><a href="#Quantizer.decode-129"><span class="linenos">129</span></a><span class="sd">        :param codes: The codes to be decoded.</span>
+</span><span id="Quantizer.decode-130"><a href="#Quantizer.decode-130"><span class="linenos">130</span></a><span class="sd">        :raises RuntimeError: When the quantizer has not been fit.</span>
+</span><span id="Quantizer.decode-131"><a href="#Quantizer.decode-131"><span class="linenos">131</span></a><span class="sd">        :return: The approximated vectors.</span>
+</span><span id="Quantizer.decode-132"><a href="#Quantizer.decode-132"><span class="linenos">132</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer.decode-133"><a href="#Quantizer.decode-133"><span class="linenos">133</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">:</span>
+</span><span id="Quantizer.decode-134"><a href="#Quantizer.decode-134"><span class="linenos">134</span></a>            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Call </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.fit first.&quot;</span><span class="p">)</span>
+</span><span id="Quantizer.decode-135"><a href="#Quantizer.decode-135"><span class="linenos">135</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decode</span><span class="p">(</span><span class="n">codes</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -812,24 +829,28 @@
 
     </div>
     <a class="headerlink" href="#Quantizer.serialize"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.serialize-145"><a href="#Quantizer.serialize-145"><span class="linenos">145</span></a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span>
-</span><span id="Quantizer.serialize-146"><a href="#Quantizer.serialize-146"><span class="linenos">146</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="Quantizer.serialize-147"><a href="#Quantizer.serialize-147"><span class="linenos">147</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
-</span><span id="Quantizer.serialize-148"><a href="#Quantizer.serialize-148"><span class="linenos">148</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a serialized representation of the quantizer that can be stored in the index.</span>
-</span><span id="Quantizer.serialize-149"><a href="#Quantizer.serialize-149"><span class="linenos">149</span></a>
-</span><span id="Quantizer.serialize-150"><a href="#Quantizer.serialize-150"><span class="linenos">150</span></a><span class="sd">        :return: The serialized quantizer.</span>
-</span><span id="Quantizer.serialize-151"><a href="#Quantizer.serialize-151"><span class="linenos">151</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer.serialize-152"><a href="#Quantizer.serialize-152"><span class="linenos">152</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
-</span><span id="Quantizer.serialize-153"><a href="#Quantizer.serialize-153"><span class="linenos">153</span></a>            <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
-</span><span id="Quantizer.serialize-154"><a href="#Quantizer.serialize-154"><span class="linenos">154</span></a>            <span class="s2">&quot;__name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-</span><span id="Quantizer.serialize-155"><a href="#Quantizer.serialize-155"><span class="linenos">155</span></a>            <span class="s2">&quot;_trained&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">,</span>
-</span><span id="Quantizer.serialize-156"><a href="#Quantizer.serialize-156"><span class="linenos">156</span></a>        <span class="p">}</span>
-</span><span id="Quantizer.serialize-157"><a href="#Quantizer.serialize-157"><span class="linenos">157</span></a>        <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state</span><span class="p">()</span>
-</span><span id="Quantizer.serialize-158"><a href="#Quantizer.serialize-158"><span class="linenos">158</span></a>        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.serialize-150"><a href="#Quantizer.serialize-150"><span class="linenos">150</span></a>    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span>
+</span><span id="Quantizer.serialize-151"><a href="#Quantizer.serialize-151"><span class="linenos">151</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="Quantizer.serialize-152"><a href="#Quantizer.serialize-152"><span class="linenos">152</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerAttributes</span><span class="p">,</span> <span class="n">QuantizerData</span><span class="p">]:</span>
+</span><span id="Quantizer.serialize-153"><a href="#Quantizer.serialize-153"><span class="linenos">153</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a serialized representation of the quantizer.</span>
+</span><span id="Quantizer.serialize-154"><a href="#Quantizer.serialize-154"><span class="linenos">154</span></a>
+</span><span id="Quantizer.serialize-155"><a href="#Quantizer.serialize-155"><span class="linenos">155</span></a><span class="sd">        This representations is used to be stored in the index.</span>
+</span><span id="Quantizer.serialize-156"><a href="#Quantizer.serialize-156"><span class="linenos">156</span></a>
+</span><span id="Quantizer.serialize-157"><a href="#Quantizer.serialize-157"><span class="linenos">157</span></a><span class="sd">        :return: The serialized quantizer.</span>
+</span><span id="Quantizer.serialize-158"><a href="#Quantizer.serialize-158"><span class="linenos">158</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer.serialize-159"><a href="#Quantizer.serialize-159"><span class="linenos">159</span></a>        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="Quantizer.serialize-160"><a href="#Quantizer.serialize-160"><span class="linenos">160</span></a>            <span class="s2">&quot;__module__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
+</span><span id="Quantizer.serialize-161"><a href="#Quantizer.serialize-161"><span class="linenos">161</span></a>            <span class="s2">&quot;__name__&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+</span><span id="Quantizer.serialize-162"><a href="#Quantizer.serialize-162"><span class="linenos">162</span></a>            <span class="s2">&quot;_trained&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trained</span><span class="p">,</span>
+</span><span id="Quantizer.serialize-163"><a href="#Quantizer.serialize-163"><span class="linenos">163</span></a>        <span class="p">}</span>
+</span><span id="Quantizer.serialize-164"><a href="#Quantizer.serialize-164"><span class="linenos">164</span></a>        <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_state</span><span class="p">()</span>
+</span><span id="Quantizer.serialize-165"><a href="#Quantizer.serialize-165"><span class="linenos">165</span></a>        <span class="k">return</span> <span class="n">meta</span><span class="p">,</span> <span class="n">attributes</span><span class="p">,</span> <span class="n">data</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Return a serialized representation of the quantizer that can be stored in the index.</p>
+            <div class="docstring"><p>Return a serialized representation of the quantizer.</p>
+
+<p>This representations is used to be stored in the index.</p>
 
 <h6 id="returns">Returns</h6>
 
@@ -852,26 +873,26 @@
 
     </div>
     <a class="headerlink" href="#Quantizer.deserialize"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.deserialize-173"><a href="#Quantizer.deserialize-173"><span class="linenos">173</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Quantizer.deserialize-174"><a href="#Quantizer.deserialize-174"><span class="linenos">174</span></a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span>
-</span><span id="Quantizer.deserialize-175"><a href="#Quantizer.deserialize-175"><span class="linenos">175</span></a>        <span class="bp">cls</span><span class="p">,</span>
-</span><span id="Quantizer.deserialize-176"><a href="#Quantizer.deserialize-176"><span class="linenos">176</span></a>        <span class="n">meta</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
-</span><span id="Quantizer.deserialize-177"><a href="#Quantizer.deserialize-177"><span class="linenos">177</span></a>        <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
-</span><span id="Quantizer.deserialize-178"><a href="#Quantizer.deserialize-178"><span class="linenos">178</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span><span class="p">,</span>
-</span><span id="Quantizer.deserialize-179"><a href="#Quantizer.deserialize-179"><span class="linenos">179</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
-</span><span id="Quantizer.deserialize-180"><a href="#Quantizer.deserialize-180"><span class="linenos">180</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct a serialized quantizer.</span>
-</span><span id="Quantizer.deserialize-181"><a href="#Quantizer.deserialize-181"><span class="linenos">181</span></a>
-</span><span id="Quantizer.deserialize-182"><a href="#Quantizer.deserialize-182"><span class="linenos">182</span></a><span class="sd">        :param meta: The quantizer metadata.</span>
-</span><span id="Quantizer.deserialize-183"><a href="#Quantizer.deserialize-183"><span class="linenos">183</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
-</span><span id="Quantizer.deserialize-184"><a href="#Quantizer.deserialize-184"><span class="linenos">184</span></a><span class="sd">        :param data: The quantizer data.</span>
-</span><span id="Quantizer.deserialize-185"><a href="#Quantizer.deserialize-185"><span class="linenos">185</span></a><span class="sd">        :return: The loaded quantizer.</span>
-</span><span id="Quantizer.deserialize-186"><a href="#Quantizer.deserialize-186"><span class="linenos">186</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Quantizer.deserialize-187"><a href="#Quantizer.deserialize-187"><span class="linenos">187</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reconstructing </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">])</span>
-</span><span id="Quantizer.deserialize-188"><a href="#Quantizer.deserialize-188"><span class="linenos">188</span></a>        <span class="n">quantizer_mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">]))</span>
-</span><span id="Quantizer.deserialize-189"><a href="#Quantizer.deserialize-189"><span class="linenos">189</span></a>        <span class="n">quantizer_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantizer_mod</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]))</span>
-</span><span id="Quantizer.deserialize-190"><a href="#Quantizer.deserialize-190"><span class="linenos">190</span></a>        <span class="n">quantizer</span> <span class="o">=</span> <span class="n">quantizer_cls</span><span class="o">.</span><span class="n">_from_state</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-</span><span id="Quantizer.deserialize-191"><a href="#Quantizer.deserialize-191"><span class="linenos">191</span></a>        <span class="n">quantizer</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;_trained&quot;</span><span class="p">]</span>
-</span><span id="Quantizer.deserialize-192"><a href="#Quantizer.deserialize-192"><span class="linenos">192</span></a>        <span class="k">return</span> <span class="n">quantizer</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Quantizer.deserialize-180"><a href="#Quantizer.deserialize-180"><span class="linenos">180</span></a>    <span class="nd">@classmethod</span>
+</span><span id="Quantizer.deserialize-181"><a href="#Quantizer.deserialize-181"><span class="linenos">181</span></a>    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span>
+</span><span id="Quantizer.deserialize-182"><a href="#Quantizer.deserialize-182"><span class="linenos">182</span></a>        <span class="bp">cls</span><span class="p">,</span>
+</span><span id="Quantizer.deserialize-183"><a href="#Quantizer.deserialize-183"><span class="linenos">183</span></a>        <span class="n">meta</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
+</span><span id="Quantizer.deserialize-184"><a href="#Quantizer.deserialize-184"><span class="linenos">184</span></a>        <span class="n">attributes</span><span class="p">:</span> <span class="n">QuantizerAttributes</span><span class="p">,</span>
+</span><span id="Quantizer.deserialize-185"><a href="#Quantizer.deserialize-185"><span class="linenos">185</span></a>        <span class="n">data</span><span class="p">:</span> <span class="n">QuantizerData</span><span class="p">,</span>
+</span><span id="Quantizer.deserialize-186"><a href="#Quantizer.deserialize-186"><span class="linenos">186</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Quantizer&quot;</span><span class="p">:</span>
+</span><span id="Quantizer.deserialize-187"><a href="#Quantizer.deserialize-187"><span class="linenos">187</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Reconstruct a serialized quantizer.</span>
+</span><span id="Quantizer.deserialize-188"><a href="#Quantizer.deserialize-188"><span class="linenos">188</span></a>
+</span><span id="Quantizer.deserialize-189"><a href="#Quantizer.deserialize-189"><span class="linenos">189</span></a><span class="sd">        :param meta: The quantizer metadata.</span>
+</span><span id="Quantizer.deserialize-190"><a href="#Quantizer.deserialize-190"><span class="linenos">190</span></a><span class="sd">        :param attributes: The quantizer attributes.</span>
+</span><span id="Quantizer.deserialize-191"><a href="#Quantizer.deserialize-191"><span class="linenos">191</span></a><span class="sd">        :param data: The quantizer data.</span>
+</span><span id="Quantizer.deserialize-192"><a href="#Quantizer.deserialize-192"><span class="linenos">192</span></a><span class="sd">        :return: The loaded quantizer.</span>
+</span><span id="Quantizer.deserialize-193"><a href="#Quantizer.deserialize-193"><span class="linenos">193</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Quantizer.deserialize-194"><a href="#Quantizer.deserialize-194"><span class="linenos">194</span></a>        <span class="n">LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;reconstructing </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">],</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">])</span>
+</span><span id="Quantizer.deserialize-195"><a href="#Quantizer.deserialize-195"><span class="linenos">195</span></a>        <span class="n">quantizer_mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__module__&quot;</span><span class="p">]))</span>
+</span><span id="Quantizer.deserialize-196"><a href="#Quantizer.deserialize-196"><span class="linenos">196</span></a>        <span class="n">quantizer_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">quantizer_mod</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;__name__&quot;</span><span class="p">]))</span>
+</span><span id="Quantizer.deserialize-197"><a href="#Quantizer.deserialize-197"><span class="linenos">197</span></a>        <span class="n">quantizer</span> <span class="o">=</span> <span class="n">quantizer_cls</span><span class="o">.</span><span class="n">_from_state</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+</span><span id="Quantizer.deserialize-198"><a href="#Quantizer.deserialize-198"><span class="linenos">198</span></a>        <span class="n">quantizer</span><span class="o">.</span><span class="n">_trained</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;_trained&quot;</span><span class="p">]</span>
+</span><span id="Quantizer.deserialize-199"><a href="#Quantizer.deserialize-199"><span class="linenos">199</span></a>        <span class="k">return</span> <span class="n">quantizer</span>
 </span></pre></div>
 
 

@@ -159,8 +159,8 @@
 </span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a compressed index using sequential coalescing.</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">    :param source_index: The source index. Should contain multiple vectors for each document.</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">    :param target_index: The target index. Must be empty.</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">    :param source_index: Source index (containing multiple vectors for each document).</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="sd">    :param target_index: Target index (must be empty).</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="sd">    :param delta: The coalescing threshold.</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="sd">    :param distance_function: The distance function.</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="sd">    :param batch_size: Use batches instead of adding all vectors at the end.</span>
@@ -306,8 +306,8 @@
 </span><span id="create_coalesced_index-42"><a href="#create_coalesced_index-42"><span class="linenos">42</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="create_coalesced_index-43"><a href="#create_coalesced_index-43"><span class="linenos">43</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a compressed index using sequential coalescing.</span>
 </span><span id="create_coalesced_index-44"><a href="#create_coalesced_index-44"><span class="linenos">44</span></a>
-</span><span id="create_coalesced_index-45"><a href="#create_coalesced_index-45"><span class="linenos">45</span></a><span class="sd">    :param source_index: The source index. Should contain multiple vectors for each document.</span>
-</span><span id="create_coalesced_index-46"><a href="#create_coalesced_index-46"><span class="linenos">46</span></a><span class="sd">    :param target_index: The target index. Must be empty.</span>
+</span><span id="create_coalesced_index-45"><a href="#create_coalesced_index-45"><span class="linenos">45</span></a><span class="sd">    :param source_index: Source index (containing multiple vectors for each document).</span>
+</span><span id="create_coalesced_index-46"><a href="#create_coalesced_index-46"><span class="linenos">46</span></a><span class="sd">    :param target_index: Target index (must be empty).</span>
 </span><span id="create_coalesced_index-47"><a href="#create_coalesced_index-47"><span class="linenos">47</span></a><span class="sd">    :param delta: The coalescing threshold.</span>
 </span><span id="create_coalesced_index-48"><a href="#create_coalesced_index-48"><span class="linenos">48</span></a><span class="sd">    :param distance_function: The distance function.</span>
 </span><span id="create_coalesced_index-49"><a href="#create_coalesced_index-49"><span class="linenos">49</span></a><span class="sd">    :param batch_size: Use batches instead of adding all vectors at the end.</span>
@@ -356,8 +356,8 @@
 <h6 id="parameters">Parameters</h6>
 
 <ul>
-<li><strong>source_index</strong>:  The source index. Should contain multiple vectors for each document.</li>
-<li><strong>target_index</strong>:  The target index. Must be empty.</li>
+<li><strong>source_index</strong>:  Source index (containing multiple vectors for each document).</li>
+<li><strong>target_index</strong>:  Target index (must be empty).</li>
 <li><strong>delta</strong>:  The coalescing threshold.</li>
 <li><strong>distance_function</strong>:  The distance function.</li>
 <li><strong>batch_size</strong>:  Use batches instead of adding all vectors at the end.</li>
