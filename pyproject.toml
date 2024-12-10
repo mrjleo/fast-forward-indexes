@@ -69,6 +69,7 @@ select = [
     "LOG", # flake8-logging
     "G",   # flake8-logging-format
     "RET", # flake8-return
+    "TID", # flake8-tidy-imports
 ]
 ignore = [
     "ANN401", # any-type
