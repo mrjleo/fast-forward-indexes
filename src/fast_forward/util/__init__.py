@@ -41,8 +41,8 @@ def create_coalesced_index(
 ) -> None:
     """Create a compressed index using sequential coalescing.
 
-    :param source_index: The source index. Should contain multiple vectors for each document.
-    :param target_index: The target index. Must be empty.
+    :param source_index: Source index (containing multiple vectors for each document).
+    :param target_index: Target index (must be empty).
     :param delta: The coalescing threshold.
     :param distance_function: The distance function.
     :param batch_size: Use batches instead of adding all vectors at the end.

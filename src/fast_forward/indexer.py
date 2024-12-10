@@ -33,17 +33,19 @@ class Indexer(object):
     ) -> None:
         """Instantiate an indexer.
 
-        Optionally, a quantizer can automatically be fit on the first batch(es) to be indexed. This requires the index to be empty.
-        If a quantizer is provided, the first batch(es) will be buffered and used to fit the quantizer.
+        Optionally, a quantizer can automatically be fit on the first batch(es) to be
+        indexed. This requires the index to be empty.
+        If a quantizer is provided, the first batch(es) will be buffered and used to fit
+        the quantizer.
 
         :param index: The target index.
         :param encoder: Document/passage encoder.
         :param encoder_batch_size: Encoder batch size.
         :param batch_size: How many vectors to add to the index at once.
         :param quantizer: A quantizer to be fit and attached to the index.
-        :param quantizer_fit_batches: How many of the first batches to use to fit the quantizer.
+        :param quantizer_fit_batches: How many batches to use to fit the quantizer.
         :raises ValueError: When a quantizer is provided that has already been fit.
-        :raises ValueError: When a quantizer is provided and the index already has vectors.
+        :raises ValueError: When a quantizer is provided and the index is not empty.
         """
         self._index = index
         self._encoder = encoder
@@ -55,7 +57,8 @@ class Indexer(object):
         if quantizer is not None:
             if quantizer._trained:
                 raise ValueError(
-                    "The quantizer is already fit and should be attached to the index directly."
+                    "The quantizer is already fit. "
+                    "It should be attached to the index directly."
                 )
 
             if len(index) > 0:
@@ -66,7 +69,8 @@ class Indexer(object):
             self._buf_vectors, self._buf_doc_ids, self._buf_psg_ids = [], [], []
             if quantizer_fit_batches > 1:
                 LOGGER.warning(
-                    "inputs will be buffered and index will remain empty until the quantizer has been fit"
+                    "inputs will be buffered and index will remain empty until the "
+                    "quantizer has been fit"
                 )
 
     def _index_batch(
@@ -77,9 +81,9 @@ class Indexer(object):
     ) -> None:
         """Add a batch to the index.
 
-        If this indexer has a quantizer to be fit, the inputs will be buffered until the desired amount of data for
-        fitting has been obtained. Afterwards, the quantizer is fit and attached to the index, and all buffered
-        inputs are added at once.
+        If this indexer has a quantizer to be fit, the inputs will be buffered until the
+        desired amount of data for fitting has been obtained. Afterwards, the quantizer
+        is fit and attached to the index, and all buffered inputs are added at once.
 
         :param vectors: The vectors.
         :param doc_ids: Corresponding document IDs.
@@ -103,7 +107,7 @@ class Indexer(object):
             last_batch_size = self._buf_vectors[-1].shape[0]
             if last_batch_size < self._batch_size:
                 LOGGER.warning(
-                    "the size of the last batch (%s) is smaller than the batch size (%s)",
+                    "the size of the last batch (%s) is smaller than %s",
                     last_batch_size,
                     self._batch_size,
                 )
@@ -159,7 +163,8 @@ class Indexer(object):
     def from_index(self, index: Index) -> None:
         """Transfer vectors and IDs from another index.
 
-        If the source index uses quantized representations, the vectors are reconstructed first.
+        If the source index uses quantized representations, the vectors are
+        reconstructed first.
 
         :param index: The source index.
         """

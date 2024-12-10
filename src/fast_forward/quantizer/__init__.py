@@ -52,7 +52,8 @@ class Quantizer(abc.ABC):
         """
         if not self._trained:
             raise RuntimeError(
-                f"Call {self.__class__.__name__}.fit before attaching the quantizer to an index."
+                f"Call {self.__class__.__name__}.fit before attaching the quantizer to "
+                "an index."
             )
         self._attached = True
 
@@ -63,7 +64,8 @@ class Quantizer(abc.ABC):
     def fit(self, vectors: np.ndarray, **kwargs: Any) -> None:
         """Fit (train) the quantizer.
 
-        Quantizers can only be trained before being attached to an index to avoid inconsistencies.
+        Quantizers can only be trained before being attached to an index in order to
+        avoid inconsistencies.
 
         :param vectors: The training vectors.
         :param **kwargs: Arguments specific to the quantizer.
@@ -133,9 +135,12 @@ class Quantizer(abc.ABC):
 
     @abc.abstractmethod
     def _get_state(self) -> tuple[QuantizerAttributes, QuantizerData]:
-        """Return key-value pairs that represent the state of the quantizer (specific to quantizer implementation).
+        """Return key-value pairs that represent the state of the quantizer.
 
-        This method returns a tuple of quantizer attributes (values) and quantizer data (numpy arrays).
+        This method returns a tuple of quantizer attributes (values) and quantizer data
+        (numpy arrays).
+
+        Specific to quantizer implementation.
 
         :return: Attributes and data of the quantizer.
         """
@@ -144,7 +149,9 @@ class Quantizer(abc.ABC):
     def serialize(
         self,
     ) -> tuple[QuantizerAttributes, QuantizerAttributes, QuantizerData]:
-        """Return a serialized representation of the quantizer that can be stored in the index.
+        """Return a serialized representation of the quantizer.
+
+        This representations is used to be stored in the index.
 
         :return: The serialized quantizer.
         """

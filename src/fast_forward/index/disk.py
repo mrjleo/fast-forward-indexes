@@ -47,9 +47,11 @@ class OnDiskIndex(Index):
         :param init_size: Initial size to allocate (number of vectors).
         :param resize_min_val: Minimum number of vectors to increase index size by.
         :param hdf5_chunk_size: Override chunk size used by HDF5.
-        :param max_id_length: Maximum length of document and passage IDs (number of characters).
+        :param max_id_length:
+            Maximum length of document and passage IDs (number of characters).
         :param overwrite: Overwrite index file if it exists.
-        :param max_indexing_size: Maximum number of vectors to retrieve from the HDF5 dataset at once.
+        :param max_indexing_size:
+            Maximum number of vectors to retrieve from the HDF5 dataset at once.
         :raises ValueError: When the file exists and `overwrite=False`.
         """
         if index_file.exists() and not overwrite:
@@ -183,13 +185,15 @@ class OnDiskIndex(Index):
             for doc_id in doc_ids:
                 if doc_id is not None and len(doc_id) > doc_id_size:
                     raise RuntimeError(
-                        f"Document ID {doc_id} is longer than the maximum ({doc_id_size} characters)."
+                        f"Document ID {doc_id} is longer than the maximum "
+                        f"({doc_id_size} characters)."
                     )
             psg_id_size = fp["psg_ids"].dtype.itemsize  # pyright: ignore[reportAttributeAccessIssue]
             for psg_id in psg_ids:
                 if psg_id is not None and len(psg_id) > psg_id_size:
                     raise RuntimeError(
-                        f"Passage ID {psg_id} is longer than the maximum ({psg_id_size} characters)."
+                        f"Passage ID {psg_id} is longer than the maximum "
+                        f"({psg_id_size} characters)."
                     )
 
             num_new_vecs = vectors.shape[0]
@@ -260,7 +264,8 @@ class OnDiskIndex(Index):
                 vec_idxs.append(vec_idx)
                 id_to_idxs[id].append(id_idx)
 
-            # reading all vectors at once slows h5py down significantly, so we read them in chunks and concatenate
+            # reading all vectors at once slows h5py down significantly, so we read them
+            # in chunks and concatenate
             vectors = np.concatenate(  # pyright: ignore[reportCallIssue]
                 [
                     fp["vectors"][vec_idxs[i : i + self._max_indexing_size]]  # pyright: ignore[reportIndexIssue, reportArgumentType]
@@ -303,7 +308,8 @@ class OnDiskIndex(Index):
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
         :param resize_min_val: Minimum value to increase index size by.
-        :param max_indexing_size: Maximum number of vectors to retrieve from the HDF5 dataset at once.
+        :param max_indexing_size:
+            Maximum number of vectors to retrieve from the HDF5 dataset at once.
         :return: The index.
         """
         LOGGER.debug("reading file %s", index_file)

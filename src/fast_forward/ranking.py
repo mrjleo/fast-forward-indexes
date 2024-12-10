@@ -30,7 +30,8 @@ def _attach_queries(df: pd.DataFrame, queries: Mapping[str, str]) -> pd.DataFram
 def _add_ranks(df: pd.DataFrame) -> pd.DataFrame:
     """Add a new column ("rank") to a data frame.
 
-    The new column contains ranks of documents w.r.t. the queries (based on the document scores). Ranks start from `1`.
+    The new column contains ranks of documents based on the scores w.r.t. the queries.
+    Ranks start from `1`.
 
     :param df: The data frame to add the column to.
     :return: The data frame with the new column added.
@@ -117,7 +118,9 @@ class Ranking(object):
 
     @property
     def q_ids(self) -> set[str]:
-        """The set of (unique) query IDs in this ranking. Only queries with at least one scored document are considered.
+        """The set of (unique) query IDs in this ranking.
+
+        Only queries with at least one scored document are considered.
 
         :return: The query IDs.
         """
@@ -154,7 +157,9 @@ class Ranking(object):
         return key in self._q_ids
 
     def __eq__(self, o: object) -> bool:
-        """Check if this ranking is identical to another one. Only takes IDs and scores into account.
+        """Check if this ranking is identical to another one.
+
+        Only takes IDs and scores into account.
 
         :param o: The other ranking.
         :return: Whether the two rankings are identical.
@@ -169,7 +174,7 @@ class Ranking(object):
         return df1[cols].equals(df2[cols])
 
     def __add__(self, o: "Ranking | float") -> "Ranking":
-        """Add a constant or the corresponding scores of another ranking to this ranking's scores.
+        """Add a constant or the scores of another ranking to this ranking's scores.
 
         Missing scores in either ranking are treated as zero.
 

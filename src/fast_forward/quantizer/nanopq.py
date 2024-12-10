@@ -7,9 +7,10 @@ from fast_forward.quantizer import Quantizer, QuantizerAttributes, QuantizerData
 
 
 class NanoPQ(Quantizer):
-    """Product quantizer that uses the [nanopq library](https://nanopq.readthedocs.io/en/stable/index.html).
+    """Product quantizer that uses the nanopq library.
 
-    More information is available [here](https://nanopq.readthedocs.io/en/stable/source/api.html#nanopq.PQ).
+    More information is available
+    [here](https://nanopq.readthedocs.io/en/stable/source/api.html#nanopq.PQ).
     """
 
     def __init__(
@@ -74,9 +75,10 @@ class NanoPQ(Quantizer):
 
 
 class NanoOPQ(Quantizer):
-    """Optimized product quantizer that uses the [nanopq library](https://nanopq.readthedocs.io/en/stable/index.html).
+    """Optimized product quantizer that uses the nanopq library.
 
-    More information is available [here](https://nanopq.readthedocs.io/en/stable/source/api.html#nanopq.OPQ).
+    More information is available
+    [here](https://nanopq.readthedocs.io/en/stable/source/api.html#nanopq.OPQ).
     """
 
     def __init__(

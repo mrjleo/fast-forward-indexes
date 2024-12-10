@@ -54,12 +54,11 @@ reportMissingParameterType = true
 
 [tool.ruff]
 include = ["pyproject.toml", "src/**/*.py"]
+line-length = 88
 
 [tool.ruff.lint]
 select = [
-    "E4",  # pycodestyle
-    "E7",  # pycodestyle
-    "E9",  # pycodestyle
+    "E",   # pycodestyle
     "F",   # Pyflakes
     "ANN", # flake8
     "D",   # pydocstyle

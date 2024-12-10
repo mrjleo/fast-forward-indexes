@@ -45,7 +45,10 @@ class FFScore(pt.Transformer):
 
         :return: The representation.
         """
-        return f"{self.__class__.__name__}({id(self._index)}, {id(self._index._query_encoder)})"
+        cls_name = self.__class__.__name__
+        index_id = id(self._index)
+        encoder_id = id(self._index._query_encoder)
+        return f"{cls_name}({index_id}, {encoder_id})"
 
 
 class FFInterpolate(pt.Transformer):

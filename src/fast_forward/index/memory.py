@@ -31,7 +31,7 @@ class InMemoryIndex(Index):
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
         :param init_size: Initial index size. (number of vectors), defaults to 2**14
-        :param alloc_size: Size of shard (number of vectors) allocated when index is full.
+        :param alloc_size: Shard size (number of vectors) allocated when index is full.
         """
         self._shards = []
         self._init_size = init_size
@@ -113,7 +113,8 @@ class InMemoryIndex(Index):
 
     def consolidate(self) -> None:
         """Combine all shards of the index in one contiguous section in the memory."""
-        # combine all shards up to the last one entirely, and take only whats in use of the last one
+        # combine all shards up to the last one entirely, and take only whats in use of
+        # the last one
         self._shards = [
             np.concatenate(
                 self._shards[:-1] + [self._shards[-1][: self._idx_in_cur_shard]]

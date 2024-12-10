@@ -105,7 +105,9 @@ class Index(abc.ABC):
 
     @quantizer.setter
     def quantizer(self, quantizer: Quantizer) -> None:
-        """Set the quantizer. This is only possible before any vectors are added to the index.
+        """Set the quantizer.
+
+        This is only possible before any vectors are added to the index.
 
         :param quantizer: The new quantizer.
         :raises RuntimeError: When the index is not empty.
@@ -143,7 +145,8 @@ class Index(abc.ABC):
     def dim(self) -> int | None:
         """Return the dimensionality of the vector index.
 
-        If no vectors exist, return `None`. If a quantizer is used, return the dimension of the codes.
+        If no vectors exist, return `None`.
+        If a quantizer is used, return the dimension of the codes.
 
         :return: The dimensionality (if any).
         """
@@ -193,11 +196,16 @@ class Index(abc.ABC):
         doc_ids: IDSequence,
         psg_ids: IDSequence,
     ) -> None:
-        """Add vector representations and corresponding IDs to the index (specific to index implementation).
+        """Add vector representations and corresponding IDs to the index.
 
-        Document IDs may have duplicates, passage IDs are assumed to be unique. Vectors may be quantized.
+        Document IDs may have duplicates, passage IDs are assumed to be unique.
+        Vectors may be quantized.
 
-        :param vectors: The representations, shape `(num_vectors, dim)` or `(num_vectors, quantized_dim)`.
+        Specific to index implementation.
+
+        :param vectors:
+            The representations, shape `(num_vectors, dim)` or
+            `(num_vectors, quantized_dim)`.
         :param doc_ids: The corresponding document IDs.
         :param psg_ids: The corresponding passage IDs.
         """
@@ -211,15 +219,17 @@ class Index(abc.ABC):
     ) -> None:
         """Add vector representations and corresponding IDs to the index.
 
-        Only one of `doc_ids` and `psg_ids` may be `None`. Individual IDs in the sequence may also be `None`,
-        but each vector must have at least one associated ID.
+        Only one of `doc_ids` and `psg_ids` may be `None`.
+        Individual IDs in the sequence may also be `None`, but each vector must have at
+        least one associated ID.
         Document IDs may have duplicates, passage IDs must be unique.
 
         :param vectors: The representations, shape `(num_vectors, dim)`.
         :param doc_ids: The corresponding document IDs (may be duplicate).
         :param psg_ids: The corresponding passage IDs (must be unique).
         :raises ValueError: When the number of IDs does not match the number of vectors.
-        :raises ValueError: When the input vector and index dimensionalities don't match.
+        :raises ValueError:
+            When the input vector and index dimensionalities do not match.
         :raises ValueError: When a vector has neither a document nor a passage ID.
         :raises RuntimeError: When items can't be added to the index for any reason.
         """
@@ -234,7 +244,8 @@ class Index(abc.ABC):
 
         if self.dim is not None and dim != self.dim:
             raise ValueError(
-                f"Input vector dimensionality ({dim}) does not match index dimensionality ({self.dim})."
+                f"Input vector dimensionality ({dim}) does not match "
+                f"index dimensionality ({self.dim})."
             )
 
         for doc_id, psg_id in zip(doc_ids, psg_ids):
@@ -249,15 +260,19 @@ class Index(abc.ABC):
 
     @abc.abstractmethod
     def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
-        """Get vectors and corresponding IDs from the index (specific to index implementation).
+        """Get vectors and corresponding IDs from the index.
 
-        Returns a tuple containing:
-            * A single array containing all vectors necessary to compute the scores for each document/passage.
-            * For each document/passage (in the same order as the IDs), a list of integers (depending on the mode).
+        Return a tuple containing:
+            * A single array of all vectors necessary to compute the scores for each
+                document/passage.
+            * For each document/passage (in the same order as the IDs), a list of
+                integers (depending on the mode).
 
-        The integers will be used to get the corresponding representations from the array.
+        The integers will be used to get the corresponding vectors from the array.
         The output of this function depends on the current mode.
         If a quantizer is used, this function returns quantized vectors.
+
+        Specific to index implementation.
 
         :param ids: The document/passage IDs to get the representations for.
         :return: The vectors and corresponding indices.
@@ -429,7 +444,8 @@ class Index(abc.ABC):
         query_df["q_no"] = query_df.index
         df_with_q_no = ranking._df.merge(query_df, on="q_id", suffixes=(None, "_"))
 
-        # early stopping splits the data frame, hence we need to keep track of the original index
+        # early stopping splits the data frame, hence we need to keep track of the
+        # original index
         df_with_q_no["orig_index"] = df_with_q_no.index
 
         # batch encode queries
@@ -479,10 +495,12 @@ class Index(abc.ABC):
     def _batch_iter(
         self, batch_size: int
     ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
-        """Iterate over the index in batches (specific to index implementation).
+        """Iterate over the index in batches.
 
         If a quantizer is used, the vectors are the quantized codes.
         When an ID does not exist, it must be set to `None`.
+
+        Specific to index implementation.
 
         :param batch_size: The batch size.
         :yield: Vectors, document IDs, passage IDs (in batches).
