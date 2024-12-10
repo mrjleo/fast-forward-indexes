@@ -13,13 +13,16 @@ from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
 
-IndexingDict = TypedDict(
-    "IndexingDict",
-    {"text": str, "doc_id": str | None, "psg_id": str | None},
-)
+
+class IndexingDict(TypedDict):
+    """Dictionary that represents a document/passage, consumed by `Indexer`."""
+
+    text: str
+    doc_id: str | None
+    psg_id: str | None
 
 
-class Indexer(object):
+class Indexer:
     """Utility class for indexing collections."""
 
     def __init__(

@@ -58,10 +58,11 @@ line-length = 88
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle
     "F",   # Pyflakes
-    "ANN", # flake8
+    "E",   # pycodestyle
     "D",   # pydocstyle
+    "UP",  # pyupgrade
+    "ANN", # flake8-annotations
     "I",   # isort
 ]
 ignore = [

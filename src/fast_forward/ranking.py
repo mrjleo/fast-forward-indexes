@@ -60,7 +60,7 @@ def _minmax_normalize_scores(df: pd.DataFrame) -> pd.DataFrame:
     return new_df
 
 
-class Ranking(object):
+class Ranking:
     """Represents rankings of documents/passages w.r.t. queries."""
 
     def __init__(
@@ -187,7 +187,7 @@ class Ranking(object):
             ).fillna(0)
             new_df["score"] = new_df["score"] + new_df["score_other"]
             is_sorted = False
-        elif isinstance(o, (int, float)):
+        elif isinstance(o, int | float):
             new_df = self._df.copy()
             new_df["score"] += o
             is_sorted = True
@@ -210,7 +210,7 @@ class Ranking(object):
         :param o: A constant.
         :return: The resulting ranking with multiplied scores.
         """
-        if not isinstance(o, (int, float)):
+        if not isinstance(o, int | float):
             return NotImplemented
 
         new_df = self._df.copy()
