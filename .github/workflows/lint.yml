@@ -1,4 +1,4 @@
-name: Run linter
+name: Lint code and check formatting
 
 on:
   push:
@@ -24,3 +24,21 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Run ruff
         run: uvx ruff check
+
+  check_format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out ${{ github.ref_name }}
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.6"
+      - name: Install packages
+        run: uv sync --all-extras --dev
+      - name: Run ruff
+        run: uvx ruff format --check
