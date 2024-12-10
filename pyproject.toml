@@ -66,6 +66,8 @@ select = [
     "UP",  # pyupgrade
     "ANN", # flake8-annotations
     "ICN", # flake8-import-conventions
+    "LOG", # flake8-logging
+    "G",   # flake8-logging-format
 ]
 ignore = [
     "ANN401", # any-type
