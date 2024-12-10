@@ -60,6 +60,7 @@ line-length = 88
 select = [
     "F",   # Pyflakes
     "E",   # pycodestyle
+    "W",   # pycodestyle
     "D",   # pydocstyle
     "UP",  # pyupgrade
     "ANN", # flake8-annotations
