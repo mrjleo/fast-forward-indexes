@@ -63,6 +63,7 @@ select = [
     "F",   # Pyflakes
     "ANN", # flake8
     "D",   # pydocstyle
+    "I",   # isort
 ]
 ignore = [
     "ANN401", # any-type
