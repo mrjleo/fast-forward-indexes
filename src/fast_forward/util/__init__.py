@@ -1,6 +1,5 @@
 """.. include:: ../docs/util.md"""  # noqa: D400, D415
 
-
 from typing import TYPE_CHECKING
 
 import numpy as np
