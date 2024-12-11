@@ -1,18 +1,21 @@
 import logging
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
-from pathlib import Path
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import h5py
 import numpy as np
 from tqdm import tqdm
 
 import fast_forward
-from fast_forward.encoder import Encoder
 from fast_forward.index import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
 from fast_forward.quantizer import Quantizer
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from pathlib import Path
+
+    from fast_forward.encoder import Encoder
 
 LOGGER = logging.getLogger(__name__)
 
@@ -25,8 +28,8 @@ class OnDiskIndex(Index):
 
     def __init__(
         self,
-        index_file: Path,
-        query_encoder: Encoder | None = None,
+        index_file: "Path",
+        query_encoder: "Encoder | None" = None,
         quantizer: Quantizer | None = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
@@ -239,7 +242,7 @@ class OnDiskIndex(Index):
     def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
+    def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[list[int]]]:
         idx_pairs = []
         with h5py.File(self._index_file, "r") as fp:
             for id in ids:
@@ -276,7 +279,7 @@ class OnDiskIndex(Index):
 
     def _batch_iter(
         self, batch_size: int
-    ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
+    ) -> "Iterator[tuple[np.ndarray, IDSequence, IDSequence]]":
         with h5py.File(self._index_file, "r") as fp:
             num_vectors = cast(int, fp.attrs["num_vectors"])
             for i in range(0, num_vectors, batch_size):
@@ -294,8 +297,8 @@ class OnDiskIndex(Index):
     @classmethod
     def load(
         cls,
-        index_file: Path,
-        query_encoder: Encoder | None = None,
+        index_file: "Path",
+        query_encoder: "Encoder | None" = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         resize_min_val: int = 2**10,

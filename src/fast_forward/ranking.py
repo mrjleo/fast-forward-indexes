@@ -2,10 +2,13 @@
 
 import logging
 from collections.abc import Iterator, Mapping
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 LOGGER = logging.getLogger(__name__)
 
@@ -335,7 +338,7 @@ class Ranking:
 
     def save(
         self,
-        target: Path,
+        target: "Path",
     ) -> None:
         """Save the ranking in a TREC runfile.
 
@@ -376,7 +379,7 @@ class Ranking:
     @classmethod
     def from_file(
         cls,
-        f: Path,
+        f: "Path",
         queries: Mapping[str, str] | None = None,
         dtype: np.dtype = np.dtype(np.float32),
     ) -> "Ranking":

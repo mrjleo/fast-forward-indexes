@@ -1,13 +1,17 @@
 import logging
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
+from typing import TYPE_CHECKING
 
 import numpy as np
 from tqdm import tqdm
 
-from fast_forward.encoder import Encoder
 from fast_forward.index import IDSequence, Index, Mode
-from fast_forward.quantizer import Quantizer
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+
+    from fast_forward.encoder import Encoder
+    from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -17,8 +21,8 @@ class InMemoryIndex(Index):
 
     def __init__(
         self,
-        query_encoder: Encoder | None = None,
-        quantizer: Quantizer | None = None,
+        query_encoder: "Encoder | None" = None,
+        quantizer: "Quantizer | None" = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
@@ -145,7 +149,7 @@ class InMemoryIndex(Index):
             idx_in_shard = idx % self._alloc_size
         return shard_idx, idx_in_shard
 
-    def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
+    def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[list[int]]]:
         items_by_shard = defaultdict(list)
         for id in ids:
             if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
@@ -178,7 +182,7 @@ class InMemoryIndex(Index):
 
     def _batch_iter(
         self, batch_size: int
-    ) -> Iterator[tuple[np.ndarray, IDSequence, IDSequence]]:
+    ) -> "Iterator[tuple[np.ndarray, IDSequence, IDSequence]]":
         LOGGER.info("creating ID mappings for this index")
         idx_to_doc_id = {
             idx: doc_id

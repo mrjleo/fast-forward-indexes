@@ -83,3 +83,6 @@ ignore = [
     "PLR0913", # too-many-arguments
     "PLR2004", # magic-value-comparison
 ]
+
+[tool.ruff.lint.flake8-type-checking]
+quote-annotations = true

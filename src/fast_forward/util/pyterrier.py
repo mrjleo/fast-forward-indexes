@@ -1,14 +1,19 @@
-import pandas as pd
+from typing import TYPE_CHECKING
+
 import pyterrier as pt
 
-from fast_forward.index import Index
 from fast_forward.ranking import Ranking
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+    from fast_forward.index import Index
 
 
 class FFScore(pt.Transformer):
     """PyTerrier transformer that computes scores using a Fast-Forward index."""
 
-    def __init__(self, index: Index) -> None:
+    def __init__(self, index: "Index") -> None:
         """Create an FFScore transformer.
 
         :param index: The Fast-Forward index.
@@ -16,7 +21,7 @@ class FFScore(pt.Transformer):
         self._index = index
         super().__init__()
 
-    def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, topics_or_res: "pd.DataFrame") -> "pd.DataFrame":
         """Compute the scores for all query-document pairs in the data frame.
 
         The previous scores are moved to the "score_0" column.
@@ -63,7 +68,7 @@ class FFInterpolate(pt.Transformer):
         self.alpha = alpha
         super().__init__()
 
-    def transform(self, topics_or_res: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, topics_or_res: "pd.DataFrame") -> "pd.DataFrame":
         """Interpolate the scores as `alpha * score_0 + (1 - alpha) * score`.
 
         :param topics_or_res: The PyTerrier data frame.

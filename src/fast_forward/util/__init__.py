@@ -1,16 +1,21 @@
 """.. include:: ../docs/util.md"""  # noqa: D400, D415
 
-from collections.abc import Callable
+
+from typing import TYPE_CHECKING
 
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
 
-from fast_forward.index import Index
-from fast_forward.ranking import Ranking
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    import pandas as pd
+
+    from fast_forward.index import Index
+    from fast_forward.ranking import Ranking
 
 
-def to_ir_measures(ranking: Ranking) -> pd.DataFrame:
+def to_ir_measures(ranking: "Ranking") -> "pd.DataFrame":
     """Return a ranking as a data frame suitable for the ir-measures library.
 
     :param ranking: The input ranking.
@@ -33,10 +38,10 @@ def cos_dist(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def create_coalesced_index(
-    source_index: Index,
-    target_index: Index,
+    source_index: "Index",
+    target_index: "Index",
     delta: float,
-    distance_function: Callable[[np.ndarray, np.ndarray], float] = cos_dist,
+    distance_function: "Callable[[np.ndarray, np.ndarray], float]" = cos_dist,
     batch_size: int | None = None,
 ) -> None:
     """Create a compressed index using sequential coalescing.

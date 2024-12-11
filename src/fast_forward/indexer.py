@@ -1,15 +1,17 @@
 """.. include:: docs/indexer.md"""  # noqa: D400, D415
 
 import logging
-from collections.abc import Iterable, Sequence
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 import numpy as np
 from tqdm import tqdm
 
-from fast_forward.encoder import Encoder
-from fast_forward.index import IDSequence, Index
-from fast_forward.quantizer import Quantizer
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+    from fast_forward.encoder import Encoder
+    from fast_forward.index import IDSequence, Index
+    from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -27,11 +29,11 @@ class Indexer:
 
     def __init__(
         self,
-        index: Index,
-        encoder: Encoder | None = None,
+        index: "Index",
+        encoder: "Encoder | None" = None,
         encoder_batch_size: int = 128,
         batch_size: int = 2**16,
-        quantizer: Quantizer | None = None,
+        quantizer: "Quantizer | None" = None,
         quantizer_fit_batches: int = 1,
     ) -> None:
         """Instantiate an indexer.
@@ -79,8 +81,8 @@ class Indexer:
     def _index_batch(
         self,
         vectors: np.ndarray,
-        doc_ids: IDSequence | None = None,
-        psg_ids: IDSequence | None = None,
+        doc_ids: "IDSequence | None" = None,
+        psg_ids: "IDSequence | None" = None,
     ) -> None:
         """Add a batch to the index.
 
@@ -129,7 +131,7 @@ class Indexer:
             del self._buf_doc_ids
             del self._buf_psg_ids
 
-    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
         """Encode a list of strings (respecting the encoder batch size).
 
         :param texts: The pieces of text to encode.
@@ -145,7 +147,7 @@ class Indexer:
             result.append(self._encoder(batch))
         return np.concatenate(result)
 
-    def from_dicts(self, data: Iterable[IndexingDict]) -> None:
+    def from_dicts(self, data: "Iterable[IndexingDict]") -> None:
         """Index data from dictionaries.
 
         :param data: An iterable of the dictionaries.
@@ -163,7 +165,7 @@ class Indexer:
         if len(texts) > 0:
             self._index_batch(self._encode(texts), doc_ids=doc_ids, psg_ids=psg_ids)
 
-    def from_index(self, index: Index) -> None:
+    def from_index(self, index: "Index") -> None:
         """Transfer vectors and IDs from another index.
 
         If the source index uses quantized representations, the vectors are

@@ -1,23 +1,25 @@
 """.. include:: docs/encoder.md"""  # noqa: D400, D415
 
 import abc
-from collections.abc import Callable, Sequence
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
 from transformers import AutoModel, AutoTokenizer
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
+    from pathlib import Path
 
 
 class Encoder(abc.ABC):
     """Base class for encoders."""
 
     @abc.abstractmethod
-    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
         pass
 
-    def __call__(self, texts: Sequence[str]) -> np.ndarray:
+    def __call__(self, texts: "Sequence[str]") -> np.ndarray:
         """Encode a list of texts.
 
         :param texts: The texts to encode.
@@ -30,7 +32,7 @@ class TransformerEncoder(Encoder):
     """Uses a pre-trained transformer model for encoding. Returns the pooler output."""
 
     def __init__(
-        self, model: str | Path, device: str = "cpu", **tokenizer_args: Any
+        self, model: "str | Path", device: str = "cpu", **tokenizer_args: Any
     ) -> None:
         """Create a transformer encoder.
 
@@ -46,7 +48,7 @@ class TransformerEncoder(Encoder):
         self.device = device
         self.tokenizer_args = tokenizer_args
 
-    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
         inputs = self.tokenizer(list(texts), return_tensors="pt", **self.tokenizer_args)
         inputs.to(self.device)
         with torch.no_grad():
@@ -56,7 +58,7 @@ class TransformerEncoder(Encoder):
 class LambdaEncoder(Encoder):
     """Encoder adapter class for arbitrary encoding functions."""
 
-    def __init__(self, f: Callable[[str], np.ndarray]) -> None:
+    def __init__(self, f: "Callable[[str], np.ndarray]") -> None:
         """Create a lambda encoder.
 
         :param f: Function to encode a single piece of text.
@@ -64,7 +66,7 @@ class LambdaEncoder(Encoder):
         super().__init__()
         self._f = f
 
-    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
         return np.array(list(map(self._f, texts)))
 
 
@@ -75,7 +77,7 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72
     """
 
-    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
         max_length = 36
         inputs = self.tokenizer(
             ["[CLS] [Q] " + q + "[MASK]" * max_length for q in texts],
@@ -98,7 +100,7 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27
     """
 
-    def _encode(self, texts: Sequence[str]) -> np.ndarray:
+    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
         max_length = 512
         inputs = self.tokenizer(
             ["[CLS] [D] " + text for text in texts],
