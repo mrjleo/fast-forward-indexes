@@ -20,10 +20,12 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
+# h5py does not play nice with pyright, so we add lots of ignores in this class
 class OnDiskIndex(Index):
     """Fast-Forward index that is read on-demand from disk.
 
-    Uses HDF5 via h5py under the hood. The `max_indexing_size` works around a [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
+    Uses HDF5 via h5py under the hood. The `max_indexing_size` works around a
+    [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
     """
 
     def __init__(

@@ -2,6 +2,7 @@
 
 import importlib.metadata
 
+# in this specific case, the redundant aliases are recommended by pyright
 # ruff: noqa: PLC0414
 from fast_forward.index import Mode as Mode
 from fast_forward.index.disk import OnDiskIndex as OnDiskIndex
