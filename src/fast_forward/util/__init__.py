@@ -1,4 +1,6 @@
-""".. include:: ../docs/util.md"""  # noqa: D400, D415
+""".. include:: ../docs/indexer.md
+.. include:: ../docs/util.md
+"""  # noqa: D205, D400, D415
 
 from typing import TYPE_CHECKING
 

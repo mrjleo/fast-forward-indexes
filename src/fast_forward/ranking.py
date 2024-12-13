@@ -1,5 +1,3 @@
-""".. include:: docs/ranking.md"""  # noqa: D400, D415
-
 import logging
 from collections.abc import Iterator, Mapping
 from typing import TYPE_CHECKING

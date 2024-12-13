@@ -1,5 +1,3 @@
-""".. include:: docs/indexer.md"""  # noqa: D400, D415
-
 import logging
 from typing import TYPE_CHECKING, TypedDict
 
