@@ -6,7 +6,7 @@ import numpy as np
 from tqdm import tqdm
 
 from fast_forward.util import pyterrier
-from fast_forward.util.indexer import Indexer
+from fast_forward.util.indexer import Indexer, IndexingDict
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 __all__ = [
     "pyterrier",
     "Indexer",
+    "IndexingDict",
     "to_ir_measures",
     "cos_dist",
     "create_coalesced_index",
