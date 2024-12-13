@@ -1,31 +1,14 @@
-""".. include:: docs/encoder.md"""  # noqa: D400, D415
-
-import abc
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import torch
 from transformers import AutoModel, AutoTokenizer
 
+from fast_forward.encoder.base import Encoder
+
 if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
+    from collections.abc import Sequence
     from pathlib import Path
-
-
-class Encoder(abc.ABC):
-    """Base class for encoders."""
-
-    @abc.abstractmethod
-    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
-        pass
-
-    def __call__(self, texts: "Sequence[str]") -> np.ndarray:
-        """Encode a list of texts.
-
-        :param texts: The texts to encode.
-        :return: The resulting vector representations.
-        """
-        return self._encode(texts)
 
 
 class TransformerEncoder(Encoder):
@@ -55,21 +38,6 @@ class TransformerEncoder(Encoder):
         inputs.to(self._device)
         with torch.no_grad():
             return self._model(**inputs).pooler_output.detach().cpu().numpy()
-
-
-class LambdaEncoder(Encoder):
-    """Encoder adapter class for arbitrary encoding functions."""
-
-    def __init__(self, f: "Callable[[str], np.ndarray]") -> None:
-        """Create a lambda encoder.
-
-        :param f: Function to encode a single piece of text.
-        """
-        super().__init__()
-        self._f = f
-
-    def _encode(self, texts: "Sequence[str]") -> np.ndarray:
-        return np.array(list(map(self._f, texts)))
 
 
 class TCTColBERTQueryEncoder(TransformerEncoder):

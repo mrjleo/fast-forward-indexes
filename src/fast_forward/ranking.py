@@ -1,5 +1,3 @@
-""".. include:: docs/ranking.md"""  # noqa: D400, D415
-
 import logging
 from collections.abc import Iterator, Mapping
 from typing import TYPE_CHECKING
@@ -81,7 +79,7 @@ class Ranking:
         :param name: Method name.
         :param queries: Query IDs mapped to queries.
         :param dtype: How the scores should be represented in the data frame.
-        :param copy:  Whether to copy the data frame.
+        :param copy: Whether to copy the data frame.
         :param is_sorted: Whether the data frame is already sorted (by score).
         :raises ValueError: When the queries are incomplete.
         """

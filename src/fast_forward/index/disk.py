@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 import fast_forward
-from fast_forward.index import IDSequence, Index, Mode
+from fast_forward.index.base import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
 from fast_forward.quantizer import Quantizer
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
     from pathlib import Path
 
-    from fast_forward.encoder import Encoder
+    from fast_forward.encoder.base import Encoder
 
 LOGGER = logging.getLogger(__name__)
 

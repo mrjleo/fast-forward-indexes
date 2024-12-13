@@ -1,5 +1,3 @@
-""".. include:: docs/indexer.md"""  # noqa: D400, D415
-
 import logging
 from typing import TYPE_CHECKING, TypedDict
 
@@ -9,15 +7,18 @@ from tqdm import tqdm
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from fast_forward.encoder import Encoder
-    from fast_forward.index import IDSequence, Index
+    from fast_forward.encoder.base import Encoder
+    from fast_forward.index.base import IDSequence, Index
     from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
 
 
 class IndexingDict(TypedDict):
-    """Dictionary that represents a document/passage, consumed by `Indexer`."""
+    """Dictionary that represents a document/passage.
+
+    Consumed by `Indexer.from_dicts`.
+    """
 
     text: str
     doc_id: str | None

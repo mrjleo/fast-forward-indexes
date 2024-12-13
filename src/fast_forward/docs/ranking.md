@@ -1,10 +1,12 @@
-Rankings (or runs) are represented using the `fast_forward.ranking.Ranking` class. Each ranking contains query IDs, document/passage IDs, and corresponding scores. Rankings may be instantiated from TREC runfiles using `fast_forward.ranking.Ranking.from_file`:
+# Rankings
+
+Rankings (or runs) are represented using the `Ranking` class. Each ranking contains query IDs, document/passage IDs, and corresponding scores. Rankings may be instantiated from TREC runfiles using `Ranking.from_file`:
 
 ```python
 r = Ranking.from_file(Path("/path/to/TREC/run.tsv"))
 ```
 
-Alternatively, rankings can be created from nested dictionaries using `fast_forward.ranking.Ranking.from_run`:
+Alternatively, rankings can be created from nested dictionaries using `Ranking.from_run`:
 
 ```python
 run = {
@@ -14,7 +16,7 @@ run = {
 r = Ranking.from_run(run)
 ```
 
-Optionally, rankings can have queries attached using `fast_forward.ranking.Ranking.attach_queries`:
+Optionally, rankings can have queries attached using `Ranking.attach_queries`:
 
 ```python
 r = r.attach_queries(
@@ -33,7 +35,7 @@ Rankings implement addition and multiplication operators, for example:
 ranking_3 = 0.1 * ranking_1 + ranking_2
 ```
 
-`fast_forward.ranking.Ranking.interpolate` allows to interpolate the scores of two rankings (i.e., retrieval and re-ranking):
+`Ranking.interpolate` allows to interpolate the scores of two rankings (i.e., retrieval and re-ranking):
 
 ```python
 first_stage_ranking = Ranking.from_file(Path("/path/to/TREC/run.tsv"))
@@ -43,7 +45,7 @@ interpolated_ranking = first_stage_ranking.interpolate(semantic_scores, 0.1)
 interpolated_ranking = first_stage_ranking * 0.1 + semantic_scores * 0.9
 ```
 
-Additionally, `fast_forward.ranking.Ranking.rr_scores` recomputes a ranking's scores based on the reciprocal rank. This allows, for example, to perform [reciprocal rank fusion (RRF)](https://dl.acm.org/doi/10.1145/1571941.1572114) as follows:
+Additionally, `Ranking.rr_scores` recomputes a ranking's scores based on the reciprocal rank. This allows, for example, to perform [reciprocal rank fusion (RRF)](https://dl.acm.org/doi/10.1145/1571941.1572114) as follows:
 
 ```python
 rrf_ranking = first_stage_ranking.rr_scores() + semantic_scores.rr_scores()

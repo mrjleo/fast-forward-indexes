@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from fast_forward.index import IDSequence, Index, Mode
+from fast_forward.index.base import IDSequence, Index, Mode
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
-    from fast_forward.encoder import Encoder
+    from fast_forward.encoder.base import Encoder
     from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)

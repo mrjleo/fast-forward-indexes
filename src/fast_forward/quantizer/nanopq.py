@@ -3,7 +3,7 @@ from typing import Any
 import nanopq
 import numpy as np
 
-from fast_forward.quantizer import Quantizer, QuantizerAttributes, QuantizerData
+from fast_forward.quantizer.base import Quantizer, QuantizerAttributes, QuantizerData
 
 
 class NanoPQ(Quantizer):

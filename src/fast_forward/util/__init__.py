@@ -1,17 +1,29 @@
-""".. include:: ../docs/util.md"""  # noqa: D400, D415
+""".. include:: ../docs/indexer.md
+.. include:: ../docs/util.md
+"""  # noqa: D205, D400, D415
 
 from typing import TYPE_CHECKING
 
 import numpy as np
 from tqdm import tqdm
 
+from fast_forward.util.indexer import Indexer, IndexingDict
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     import pandas as pd
 
-    from fast_forward.index import Index
+    from fast_forward.index.base import Index
     from fast_forward.ranking import Ranking
+
+__all__ = [
+    "Indexer",
+    "IndexingDict",
+    "to_ir_measures",
+    "cos_dist",
+    "create_coalesced_index",
+]
 
 
 def to_ir_measures(ranking: "Ranking") -> "pd.DataFrame":

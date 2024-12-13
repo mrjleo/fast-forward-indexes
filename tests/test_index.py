@@ -7,9 +7,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from fast_forward import InMemoryIndex, Mode, OnDiskIndex, Ranking
 from fast_forward.encoder import LambdaEncoder
+from fast_forward.index.base import Mode
+from fast_forward.index.disk import OnDiskIndex
+from fast_forward.index.memory import InMemoryIndex
 from fast_forward.quantizer.nanopq import NanoPQ
+from fast_forward.ranking import Ranking
 from fast_forward.util import create_coalesced_index
 
 DUMMY_QUERIES = {"q1": "query 1", "q2": "query 2"}

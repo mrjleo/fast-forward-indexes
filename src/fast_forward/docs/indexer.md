@@ -1,4 +1,6 @@
-The `fast_forward.indexer.Indexer` class is a utility for indexing collections or adding pre-computed vectors to an index.
+# Indexer
+
+The `Indexer` class is a utility for indexing collections or adding pre-computed vectors to an index.
 
 If the size of the collection is known in advance, it can be specified when the index is created in order to avoid subsequent resizing operations:
 
@@ -21,7 +23,7 @@ The indexer can be created as follows:
 indexer = Indexer(my_index, doc_encoder, encoder_batch_size=8)
 ```
 
-`fast_forward.indexer.Indexer.from_dicts` consumes an iterator that yields dictionaries:
+`Indexer.from_dicts` consumes an iterator that yields dictionaries:
 
 ```python
 def docs_iter():

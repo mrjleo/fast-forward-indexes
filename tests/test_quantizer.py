@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from fast_forward.quantizer import Quantizer
+from fast_forward.quantizer.base import Quantizer
 from fast_forward.quantizer.nanopq import NanoOPQ, NanoPQ
 
 

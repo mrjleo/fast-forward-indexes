@@ -1,3 +1,5 @@
+""".. include:: ../docs/pyterrier.md"""  # noqa: D400, D415
+
 from typing import TYPE_CHECKING
 
 import pyterrier as pt
@@ -7,7 +9,7 @@ from fast_forward.ranking import Ranking
 if TYPE_CHECKING:
     import pandas as pd
 
-    from fast_forward.index import Index
+    from fast_forward.index.base import Index
 
 
 class FFScore(pt.Transformer):

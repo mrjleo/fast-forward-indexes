@@ -4,8 +4,8 @@ import numpy as np
 
 from fast_forward.encoder import LambdaEncoder
 from fast_forward.index.memory import InMemoryIndex
-from fast_forward.indexer import Indexer
 from fast_forward.quantizer.nanopq import NanoPQ
+from fast_forward.util.indexer import Indexer
 
 
 class TestIndexer(unittest.TestCase):

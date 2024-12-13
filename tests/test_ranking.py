@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from fast_forward import Ranking
+from fast_forward.ranking import Ranking
 
 RUN = {
     "q1": {"d0": 1, "d1": 2, "d2": 300},

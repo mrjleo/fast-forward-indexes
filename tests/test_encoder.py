@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from fast_forward.encoder import (
-    LambdaEncoder,
+from fast_forward.encoder import LambdaEncoder
+from fast_forward.encoder.transformer import (
     TCTColBERTDocumentEncoder,
     TCTColBERTQueryEncoder,
 )
