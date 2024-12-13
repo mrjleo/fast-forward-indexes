@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from fast_forward.encoder import Encoder
+from fast_forward.encoder.base import Encoder
 from fast_forward.quantizer import Quantizer
 from fast_forward.ranking import Ranking
 

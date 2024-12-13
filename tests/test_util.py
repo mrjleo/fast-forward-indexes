@@ -1,6 +1,6 @@
 import unittest
 
-from fast_forward import Ranking
+from fast_forward.ranking import Ranking
 from fast_forward.util import to_ir_measures
 
 from .test_ranking import DUMMY_QUERIES, RUN
