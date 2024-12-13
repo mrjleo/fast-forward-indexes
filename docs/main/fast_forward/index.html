@@ -1316,7 +1316,7 @@ When the input vector and index dimensionalities do not match.</li>
 </span><span id="OnDiskIndex-43"><a href="#OnDiskIndex-43"><span class="linenos"> 43</span></a>        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 </span><span id="OnDiskIndex-44"><a href="#OnDiskIndex-44"><span class="linenos"> 44</span></a>        <span class="n">max_indexing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">,</span>
 </span><span id="OnDiskIndex-45"><a href="#OnDiskIndex-45"><span class="linenos"> 45</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="OnDiskIndex-46"><a href="#OnDiskIndex-46"><span class="linenos"> 46</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
+</span><span id="OnDiskIndex-46"><a href="#OnDiskIndex-46"><span class="linenos"> 46</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index on disk.</span>
 </span><span id="OnDiskIndex-47"><a href="#OnDiskIndex-47"><span class="linenos"> 47</span></a>
 </span><span id="OnDiskIndex-48"><a href="#OnDiskIndex-48"><span class="linenos"> 48</span></a><span class="sd">        :param index_file: The index file to create (or overwrite).</span>
 </span><span id="OnDiskIndex-49"><a href="#OnDiskIndex-49"><span class="linenos"> 49</span></a><span class="sd">        :param query_encoder: The query encoder.</span>
@@ -1666,7 +1666,7 @@ When the input vector and index dimensionalities do not match.</li>
 </span><span id="OnDiskIndex.__init__-43"><a href="#OnDiskIndex.__init__-43"><span class="linenos">43</span></a>        <span class="n">overwrite</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 </span><span id="OnDiskIndex.__init__-44"><a href="#OnDiskIndex.__init__-44"><span class="linenos">44</span></a>        <span class="n">max_indexing_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">10</span><span class="p">,</span>
 </span><span id="OnDiskIndex.__init__-45"><a href="#OnDiskIndex.__init__-45"><span class="linenos">45</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="OnDiskIndex.__init__-46"><a href="#OnDiskIndex.__init__-46"><span class="linenos">46</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
+</span><span id="OnDiskIndex.__init__-46"><a href="#OnDiskIndex.__init__-46"><span class="linenos">46</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index on disk.</span>
 </span><span id="OnDiskIndex.__init__-47"><a href="#OnDiskIndex.__init__-47"><span class="linenos">47</span></a>
 </span><span id="OnDiskIndex.__init__-48"><a href="#OnDiskIndex.__init__-48"><span class="linenos">48</span></a><span class="sd">        :param index_file: The index file to create (or overwrite).</span>
 </span><span id="OnDiskIndex.__init__-49"><a href="#OnDiskIndex.__init__-49"><span class="linenos">49</span></a><span class="sd">        :param query_encoder: The query encoder.</span>
@@ -1710,7 +1710,7 @@ When the input vector and index dimensionalities do not match.</li>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Create an index.</p>
+            <div class="docstring"><p>Create an index on disk.</p>
 
 <h6 id="parameters">Parameters</h6>
 
@@ -1923,7 +1923,7 @@ Maximum number of vectors to retrieve from the HDF5 dataset at once.</li>
 </span><span id="InMemoryIndex-29"><a href="#InMemoryIndex-29"><span class="linenos"> 29</span></a>        <span class="n">init_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span>
 </span><span id="InMemoryIndex-30"><a href="#InMemoryIndex-30"><span class="linenos"> 30</span></a>        <span class="n">alloc_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span>
 </span><span id="InMemoryIndex-31"><a href="#InMemoryIndex-31"><span class="linenos"> 31</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="InMemoryIndex-32"><a href="#InMemoryIndex-32"><span class="linenos"> 32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
+</span><span id="InMemoryIndex-32"><a href="#InMemoryIndex-32"><span class="linenos"> 32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index in memory.</span>
 </span><span id="InMemoryIndex-33"><a href="#InMemoryIndex-33"><span class="linenos"> 33</span></a>
 </span><span id="InMemoryIndex-34"><a href="#InMemoryIndex-34"><span class="linenos"> 34</span></a><span class="sd">        :param query_encoder: The query encoder to use.</span>
 </span><span id="InMemoryIndex-35"><a href="#InMemoryIndex-35"><span class="linenos"> 35</span></a><span class="sd">        :param quantizer: The quantizer to use.</span>
@@ -2140,7 +2140,7 @@ Maximum number of vectors to retrieve from the HDF5 dataset at once.</li>
 </span><span id="InMemoryIndex.__init__-29"><a href="#InMemoryIndex.__init__-29"><span class="linenos">29</span></a>        <span class="n">init_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span>
 </span><span id="InMemoryIndex.__init__-30"><a href="#InMemoryIndex.__init__-30"><span class="linenos">30</span></a>        <span class="n">alloc_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span><span class="p">,</span>
 </span><span id="InMemoryIndex.__init__-31"><a href="#InMemoryIndex.__init__-31"><span class="linenos">31</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="InMemoryIndex.__init__-32"><a href="#InMemoryIndex.__init__-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index.</span>
+</span><span id="InMemoryIndex.__init__-32"><a href="#InMemoryIndex.__init__-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an index in memory.</span>
 </span><span id="InMemoryIndex.__init__-33"><a href="#InMemoryIndex.__init__-33"><span class="linenos">33</span></a>
 </span><span id="InMemoryIndex.__init__-34"><a href="#InMemoryIndex.__init__-34"><span class="linenos">34</span></a><span class="sd">        :param query_encoder: The query encoder to use.</span>
 </span><span id="InMemoryIndex.__init__-35"><a href="#InMemoryIndex.__init__-35"><span class="linenos">35</span></a><span class="sd">        :param quantizer: The quantizer to use.</span>
@@ -2165,7 +2165,7 @@ Maximum number of vectors to retrieve from the HDF5 dataset at once.</li>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Create an index.</p>
+            <div class="docstring"><p>Create an index in memory.</p>
 
 <h6 id="parameters">Parameters</h6>
 
