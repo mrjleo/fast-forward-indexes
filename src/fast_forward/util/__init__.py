@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from fast_forward.util import pyterrier
 from fast_forward.util.indexer import Indexer, IndexingDict
 
 if TYPE_CHECKING:
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
     from fast_forward.ranking import Ranking
 
 __all__ = [
-    "pyterrier",
     "Indexer",
     "IndexingDict",
     "to_ir_measures",
