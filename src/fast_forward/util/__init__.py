@@ -5,6 +5,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
+from fast_forward.util import pyterrier
+from fast_forward.util.indexer import Indexer
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -12,6 +15,14 @@ if TYPE_CHECKING:
 
     from fast_forward.index.base import Index
     from fast_forward.ranking import Ranking
+
+__all__ = [
+    "pyterrier",
+    "Indexer",
+    "to_ir_measures",
+    "cos_dist",
+    "create_coalesced_index",
+]
 
 
 def to_ir_measures(ranking: "Ranking") -> "pd.DataFrame":
