@@ -13,7 +13,7 @@ This is the implementation of [Fast-Forward indexes](https://dl.acm.org/doi/abs/
 # How to...
 
 - [create and use Fast-Forward indexes?](fast_forward/index.html)
-- [index a collection?](fast_forward/util.html#indexer)
+- [index a collection?](fast_forward/util.html#indexing)
 - [use quantization to reduce index size?](fast_forward/quantizer.html)
 - [create custom encoders?](fast_forward/encoder.html#custom-encoders)
 - [read, manipulate, and save rankings?](#rankings)

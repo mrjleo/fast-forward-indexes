@@ -1,4 +1,4 @@
-# Indexer
+# Indexing
 
 The `Indexer` class is a utility for indexing collections or adding pre-computed vectors to an index.
 
