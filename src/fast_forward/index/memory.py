@@ -28,7 +28,7 @@ class InMemoryIndex(Index):
         init_size: int = 2**14,
         alloc_size: int = 2**14,
     ) -> None:
-        """Create an index.
+        """Create an index in memory.
 
         :param query_encoder: The query encoder to use.
         :param quantizer: The quantizer to use.

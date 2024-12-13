@@ -42,7 +42,7 @@ class OnDiskIndex(Index):
         overwrite: bool = False,
         max_indexing_size: int = 2**10,
     ) -> None:
-        """Create an index.
+        """Create an index on disk.
 
         :param index_file: The index file to create (or overwrite).
         :param query_encoder: The query encoder.

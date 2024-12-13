@@ -37,7 +37,7 @@ class Indexer:
         quantizer: "Quantizer | None" = None,
         quantizer_fit_batches: int = 1,
     ) -> None:
-        """Instantiate an indexer.
+        """Create an indexer.
 
         Optionally, a quantizer can automatically be fit on the first batch(es) to be
         indexed. This requires the index to be empty.
