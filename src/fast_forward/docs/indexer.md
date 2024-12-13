@@ -36,7 +36,7 @@ indexer.from_dicts(docs_iter())
 Additionally, indexers can be used to automatically fit and attach a quantizer during indexing. In this example, a quantized version (`target_index`) of an existing index (`source_index`) is created:
 
 ```python
-from fast_forward.quantizer.nanopq import NanoPQ
+from fast_forward.quantizer import NanoPQ
 
 Indexer(
     target_index,
