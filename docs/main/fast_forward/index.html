@@ -194,7 +194,7 @@
 
 <h2 id="using-an-index">Using an index</h2>
 
-<p>Index can be used to compute semantic re-ranking scores by calling them directly. It requires a <code><a href="../fast_forward.html#Ranking">fast_forward.Ranking</a></code> (typically, this comes from a sparse retriever) with the corresponding queries:</p>
+<p>An index can be used to compute semantic re-ranking scores by calling them directly. It requires a <code><a href="../fast_forward.html#Ranking">fast_forward.Ranking</a></code> (typically, this comes from a sparse retriever) with the corresponding queries:</p>
 
 <div class="pdoc-code codehilite">
 <pre><span></span><code><span class="n">ranking</span> <span class="o">=</span> <span class="n">Ranking</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/path/to/sparse/run.tsv&quot;</span><span class="p">),</span> <span class="n">queries</span><span class="p">)</span>
