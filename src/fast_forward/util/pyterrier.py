@@ -7,7 +7,7 @@ from fast_forward.ranking import Ranking
 if TYPE_CHECKING:
     import pandas as pd
 
-    from fast_forward.index import Index
+    from fast_forward.index.base import Index
 
 
 class FFScore(pt.Transformer):

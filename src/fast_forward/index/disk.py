@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 import fast_forward
-from fast_forward.index import IDSequence, Index, Mode
+from fast_forward.index.base import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
 from fast_forward.quantizer import Quantizer
 

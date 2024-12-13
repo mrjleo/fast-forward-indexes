@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from tqdm import tqdm
 
-from fast_forward.index import IDSequence, Index, Mode
+from fast_forward.index.base import IDSequence, Index, Mode
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator

@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
     from fast_forward.encoder import Encoder
-    from fast_forward.index import IDSequence, Index
+    from fast_forward.index.base import IDSequence, Index
     from fast_forward.quantizer import Quantizer
 
 LOGGER = logging.getLogger(__name__)
