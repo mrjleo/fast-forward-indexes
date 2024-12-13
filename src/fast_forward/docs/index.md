@@ -30,7 +30,7 @@ The index can then be subsequently loaded back using `OnDiskIndex.load`.
 
 ## Using an index
 
-Index can be used to compute semantic re-ranking scores by calling them directly. It requires a `fast_forward.Ranking` (typically, this comes from a sparse retriever) with the corresponding queries:
+An index can be used to compute semantic re-ranking scores by calling them directly. It requires a `fast_forward.Ranking` (typically, this comes from a sparse retriever) with the corresponding queries:
 
 ```python
 ranking = Ranking.from_file(Path("/path/to/sparse/run.tsv"), queries)
