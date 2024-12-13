@@ -34,7 +34,7 @@ class InMemoryIndex(Index):
         :param quantizer: The quantizer to use.
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
-        :param init_size: Initial index size. (number of vectors), defaults to 2**14
+        :param init_size: Initial index size (number of vectors).
         :param alloc_size: Shard size (number of vectors) allocated when index is full.
         """
         self._shards = []

@@ -365,7 +365,7 @@ class Ranking:
         """Create a Ranking object from a TREC run.
 
         :param run: TREC run.
-        :param name: Method name. Defaults to None.
+        :param name: Method name.
         :param queries: Query IDs mapped to queries.
         :param dtype: How the score should be represented in the data frame.
         :return: The resulting ranking.
