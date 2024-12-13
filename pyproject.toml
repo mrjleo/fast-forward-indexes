@@ -53,7 +53,7 @@ useLibraryCodeForTypes = true
 reportMissingParameterType = true
 
 [tool.ruff]
-include = ["pyproject.toml", "src/**/*.py"]
+extend-exclude = ["tests"]
 line-length = 88
 
 [tool.ruff.lint]
