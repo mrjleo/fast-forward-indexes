@@ -24,7 +24,7 @@ LOGGER = logging.getLogger(__name__)
 class OnDiskIndex(Index):
     """Fast-Forward index that is read on-demand from disk.
 
-    Uses HDF5 via h5py under the hood. The `max_indexing_size` argument works around a
+    Uses HDF5 via h5py under the hood. The `max_indexing_size` argument works around an
     [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
     """
 
