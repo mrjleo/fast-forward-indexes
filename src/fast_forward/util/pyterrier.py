@@ -40,10 +40,10 @@ class FFScore(pt.Transformer):
             )
         )._df.rename(columns={"q_id": "qid", "id": "docno"})
 
-        result = inp[["qid", "docno", "score"]].merge(
-            ff_scores[["qid", "docno", "score", "query"]],
+        result = ff_scores[["qid", "docno", "score", "query"]].merge(
+            inp[["qid", "docno", "score"]],
             on=["qid", "docno"],
-            suffixes=("_0", None),
+            suffixes=(None, "_0"),
         )
         return pt.model.add_ranks(result, single_query=False)
 
