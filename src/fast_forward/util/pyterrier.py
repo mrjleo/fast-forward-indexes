@@ -35,6 +35,7 @@ class FFScore(pt.Transformer):
             Ranking(
                 inp.rename(columns={"qid": "q_id", "docno": "id"}),
                 copy=False,
+                # since this ranking is only used for scoring, sorting is not necessary
                 is_sorted=True,
             )
         )._df.rename(columns={"q_id": "qid", "id": "docno"})
