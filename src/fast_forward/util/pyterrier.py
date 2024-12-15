@@ -39,11 +39,12 @@ class FFScore(pt.Transformer):
             )
         )._df.rename(columns={"q_id": "qid", "id": "docno"})
 
-        return topics_or_res[["qid", "docno", "score"]].merge(
+        result = topics_or_res[["qid", "docno", "score"]].merge(
             ff_scores[["qid", "docno", "score", "query"]],
             on=["qid", "docno"],
             suffixes=("_0", None),
         )
+        return pt.model.add_ranks(result, single_query=False)
 
     def __repr__(self) -> str:
         """Return a string representation.
@@ -81,4 +82,4 @@ class FFInterpolate(pt.Transformer):
             self.alpha * topics_or_res["score_0"]
             + (1 - self.alpha) * topics_or_res["score"]
         )
-        return new_df
+        return pt.model.add_ranks(new_df, single_query=False)
