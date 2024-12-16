@@ -7,7 +7,7 @@ from transformers import AutoModel, AutoTokenizer
 from fast_forward.encoder.base import Encoder
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Mapping, Sequence
     from pathlib import Path
 
 
@@ -15,25 +15,32 @@ class TransformerEncoder(Encoder):
     """Uses a pre-trained transformer model for encoding. Returns the pooler output."""
 
     def __init__(
-        self, model: "str | Path", device: str = "cpu", **tokenizer_args: Any
+        self,
+        model: "str | Path",
+        device: str = "cpu",
+        model_args: "Mapping[str, Any]" = {},
+        tokenizer_args: "Mapping[str, Any]" = {},
+        tokenizer_call_args: "Mapping[str, Any]" = {},
     ) -> None:
         """Create a transformer encoder.
 
         :param model: Pre-trained transformer model (name or path).
         :param device: PyTorch device.
-        :param **tokenizer_args: Additional tokenizer arguments.
+        :param model_args: Additional arguments for model.
+        :param tokenizer_args: Additional arguments for tokenizer.
+        :param tokenizer_call_args: Additional arguments for tokenizer call.
         """
         super().__init__()
-        self._model = AutoModel.from_pretrained(model)
+        self._model = AutoModel.from_pretrained(model, **model_args)
         self._model.to(device)
         self._model.eval()
-        self._tokenizer = AutoTokenizer.from_pretrained(model)
+        self._tokenizer = AutoTokenizer.from_pretrained(model, **tokenizer_args)
         self._device = device
-        self._tokenizer_args = tokenizer_args
+        self._tokenizer_call_args = tokenizer_call_args
 
     def _encode(self, texts: "Sequence[str]") -> np.ndarray:
         inputs = self._tokenizer(
-            list(texts), return_tensors="pt", **self._tokenizer_args
+            list(texts), return_tensors="pt", **self._tokenizer_call_args
         )
         inputs.to(self._device)
         with torch.no_grad():
@@ -47,15 +54,34 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72
     """
 
+    def __init__(
+        self,
+        model: "str | Path" = "castorini/tct_colbert-msmarco",
+        max_length: int = 36,
+        device: str = "cpu",
+    ) -> None:
+        """Create a TCT-ColBERT query encoder.
+
+        :param model: Pre-trained TCT-ColBERT model (name or path).
+        :param max_length: Maximum number of tokens per query.
+        :param device: PyTorch device.
+        """
+        self._max_length = max_length
+        super().__init__(
+            model,
+            device,
+            tokenizer_call_args={
+                "max_length": max_length,
+                "truncation": True,
+                "add_special_tokens": False,
+                "return_tensors": "pt",
+            },
+        )
+
     def _encode(self, texts: "Sequence[str]") -> np.ndarray:
-        max_length = 36
         inputs = self._tokenizer(
-            ["[CLS] [Q] " + q + "[MASK]" * max_length for q in texts],
-            max_length=max_length,
-            truncation=True,
-            add_special_tokens=False,
-            return_tensors="pt",
-            **self._tokenizer_args,
+            ["[CLS] [Q] " + q + "[MASK]" * self._max_length for q in texts],
+            **self._tokenizer_call_args,
         )
         inputs.to(self._device)
         with torch.no_grad():
@@ -70,16 +96,34 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27
     """
 
+    def __init__(
+        self,
+        model: "str | Path" = "castorini/tct_colbert-msmarco",
+        max_length: int = 512,
+        device: str = "cpu",
+    ) -> None:
+        """Create a TCT-ColBERT document encoder.
+
+        :param model: Pre-trained TCT-ColBERT model (name or path).
+        :param max_length: Maximum number of tokens per document.
+        :param device: PyTorch device.
+        """
+        self._max_length = max_length
+        super().__init__(
+            model,
+            device,
+            tokenizer_call_args={
+                "max_length": max_length,
+                "padding": True,
+                "truncation": True,
+                "add_special_tokens": False,
+                "return_tensors": "pt",
+            },
+        )
+
     def _encode(self, texts: "Sequence[str]") -> np.ndarray:
-        max_length = 512
         inputs = self._tokenizer(
-            ["[CLS] [D] " + text for text in texts],
-            max_length=max_length,
-            padding=True,
-            truncation=True,
-            add_special_tokens=False,
-            return_tensors="pt",
-            **self._tokenizer_args,
+            ["[CLS] [D] " + text for text in texts], **self._tokenizer_call_args
         )
         inputs.to(self._device)
         with torch.no_grad():
