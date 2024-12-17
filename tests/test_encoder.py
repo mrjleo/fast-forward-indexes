@@ -15,10 +15,10 @@ class TestTCTColBERTEncoder(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.query_encoder = TCTColBERTQueryEncoder(
-            "castorini/tct_colbert-msmarco", device="cpu"
+            "castorini/tct_colbert-msmarco", max_length=36, device="cpu"
         )
         cls.doc_encoder = TCTColBERTDocumentEncoder(
-            "castorini/tct_colbert-msmarco", device="cpu"
+            "castorini/tct_colbert-msmarco", max_length=512, device="cpu"
         )
 
     def test_query_encoder(self):
