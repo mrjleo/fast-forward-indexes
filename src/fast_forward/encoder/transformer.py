@@ -45,6 +45,11 @@ class TransformerEncoder(Encoder):
         self._tokenizer_call_args = tokenizer_call_args
 
     def _get_tokenizer_inputs(self, texts: "Sequence[str]") -> list[str]:
+        """Prepare input texts for tokenization.
+
+        :param texts: The texts to encode.
+        :return: The tokenizer inputs.
+        """
         return list(texts)
 
     def _aggregate_model_outputs(
