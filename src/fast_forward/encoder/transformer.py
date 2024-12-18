@@ -26,7 +26,10 @@ class TransformerEncoder(Encoder):
         device: str = "cpu",
         model_args: "Mapping[str, Any]" = {},
         tokenizer_args: "Mapping[str, Any]" = {},
-        tokenizer_call_args: "Mapping[str, Any]" = {},
+        tokenizer_call_args: "Mapping[str, Any]" = {
+            "padding": True,
+            "truncation": True,
+        },
     ) -> None:
         """Create a Transformer encoder.
 
