@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class TransformerEncoder(Encoder):
     """Uses a pre-trained Transformer model for encoding.
 
-    The outputs from the last hidden layer corresponding to the CLS token are used.
+    The outputs corresponding to the CLS token from the last hidden layer are used.
     """
 
     def __init__(
