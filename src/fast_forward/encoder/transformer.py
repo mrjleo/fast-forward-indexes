@@ -182,3 +182,23 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
         sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
         sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
         return sum_embeddings / sum_mask
+
+
+class TASBEncoder(TransformerEncoder):
+    """Pre-trained TAS-B (topic-aware sampling) encoder.
+
+    Corresponding paper: https://dl.acm.org/doi/10.1145/3404835.3462891
+    """
+
+    def __init__(
+        self,
+        model: "str | Path" = "sebastian-hofstaetter/distilbert-dot-tas_b-b256-msmarco",
+        device: str = "cpu",
+    ) -> None:
+        """Create a TAS-B encoder.
+
+        :param model: Pre-trained TAS-B model (name or path).
+        :param device: PyTorch device.
+        """
+        # TAS-B uses CLS-pooling (TransformerEncoder default)
+        super().__init__(model, device=device)
