@@ -89,6 +89,8 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
 
     Adapted from Pyserini:
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L72
+
+    Corresponding paper: https://aclanthology.org/2021.repl4nlp-1.17/
     """
 
     def __init__(
@@ -131,6 +133,8 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
 
     Adapted from Pyserini:
     https://github.com/castorini/pyserini/blob/310c828211bb3b9528cfd59695184c80825684a2/pyserini/encode/_tct_colbert.py#L27
+
+    Corresponding paper: https://aclanthology.org/2021.repl4nlp-1.17/
     """
 
     def __init__(
