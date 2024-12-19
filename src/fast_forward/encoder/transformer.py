@@ -238,3 +238,22 @@ class ContrieverEncoder(TransformerEncoder):
             token_embeddings.sum(dim=1)
             / model_inputs.attention_mask.sum(dim=1)[..., None]
         )
+
+
+class BGEEncoder(TransformerEncoder):
+    """Pre-trained BGE encoder.
+
+    Corresponding paper: https://dl.acm.org/doi/10.1145/3626772.3657878
+    """
+
+    def __init__(
+        self,
+        model: "str | Path" = "BAAI/bge-base-en-v1.5",
+        device: str = "cpu",
+    ) -> None:
+        """Create a BGE encoder.
+
+        :param model: Pre-trained BGE model (name or path).
+        :param device: PyTorch device.
+        """
+        super().__init__(model, device=device, normalize=True)

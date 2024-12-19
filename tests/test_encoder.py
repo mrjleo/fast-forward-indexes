@@ -7,6 +7,7 @@ from fast_forward.encoder.transformer import (
     TCTColBERTDocumentEncoder,
     TCTColBERTQueryEncoder,
     TASBEncoder,
+    BGEEncoder,
     ContrieverEncoder,
 )
 
@@ -15,6 +16,7 @@ from ._constants import (
     TCT_COLBERT_DOCUMENT_EXPECTED,
     TAS_B_EXPECTED,
     CONTRIEVER_EXPECTED,
+    BGE_ENCODER_EXPECTED,
 )
 
 TEST_INPUTS = ["input 1", "second input", "3rd input " * 100]
@@ -72,6 +74,19 @@ class TestContrieverEncoder(unittest.TestCase):
         np.testing.assert_almost_equal(
             self.encoder(TEST_INPUTS),
             CONTRIEVER_EXPECTED,
+            decimal=5,
+        )
+
+
+class TestBGEEncoder(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.encoder = BGEEncoder()
+
+    def test_encoder(self):
+        np.testing.assert_almost_equal(
+            self.encoder(TEST_INPUTS),
+            BGE_ENCODER_EXPECTED,
             decimal=5,
         )
 
