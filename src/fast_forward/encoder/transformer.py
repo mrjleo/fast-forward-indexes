@@ -219,7 +219,7 @@ class ContrieverEncoder(TransformerEncoder):
         model: "str | Path" = "facebook/contriever",
         device: str = "cpu",
     ) -> None:
-        """Create a TAS-B encoder.
+        """Create a Contriever encoder.
 
         :param model: Pre-trained Contriever model (name or path).
         :param device: PyTorch device.
