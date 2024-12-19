@@ -53,10 +53,10 @@ useLibraryCodeForTypes = true
 reportMissingParameterType = true
 
 [tool.ruff]
-extend-exclude = ["tests"]
 line-length = 88
 
 [tool.ruff.lint]
+exclude = ["tests/*"]
 select = [
     "F",   # Pyflakes
     "E",   # pycodestyle
