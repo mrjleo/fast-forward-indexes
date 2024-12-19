@@ -34,12 +34,12 @@ class TransformerEncoder(Encoder):
     ) -> None:
         """Create a Transformer encoder.
 
-        :param model: Pre-trained transformer model (name or path).
+        :param model: Pre-trained Transformer model (name or path).
         :param device: PyTorch device.
         :param model_args: Additional arguments for the model.
         :param tokenizer_args: Additional arguments for the tokenizer.
         :param tokenizer_call_args: Additional arguments for the tokenizer call.
-        :param normalize: Normalize output representations.
+        :param normalize: L2-normalize output representations.
         """
         super().__init__()
         self._model = AutoModel.from_pretrained(model, **model_args)
