@@ -56,7 +56,7 @@ reportMissingParameterType = true
 line-length = 88
 
 [tool.ruff.lint]
-exclude = ["tests"]
+exclude = ["tests/*"]
 select = [
     "F",   # Pyflakes
     "E",   # pycodestyle
