@@ -83,9 +83,8 @@ class TransformerEncoder(Encoder):
         with torch.no_grad():
             model_outputs = self._model(**model_inputs)
             result = self._aggregate_model_outputs(model_outputs, model_inputs)
-
-        if self._normalize:
-            result = torch.nn.functional.normalize(result, p=2, dim=1)
+            if self._normalize:
+                result = torch.nn.functional.normalize(result, p=2, dim=1)
         return result.cpu().detach().numpy()
 
 
