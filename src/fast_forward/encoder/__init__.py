@@ -6,6 +6,7 @@ import numpy as np
 
 from fast_forward.encoder.base import Encoder
 from fast_forward.encoder.transformer import (
+    ContrieverEncoder,
     TASBEncoder,
     TCTColBERTDocumentEncoder,
     TCTColBERTQueryEncoder,
@@ -22,6 +23,7 @@ __all__ = [
     "TCTColBERTQueryEncoder",
     "TCTColBERTDocumentEncoder",
     "TASBEncoder",
+    "ContrieverEncoder",
 ]
 
 

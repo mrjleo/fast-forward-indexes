@@ -204,3 +204,37 @@ class TASBEncoder(TransformerEncoder):
         """
         # TAS-B uses CLS-pooling (TransformerEncoder default)
         super().__init__(model, device=device)
+
+
+class ContrieverEncoder(TransformerEncoder):
+    """Pre-trained Contriever encoder.
+
+    Adapted from: https://huggingface.co/facebook/contriever
+
+    Corresponding paper: https://openreview.net/forum?id=jKN1pXi7b0
+    """
+
+    def __init__(
+        self,
+        model: "str | Path" = "facebook/contriever",
+        device: str = "cpu",
+    ) -> None:
+        """Create a TAS-B encoder.
+
+        :param model: Pre-trained Contriever model (name or path).
+        :param device: PyTorch device.
+        """
+        super().__init__(model, device=device)
+
+    def _aggregate_model_outputs(
+        self,
+        model_outputs: "BaseModelOutput",
+        model_inputs: "BatchEncoding",
+    ) -> torch.Tensor:
+        token_embeddings = model_outputs[0].masked_fill(
+            ~model_inputs.attention_mask[..., None].bool(), 0.0
+        )
+        return (
+            token_embeddings.sum(dim=1)
+            / model_inputs.attention_mask.sum(dim=1)[..., None]
+        )
