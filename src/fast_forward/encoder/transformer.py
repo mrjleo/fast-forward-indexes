@@ -30,6 +30,7 @@ class TransformerEncoder(Encoder):
             "padding": True,
             "truncation": True,
         },
+        normalize: bool = False,
     ) -> None:
         """Create a Transformer encoder.
 
@@ -38,6 +39,7 @@ class TransformerEncoder(Encoder):
         :param model_args: Additional arguments for the model.
         :param tokenizer_args: Additional arguments for the tokenizer.
         :param tokenizer_call_args: Additional arguments for the tokenizer call.
+        :param normalize: Normalize output representations.
         """
         super().__init__()
         self._model = AutoModel.from_pretrained(model, **model_args)
@@ -46,6 +48,7 @@ class TransformerEncoder(Encoder):
         self._tokenizer = AutoTokenizer.from_pretrained(model, **tokenizer_args)
         self._device = device
         self._tokenizer_call_args = tokenizer_call_args
+        self._normalize = normalize
 
     def _get_tokenizer_inputs(self, texts: "Sequence[str]") -> list[str]:
         """Prepare input texts for tokenization.
@@ -79,12 +82,11 @@ class TransformerEncoder(Encoder):
 
         with torch.no_grad():
             model_outputs = self._model(**model_inputs)
-            return (
-                self._aggregate_model_outputs(model_outputs, model_inputs)
-                .detach()
-                .cpu()
-                .numpy()
-            )
+            result = self._aggregate_model_outputs(model_outputs, model_inputs)
+
+        if self._normalize:
+            result = torch.nn.functional.normalize(result, p=2, dim=1)
+        return result.cpu().detach().numpy()
 
 
 class TCTColBERTQueryEncoder(TransformerEncoder):
