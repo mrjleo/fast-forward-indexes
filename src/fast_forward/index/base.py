@@ -501,7 +501,7 @@ class Index(abc.ABC):
         Specific to index implementation.
 
         :param batch_size: The batch size.
-        :yield: Vectors, document IDs, passage IDs (in batches).
+        :return: Iterator yielding vectors, document IDs, passage IDs (in batches).
         """
         pass
 
@@ -513,7 +513,9 @@ class Index(abc.ABC):
         IDs may be either strings or `None`.
 
         :param batch_size: Batch size.
-        :yield: Batches of vectors, document IDs (if any), passage IDs (if any).
+        :return:
+            Iterator yielding batches of vectors, document IDs (if any),
+            passage IDs (if any).
         """
         if self._quantizer is None:
             yield from self._batch_iter(batch_size)
@@ -527,7 +529,7 @@ class Index(abc.ABC):
     ) -> Iterator[tuple[np.ndarray, str | None, str | None]]:
         """Iterate over all vectors, document IDs, and passage IDs.
 
-        :yield: Vector, document ID (if any), passage ID (if any).
+        :return: Iterator yielding vectors, document IDs (if any), passage IDs (if any).
         """
         for vectors, doc_ids, psg_ids in self.batch_iter(2**9):
             yield from zip(vectors, doc_ids, psg_ids)

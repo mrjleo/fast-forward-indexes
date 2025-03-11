@@ -145,7 +145,7 @@ class Ranking:
     def __iter__(self) -> Iterator[str]:
         """Yield all query IDs.
 
-        :yield: A query ID.
+        :return: Iterator yielding query IDs.
         """
         yield from self._q_ids
 
