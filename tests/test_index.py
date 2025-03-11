@@ -104,7 +104,7 @@ class TestIndex(unittest.TestCase):
         self.assertEqual(0, len(self.index))
 
         data = np.random.normal(size=(80, 16))
-        doc_ids = [f"doc_{int(i/2)}" for i in range(data.shape[0])]
+        doc_ids = [f"doc_{int(i / 2)}" for i in range(data.shape[0])]
         psg_ids = [f"psg_{i}" for i in range(data.shape[0])]
 
         # successively add parts of the data and make sure we still get the correct vectors and indices back as the index grows

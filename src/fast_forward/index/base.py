@@ -513,8 +513,7 @@ class Index(abc.ABC):
         IDs may be either strings or `None`.
 
         :param batch_size: Batch size.
-        :return:
-            Iterator yielding batches of vectors, document IDs (if any),
+        :return: Iterator yielding batches of vectors, document IDs (if any),
             passage IDs (if any).
         """
         if self._quantizer is None:
