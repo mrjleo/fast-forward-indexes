@@ -51,7 +51,7 @@ class OnDiskIndex(Index):
         :param encoder_batch_size: Batch size for the query encoder.
         :param init_size: Initial size to allocate (number of vectors).
         :param resize_min_val: Minimum number of vectors to increase index size by.
-        :param hdf5_chunk_size: Override chunk size used by HDF5.
+        :param hdf5_chunk_size: Specify a chunk size used by HDF5.
         :param max_id_length:
             Maximum length of document and passage IDs (number of characters).
         :param overwrite: Overwrite index file if it exists.
@@ -111,27 +111,23 @@ class OnDiskIndex(Index):
             (self._init_size, dim),
             dtype,
             maxshape=(None, dim),
-            chunks=(
-                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size, dim)
-            ),
+            chunks=True
+            if self._hdf5_chunk_size is None
+            else (self._hdf5_chunk_size, dim),
         )
         fp.create_dataset(
             "doc_ids",
             (self._init_size,),
             f"S{self._max_id_length}",
             maxshape=(None,),
-            chunks=(
-                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size,)
-            ),
+            chunks=True,
         )
         fp.create_dataset(
             "psg_ids",
             (self._init_size,),
             f"S{self._max_id_length}",
             maxshape=(None,),
-            chunks=(
-                True if self._hdf5_chunk_size is None else (self._hdf5_chunk_size,)
-            ),
+            chunks=True,
         )
 
     def _get_num_vectors(self) -> int:
