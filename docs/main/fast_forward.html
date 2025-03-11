@@ -167,7 +167,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 <p>After installing the package, simply import the library:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">import</span> <span class="nn">fast_forward</span>
+<pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">fast_forward</span>
 </code></pre>
 </div>
 
@@ -176,11 +176,11 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 <p>Using a Fast-Forward index is as simple as providing a TREC run with sparse scores:</p>
 
 <div class="pdoc-code codehilite">
-<pre><span></span><code><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">fast_forward</span> <span class="kn">import</span> <span class="n">Ranking</span>
-<span class="kn">from</span> <span class="nn"><a href="fast_forward/index.html">fast_forward.index</a></span> <span class="kn">import</span> <span class="n">OnDiskIndex</span><span class="p">,</span> <span class="n">Mode</span>
-<span class="kn">from</span> <span class="nn"><a href="fast_forward/encoder.html">fast_forward.encoder</a></span> <span class="kn">import</span> <span class="n">TCTColBERTQueryEncoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fast_forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ranking</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn"><a href="fast_forward/index.html">fast_forward.index</a></span><span class="w"> </span><span class="kn">import</span> <span class="n">OnDiskIndex</span><span class="p">,</span> <span class="n">Mode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn"><a href="fast_forward/encoder.html">fast_forward.encoder</a></span><span class="w"> </span><span class="kn">import</span> <span class="n">TCTColBERTQueryEncoder</span>
 
 <span class="c1"># choose a pre-trained query encoder</span>
 <span class="n">encoder</span> <span class="o">=</span> <span class="n">TCTColBERTQueryEncoder</span><span class="p">(</span><span class="s2">&quot;castorini/tct_colbert-msmarco&quot;</span><span class="p">)</span>
@@ -288,10 +288,10 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a><span class="sd">.. include:: docs/ranking.md</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="sd">&quot;&quot;&quot;</span>  <span class="c1"># noqa: D205, D400, D415</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">import</span> <span class="nn">importlib.metadata</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.metadata</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span> <span class="nn">fast_forward</span> <span class="kn">import</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">quantizer</span><span class="p">,</span> <span class="n">util</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span> <span class="nn">fast_forward.ranking</span> <span class="kn">import</span> <span class="n">Ranking</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">fast_forward</span><span class="w"> </span><span class="kn">import</span> <span class="n">encoder</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">quantizer</span><span class="p">,</span> <span class="n">util</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">fast_forward.ranking</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ranking</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;encoder&quot;</span><span class="p">,</span> <span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;quantizer&quot;</span><span class="p">,</span> <span class="s2">&quot;util&quot;</span><span class="p">,</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">]</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="n">__version__</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;fast-forward-indexes&quot;</span><span class="p">)</span>
@@ -310,10 +310,10 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking-65"><a href="#Ranking-65"><span class="linenos"> 65</span></a><span class="k">class</span> <span class="nc">Ranking</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking-65"><a href="#Ranking-65"><span class="linenos"> 65</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Ranking</span><span class="p">:</span>
 </span><span id="Ranking-66"><a href="#Ranking-66"><span class="linenos"> 66</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents rankings of documents/passages w.r.t. queries.&quot;&quot;&quot;</span>
 </span><span id="Ranking-67"><a href="#Ranking-67"><span class="linenos"> 67</span></a>
-</span><span id="Ranking-68"><a href="#Ranking-68"><span class="linenos"> 68</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+</span><span id="Ranking-68"><a href="#Ranking-68"><span class="linenos"> 68</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="Ranking-69"><a href="#Ranking-69"><span class="linenos"> 69</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Ranking-70"><a href="#Ranking-70"><span class="linenos"> 70</span></a>        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 </span><span id="Ranking-71"><a href="#Ranking-71"><span class="linenos"> 71</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -359,7 +359,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-111"><a href="#Ranking-111"><span class="linenos">111</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">_attach_queries</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">,</span> <span class="n">queries</span><span class="p">)</span>
 </span><span id="Ranking-112"><a href="#Ranking-112"><span class="linenos">112</span></a>
 </span><span id="Ranking-113"><a href="#Ranking-113"><span class="linenos">113</span></a>    <span class="nd">@property</span>
-</span><span id="Ranking-114"><a href="#Ranking-114"><span class="linenos">114</span></a>    <span class="k">def</span> <span class="nf">has_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Ranking-114"><a href="#Ranking-114"><span class="linenos">114</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">has_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="Ranking-115"><a href="#Ranking-115"><span class="linenos">115</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the ranking has queries attached.</span>
 </span><span id="Ranking-116"><a href="#Ranking-116"><span class="linenos">116</span></a>
 </span><span id="Ranking-117"><a href="#Ranking-117"><span class="linenos">117</span></a><span class="sd">        :return: Whether queries exist.</span>
@@ -367,7 +367,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-119"><a href="#Ranking-119"><span class="linenos">119</span></a>        <span class="k">return</span> <span class="s2">&quot;query&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="n">columns</span>
 </span><span id="Ranking-120"><a href="#Ranking-120"><span class="linenos">120</span></a>
 </span><span id="Ranking-121"><a href="#Ranking-121"><span class="linenos">121</span></a>    <span class="nd">@property</span>
-</span><span id="Ranking-122"><a href="#Ranking-122"><span class="linenos">122</span></a>    <span class="k">def</span> <span class="nf">q_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="Ranking-122"><a href="#Ranking-122"><span class="linenos">122</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">q_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="Ranking-123"><a href="#Ranking-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The set of (unique) query IDs in this ranking.</span>
 </span><span id="Ranking-124"><a href="#Ranking-124"><span class="linenos">124</span></a>
 </span><span id="Ranking-125"><a href="#Ranking-125"><span class="linenos">125</span></a><span class="sd">        Only queries with at least one scored document are considered.</span>
@@ -376,7 +376,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-128"><a href="#Ranking-128"><span class="linenos">128</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-129"><a href="#Ranking-129"><span class="linenos">129</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_ids</span>
 </span><span id="Ranking-130"><a href="#Ranking-130"><span class="linenos">130</span></a>
-</span><span id="Ranking-131"><a href="#Ranking-131"><span class="linenos">131</span></a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+</span><span id="Ranking-131"><a href="#Ranking-131"><span class="linenos">131</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 </span><span id="Ranking-132"><a href="#Ranking-132"><span class="linenos">132</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the ranking for a query.</span>
 </span><span id="Ranking-133"><a href="#Ranking-133"><span class="linenos">133</span></a>
 </span><span id="Ranking-134"><a href="#Ranking-134"><span class="linenos">134</span></a><span class="sd">        :param q_id: The query ID.</span>
@@ -384,21 +384,21 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-136"><a href="#Ranking-136"><span class="linenos">136</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-137"><a href="#Ranking-137"><span class="linenos">137</span></a>        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">[</span><span class="s2">&quot;q_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">q_id</span><span class="p">][[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 </span><span id="Ranking-138"><a href="#Ranking-138"><span class="linenos">138</span></a>
-</span><span id="Ranking-139"><a href="#Ranking-139"><span class="linenos">139</span></a>    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="Ranking-139"><a href="#Ranking-139"><span class="linenos">139</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="Ranking-140"><a href="#Ranking-140"><span class="linenos">140</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the number of queries.</span>
 </span><span id="Ranking-141"><a href="#Ranking-141"><span class="linenos">141</span></a>
 </span><span id="Ranking-142"><a href="#Ranking-142"><span class="linenos">142</span></a><span class="sd">        :return: The number of queries.</span>
 </span><span id="Ranking-143"><a href="#Ranking-143"><span class="linenos">143</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-144"><a href="#Ranking-144"><span class="linenos">144</span></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_q_ids</span><span class="p">)</span>
 </span><span id="Ranking-145"><a href="#Ranking-145"><span class="linenos">145</span></a>
-</span><span id="Ranking-146"><a href="#Ranking-146"><span class="linenos">146</span></a>    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="Ranking-146"><a href="#Ranking-146"><span class="linenos">146</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="Ranking-147"><a href="#Ranking-147"><span class="linenos">147</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Yield all query IDs.</span>
 </span><span id="Ranking-148"><a href="#Ranking-148"><span class="linenos">148</span></a>
-</span><span id="Ranking-149"><a href="#Ranking-149"><span class="linenos">149</span></a><span class="sd">        :yield: A query ID.</span>
+</span><span id="Ranking-149"><a href="#Ranking-149"><span class="linenos">149</span></a><span class="sd">        :return: Iterator yielding query IDs.</span>
 </span><span id="Ranking-150"><a href="#Ranking-150"><span class="linenos">150</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-151"><a href="#Ranking-151"><span class="linenos">151</span></a>        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_ids</span>
 </span><span id="Ranking-152"><a href="#Ranking-152"><span class="linenos">152</span></a>
-</span><span id="Ranking-153"><a href="#Ranking-153"><span class="linenos">153</span></a>    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Ranking-153"><a href="#Ranking-153"><span class="linenos">153</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="Ranking-154"><a href="#Ranking-154"><span class="linenos">154</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a query ID has associated document/passage IDs.</span>
 </span><span id="Ranking-155"><a href="#Ranking-155"><span class="linenos">155</span></a>
 </span><span id="Ranking-156"><a href="#Ranking-156"><span class="linenos">156</span></a><span class="sd">        :param key: The query ID.</span>
@@ -406,7 +406,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-158"><a href="#Ranking-158"><span class="linenos">158</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-159"><a href="#Ranking-159"><span class="linenos">159</span></a>        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q_ids</span>
 </span><span id="Ranking-160"><a href="#Ranking-160"><span class="linenos">160</span></a>
-</span><span id="Ranking-161"><a href="#Ranking-161"><span class="linenos">161</span></a>    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Ranking-161"><a href="#Ranking-161"><span class="linenos">161</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="Ranking-162"><a href="#Ranking-162"><span class="linenos">162</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if this ranking is identical to another one.</span>
 </span><span id="Ranking-163"><a href="#Ranking-163"><span class="linenos">163</span></a>
 </span><span id="Ranking-164"><a href="#Ranking-164"><span class="linenos">164</span></a><span class="sd">        Only takes IDs and scores into account.</span>
@@ -423,7 +423,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-175"><a href="#Ranking-175"><span class="linenos">175</span></a>        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;q_id&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">]</span>
 </span><span id="Ranking-176"><a href="#Ranking-176"><span class="linenos">176</span></a>        <span class="k">return</span> <span class="n">df1</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">df2</span><span class="p">[</span><span class="n">cols</span><span class="p">])</span>
 </span><span id="Ranking-177"><a href="#Ranking-177"><span class="linenos">177</span></a>
-</span><span id="Ranking-178"><a href="#Ranking-178"><span class="linenos">178</span></a>    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="s2">&quot;Ranking | float&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+</span><span id="Ranking-178"><a href="#Ranking-178"><span class="linenos">178</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="s2">&quot;Ranking | float&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking-179"><a href="#Ranking-179"><span class="linenos">179</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a constant or the scores of another ranking to this ranking&#39;s scores.</span>
 </span><span id="Ranking-180"><a href="#Ranking-180"><span class="linenos">180</span></a>
 </span><span id="Ranking-181"><a href="#Ranking-181"><span class="linenos">181</span></a><span class="sd">        Missing scores in either ranking are treated as zero.</span>
@@ -454,7 +454,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-206"><a href="#Ranking-206"><span class="linenos">206</span></a>
 </span><span id="Ranking-207"><a href="#Ranking-207"><span class="linenos">207</span></a>    <span class="fm">__radd__</span> <span class="o">=</span> <span class="fm">__add__</span>
 </span><span id="Ranking-208"><a href="#Ranking-208"><span class="linenos">208</span></a>
-</span><span id="Ranking-209"><a href="#Ranking-209"><span class="linenos">209</span></a>    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+</span><span id="Ranking-209"><a href="#Ranking-209"><span class="linenos">209</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking-210"><a href="#Ranking-210"><span class="linenos">210</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Multiply this ranking&#39;s scores by a constant.</span>
 </span><span id="Ranking-211"><a href="#Ranking-211"><span class="linenos">211</span></a>
 </span><span id="Ranking-212"><a href="#Ranking-212"><span class="linenos">212</span></a><span class="sd">        :param o: A constant.</span>
@@ -476,14 +476,14 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-228"><a href="#Ranking-228"><span class="linenos">228</span></a>
 </span><span id="Ranking-229"><a href="#Ranking-229"><span class="linenos">229</span></a>    <span class="fm">__rmul__</span> <span class="o">=</span> <span class="fm">__mul__</span>
 </span><span id="Ranking-230"><a href="#Ranking-230"><span class="linenos">230</span></a>
-</span><span id="Ranking-231"><a href="#Ranking-231"><span class="linenos">231</span></a>    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="Ranking-231"><a href="#Ranking-231"><span class="linenos">231</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 </span><span id="Ranking-232"><a href="#Ranking-232"><span class="linenos">232</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of this ranking.</span>
 </span><span id="Ranking-233"><a href="#Ranking-233"><span class="linenos">233</span></a>
 </span><span id="Ranking-234"><a href="#Ranking-234"><span class="linenos">234</span></a><span class="sd">        :return: The string representation.</span>
 </span><span id="Ranking-235"><a href="#Ranking-235"><span class="linenos">235</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="Ranking-236"><a href="#Ranking-236"><span class="linenos">236</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
 </span><span id="Ranking-237"><a href="#Ranking-237"><span class="linenos">237</span></a>
-</span><span id="Ranking-238"><a href="#Ranking-238"><span class="linenos">238</span></a>    <span class="k">def</span> <span class="nf">attach_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+</span><span id="Ranking-238"><a href="#Ranking-238"><span class="linenos">238</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">attach_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking-239"><a href="#Ranking-239"><span class="linenos">239</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach queries to the ranking.</span>
 </span><span id="Ranking-240"><a href="#Ranking-240"><span class="linenos">240</span></a>
 </span><span id="Ranking-241"><a href="#Ranking-241"><span class="linenos">241</span></a><span class="sd">        :param queries: Query IDs mapped to queries.</span>
@@ -499,7 +499,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-251"><a href="#Ranking-251"><span class="linenos">251</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="Ranking-252"><a href="#Ranking-252"><span class="linenos">252</span></a>        <span class="p">)</span>
 </span><span id="Ranking-253"><a href="#Ranking-253"><span class="linenos">253</span></a>
-</span><span id="Ranking-254"><a href="#Ranking-254"><span class="linenos">254</span></a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+</span><span id="Ranking-254"><a href="#Ranking-254"><span class="linenos">254</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking-255"><a href="#Ranking-255"><span class="linenos">255</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize the scores (min-max) to be in `[0, 1]`.</span>
 </span><span id="Ranking-256"><a href="#Ranking-256"><span class="linenos">256</span></a>
 </span><span id="Ranking-257"><a href="#Ranking-257"><span class="linenos">257</span></a><span class="sd">        If all scores are equal, they are set to `0`.</span>
@@ -514,7 +514,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-266"><a href="#Ranking-266"><span class="linenos">266</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="Ranking-267"><a href="#Ranking-267"><span class="linenos">267</span></a>        <span class="p">)</span>
 </span><span id="Ranking-268"><a href="#Ranking-268"><span class="linenos">268</span></a>
-</span><span id="Ranking-269"><a href="#Ranking-269"><span class="linenos">269</span></a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+</span><span id="Ranking-269"><a href="#Ranking-269"><span class="linenos">269</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking-270"><a href="#Ranking-270"><span class="linenos">270</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-`k` scoring documents/passages.</span>
 </span><span id="Ranking-271"><a href="#Ranking-271"><span class="linenos">271</span></a>
 </span><span id="Ranking-272"><a href="#Ranking-272"><span class="linenos">272</span></a><span class="sd">        :param cutoff: Number of best scores per query to keep (`k`).</span>
@@ -528,7 +528,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-280"><a href="#Ranking-280"><span class="linenos">280</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="Ranking-281"><a href="#Ranking-281"><span class="linenos">281</span></a>        <span class="p">)</span>
 </span><span id="Ranking-282"><a href="#Ranking-282"><span class="linenos">282</span></a>
-</span><span id="Ranking-283"><a href="#Ranking-283"><span class="linenos">283</span></a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span>
+</span><span id="Ranking-283"><a href="#Ranking-283"><span class="linenos">283</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate</span><span class="p">(</span>
 </span><span id="Ranking-284"><a href="#Ranking-284"><span class="linenos">284</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Ranking-285"><a href="#Ranking-285"><span class="linenos">285</span></a>        <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">,</span>
 </span><span id="Ranking-286"><a href="#Ranking-286"><span class="linenos">286</span></a>        <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -563,7 +563,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-315"><a href="#Ranking-315"><span class="linenos">315</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 </span><span id="Ranking-316"><a href="#Ranking-316"><span class="linenos">316</span></a>        <span class="p">)</span>
 </span><span id="Ranking-317"><a href="#Ranking-317"><span class="linenos">317</span></a>
-</span><span id="Ranking-318"><a href="#Ranking-318"><span class="linenos">318</span></a>    <span class="k">def</span> <span class="nf">rr_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+</span><span id="Ranking-318"><a href="#Ranking-318"><span class="linenos">318</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">rr_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking-319"><a href="#Ranking-319"><span class="linenos">319</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank.</span>
 </span><span id="Ranking-320"><a href="#Ranking-320"><span class="linenos">320</span></a>
 </span><span id="Ranking-321"><a href="#Ranking-321"><span class="linenos">321</span></a><span class="sd">        A score is computed as `1 / (rank + k)`.</span>
@@ -583,7 +583,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-335"><a href="#Ranking-335"><span class="linenos">335</span></a>            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="Ranking-336"><a href="#Ranking-336"><span class="linenos">336</span></a>        <span class="p">)</span>
 </span><span id="Ranking-337"><a href="#Ranking-337"><span class="linenos">337</span></a>
-</span><span id="Ranking-338"><a href="#Ranking-338"><span class="linenos">338</span></a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+</span><span id="Ranking-338"><a href="#Ranking-338"><span class="linenos">338</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span>
 </span><span id="Ranking-339"><a href="#Ranking-339"><span class="linenos">339</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Ranking-340"><a href="#Ranking-340"><span class="linenos">340</span></a>        <span class="n">target</span><span class="p">:</span> <span class="s2">&quot;Path&quot;</span><span class="p">,</span>
 </span><span id="Ranking-341"><a href="#Ranking-341"><span class="linenos">341</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -604,7 +604,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-356"><a href="#Ranking-356"><span class="linenos">356</span></a>        <span class="p">)</span>
 </span><span id="Ranking-357"><a href="#Ranking-357"><span class="linenos">357</span></a>
 </span><span id="Ranking-358"><a href="#Ranking-358"><span class="linenos">358</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Ranking-359"><a href="#Ranking-359"><span class="linenos">359</span></a>    <span class="k">def</span> <span class="nf">from_run</span><span class="p">(</span>
+</span><span id="Ranking-359"><a href="#Ranking-359"><span class="linenos">359</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">from_run</span><span class="p">(</span>
 </span><span id="Ranking-360"><a href="#Ranking-360"><span class="linenos">360</span></a>        <span class="bp">cls</span><span class="p">,</span>
 </span><span id="Ranking-361"><a href="#Ranking-361"><span class="linenos">361</span></a>        <span class="n">run</span><span class="p">:</span> <span class="n">Run</span><span class="p">,</span>
 </span><span id="Ranking-362"><a href="#Ranking-362"><span class="linenos">362</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -624,7 +624,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </span><span id="Ranking-376"><a href="#Ranking-376"><span class="linenos">376</span></a>        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">queries</span><span class="o">=</span><span class="n">queries</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </span><span id="Ranking-377"><a href="#Ranking-377"><span class="linenos">377</span></a>
 </span><span id="Ranking-378"><a href="#Ranking-378"><span class="linenos">378</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Ranking-379"><a href="#Ranking-379"><span class="linenos">379</span></a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
+</span><span id="Ranking-379"><a href="#Ranking-379"><span class="linenos">379</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
 </span><span id="Ranking-380"><a href="#Ranking-380"><span class="linenos">380</span></a>        <span class="bp">cls</span><span class="p">,</span>
 </span><span id="Ranking-381"><a href="#Ranking-381"><span class="linenos">381</span></a>        <span class="n">f</span><span class="p">:</span> <span class="s2">&quot;Path&quot;</span><span class="p">,</span>
 </span><span id="Ranking-382"><a href="#Ranking-382"><span class="linenos">382</span></a>        <span class="n">queries</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -662,7 +662,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.__init__-68"><a href="#Ranking.__init__-68"><span class="linenos"> 68</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.__init__-68"><a href="#Ranking.__init__-68"><span class="linenos"> 68</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="Ranking.__init__-69"><a href="#Ranking.__init__-69"><span class="linenos"> 69</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Ranking.__init__-70"><a href="#Ranking.__init__-70"><span class="linenos"> 70</span></a>        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 </span><span id="Ranking.__init__-71"><a href="#Ranking.__init__-71"><span class="linenos"> 71</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -752,7 +752,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
     </div>
     <a class="headerlink" href="#Ranking.has_queries"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.has_queries-113"><a href="#Ranking.has_queries-113"><span class="linenos">113</span></a>    <span class="nd">@property</span>
-</span><span id="Ranking.has_queries-114"><a href="#Ranking.has_queries-114"><span class="linenos">114</span></a>    <span class="k">def</span> <span class="nf">has_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="Ranking.has_queries-114"><a href="#Ranking.has_queries-114"><span class="linenos">114</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">has_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="Ranking.has_queries-115"><a href="#Ranking.has_queries-115"><span class="linenos">115</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Whether the ranking has queries attached.</span>
 </span><span id="Ranking.has_queries-116"><a href="#Ranking.has_queries-116"><span class="linenos">116</span></a>
 </span><span id="Ranking.has_queries-117"><a href="#Ranking.has_queries-117"><span class="linenos">117</span></a><span class="sd">        :return: Whether queries exist.</span>
@@ -782,7 +782,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
     </div>
     <a class="headerlink" href="#Ranking.q_ids"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.q_ids-121"><a href="#Ranking.q_ids-121"><span class="linenos">121</span></a>    <span class="nd">@property</span>
-</span><span id="Ranking.q_ids-122"><a href="#Ranking.q_ids-122"><span class="linenos">122</span></a>    <span class="k">def</span> <span class="nf">q_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="Ranking.q_ids-122"><a href="#Ranking.q_ids-122"><span class="linenos">122</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">q_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="Ranking.q_ids-123"><a href="#Ranking.q_ids-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;The set of (unique) query IDs in this ranking.</span>
 </span><span id="Ranking.q_ids-124"><a href="#Ranking.q_ids-124"><span class="linenos">124</span></a>
 </span><span id="Ranking.q_ids-125"><a href="#Ranking.q_ids-125"><span class="linenos">125</span></a><span class="sd">        Only queries with at least one scored document are considered.</span>
@@ -817,7 +817,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking.attach_queries"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.attach_queries-238"><a href="#Ranking.attach_queries-238"><span class="linenos">238</span></a>    <span class="k">def</span> <span class="nf">attach_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.attach_queries-238"><a href="#Ranking.attach_queries-238"><span class="linenos">238</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">attach_queries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queries</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking.attach_queries-239"><a href="#Ranking.attach_queries-239"><span class="linenos">239</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Attach queries to the ranking.</span>
 </span><span id="Ranking.attach_queries-240"><a href="#Ranking.attach_queries-240"><span class="linenos">240</span></a>
 </span><span id="Ranking.attach_queries-241"><a href="#Ranking.attach_queries-241"><span class="linenos">241</span></a><span class="sd">        :param queries: Query IDs mapped to queries.</span>
@@ -869,7 +869,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking.normalize"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.normalize-254"><a href="#Ranking.normalize-254"><span class="linenos">254</span></a>    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.normalize-254"><a href="#Ranking.normalize-254"><span class="linenos">254</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking.normalize-255"><a href="#Ranking.normalize-255"><span class="linenos">255</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Normalize the scores (min-max) to be in `[0, 1]`.</span>
 </span><span id="Ranking.normalize-256"><a href="#Ranking.normalize-256"><span class="linenos">256</span></a>
 </span><span id="Ranking.normalize-257"><a href="#Ranking.normalize-257"><span class="linenos">257</span></a><span class="sd">        If all scores are equal, they are set to `0`.</span>
@@ -910,7 +910,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking.cut"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.cut-269"><a href="#Ranking.cut-269"><span class="linenos">269</span></a>    <span class="k">def</span> <span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.cut-269"><a href="#Ranking.cut-269"><span class="linenos">269</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">cut</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking.cut-270"><a href="#Ranking.cut-270"><span class="linenos">270</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;For each query, remove all but the top-`k` scoring documents/passages.</span>
 </span><span id="Ranking.cut-271"><a href="#Ranking.cut-271"><span class="linenos">271</span></a>
 </span><span id="Ranking.cut-272"><a href="#Ranking.cut-272"><span class="linenos">272</span></a><span class="sd">        :param cutoff: Number of best scores per query to keep (`k`).</span>
@@ -954,7 +954,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking.interpolate"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.interpolate-283"><a href="#Ranking.interpolate-283"><span class="linenos">283</span></a>    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.interpolate-283"><a href="#Ranking.interpolate-283"><span class="linenos">283</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate</span><span class="p">(</span>
 </span><span id="Ranking.interpolate-284"><a href="#Ranking.interpolate-284"><span class="linenos">284</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Ranking.interpolate-285"><a href="#Ranking.interpolate-285"><span class="linenos">285</span></a>        <span class="n">other</span><span class="p">:</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">,</span>
 </span><span id="Ranking.interpolate-286"><a href="#Ranking.interpolate-286"><span class="linenos">286</span></a>        <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1023,7 +1023,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking.rr_scores"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.rr_scores-318"><a href="#Ranking.rr_scores-318"><span class="linenos">318</span></a>    <span class="k">def</span> <span class="nf">rr_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.rr_scores-318"><a href="#Ranking.rr_scores-318"><span class="linenos">318</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">rr_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Ranking&quot;</span><span class="p">:</span>
 </span><span id="Ranking.rr_scores-319"><a href="#Ranking.rr_scores-319"><span class="linenos">319</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-score documents/passages using reciprocal rank.</span>
 </span><span id="Ranking.rr_scores-320"><a href="#Ranking.rr_scores-320"><span class="linenos">320</span></a>
 </span><span id="Ranking.rr_scores-321"><a href="#Ranking.rr_scores-321"><span class="linenos">321</span></a><span class="sd">        A score is computed as `1 / (rank + k)`.</span>
@@ -1077,7 +1077,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 
     </div>
     <a class="headerlink" href="#Ranking.save"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.save-338"><a href="#Ranking.save-338"><span class="linenos">338</span></a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.save-338"><a href="#Ranking.save-338"><span class="linenos">338</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span>
 </span><span id="Ranking.save-339"><a href="#Ranking.save-339"><span class="linenos">339</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="Ranking.save-340"><a href="#Ranking.save-340"><span class="linenos">340</span></a>        <span class="n">target</span><span class="p">:</span> <span class="s2">&quot;Path&quot;</span><span class="p">,</span>
 </span><span id="Ranking.save-341"><a href="#Ranking.save-341"><span class="linenos">341</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1123,7 +1123,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
     </div>
     <a class="headerlink" href="#Ranking.from_run"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.from_run-358"><a href="#Ranking.from_run-358"><span class="linenos">358</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Ranking.from_run-359"><a href="#Ranking.from_run-359"><span class="linenos">359</span></a>    <span class="k">def</span> <span class="nf">from_run</span><span class="p">(</span>
+</span><span id="Ranking.from_run-359"><a href="#Ranking.from_run-359"><span class="linenos">359</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">from_run</span><span class="p">(</span>
 </span><span id="Ranking.from_run-360"><a href="#Ranking.from_run-360"><span class="linenos">360</span></a>        <span class="bp">cls</span><span class="p">,</span>
 </span><span id="Ranking.from_run-361"><a href="#Ranking.from_run-361"><span class="linenos">361</span></a>        <span class="n">run</span><span class="p">:</span> <span class="n">Run</span><span class="p">,</span>
 </span><span id="Ranking.from_run-362"><a href="#Ranking.from_run-362"><span class="linenos">362</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1177,7 +1177,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
     </div>
     <a class="headerlink" href="#Ranking.from_file"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Ranking.from_file-378"><a href="#Ranking.from_file-378"><span class="linenos">378</span></a>    <span class="nd">@classmethod</span>
-</span><span id="Ranking.from_file-379"><a href="#Ranking.from_file-379"><span class="linenos">379</span></a>    <span class="k">def</span> <span class="nf">from_file</span><span class="p">(</span>
+</span><span id="Ranking.from_file-379"><a href="#Ranking.from_file-379"><span class="linenos">379</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
 </span><span id="Ranking.from_file-380"><a href="#Ranking.from_file-380"><span class="linenos">380</span></a>        <span class="bp">cls</span><span class="p">,</span>
 </span><span id="Ranking.from_file-381"><a href="#Ranking.from_file-381"><span class="linenos">381</span></a>        <span class="n">f</span><span class="p">:</span> <span class="s2">&quot;Path&quot;</span><span class="p">,</span>
 </span><span id="Ranking.from_file-382"><a href="#Ranking.from_file-382"><span class="linenos">382</span></a>        <span class="n">queries</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
