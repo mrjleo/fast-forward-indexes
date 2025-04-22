@@ -288,7 +288,7 @@ class Index(abc.ABC):
         :return: Data frame with computed scores.
         """
         # get all required vectors and corresponding IDs from the FF index
-        vectors, vec_ids = self._get_vectors(data["id"].to_list())
+        vectors, vec_ids = self._get_vectors(data["id"].unique())
         if self.quantizer is not None:
             vectors = self.quantizer.decode(vectors)
 
