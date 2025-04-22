@@ -295,7 +295,7 @@ class Index(abc.ABC):
         # merge data frames so "id_idx" can be used to index arrays
         df_vec_ids = pd.DataFrame(vec_ids, columns=["id"])
         df_vec_ids["id_idx"] = df_vec_ids.index
-        df_merged = df_vec_ids.merge(data[["id", "q_no"]], how="outer", on="id")
+        df_merged = df_vec_ids.merge(data[["id", "q_no"]], how="left", on="id")
 
         # compute all dot products (scores)
         q_reps = query_vectors[df_merged["q_no"].tolist()]
