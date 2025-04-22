@@ -154,7 +154,7 @@ class OnDiskIndex(Index):
             init_size=len(self),
         )
         with h5py.File(self._index_file, "r") as fp:
-            num_vectors = cast(int, fp.attrs["num_vectors"])
+            num_vectors = cast("int", fp.attrs["num_vectors"])
 
             batch_size = batch_size or num_vectors
             for i_low in range(0, num_vectors, batch_size):
@@ -201,7 +201,7 @@ class OnDiskIndex(Index):
             capacity = fp["vectors"].shape[0]  # pyright: ignore[reportAttributeAccessIssue]
 
             # check if we have enough space, resize if necessary
-            cur_num_vectors = cast(int, fp.attrs["num_vectors"])
+            cur_num_vectors = cast("int", fp.attrs["num_vectors"])
             space_left = capacity - cur_num_vectors
             if num_new_vecs > space_left:
                 new_size = max(
@@ -279,7 +279,7 @@ class OnDiskIndex(Index):
         self, batch_size: int
     ) -> "Iterator[tuple[np.ndarray, IDSequence, IDSequence]]":
         with h5py.File(self._index_file, "r") as fp:
-            num_vectors = cast(int, fp.attrs["num_vectors"])
+            num_vectors = cast("int", fp.attrs["num_vectors"])
             for i in range(0, num_vectors, batch_size):
                 j = min(i + batch_size, num_vectors)
                 doc_ids = fp["doc_ids"].asstr()[i:j]  # pyright: ignore[reportAttributeAccessIssue]
@@ -339,7 +339,7 @@ class OnDiskIndex(Index):
             index._doc_id_to_idx = defaultdict(list)
             index._psg_id_to_idx = {}
 
-            num_vectors = cast(int, fp.attrs["num_vectors"])
+            num_vectors = cast("int", fp.attrs["num_vectors"])
             if num_vectors == 0:
                 return index
 
