@@ -257,17 +257,16 @@ class Index(abc.ABC):
         )
 
     @abc.abstractmethod
-    def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[list[int]]]:
+    def _get_vectors(self, ids: Iterable[str]) -> tuple[np.ndarray, list[str]]:
         """Get vectors and corresponding IDs from the index.
 
         Return a tuple containing:
             * A single array of all vectors necessary to compute the scores for each
                 document/passage.
-            * For each document/passage (in the same order as the IDs), a list of
-                integers (depending on the mode).
+            * A list of document/passage IDs to identify each vector in the array.
 
-        The integers will be used to get the corresponding vectors from the array.
         The output of this function depends on the current mode.
+
         If a quantizer is used, this function returns quantized vectors.
 
         Specific to index implementation.
@@ -288,52 +287,32 @@ class Index(abc.ABC):
         :param query_vectors: All query vectors indexed by "q_no".
         :return: Data frame with computed scores.
         """
-        # map doc/passage IDs to unique numbers (0 to n)
-        id_df = data[["id"]].drop_duplicates().reset_index(drop=True)
-        id_df["id_no"] = id_df.index
-
-        # attach doc/passage numbers to data frame
-        df = data.merge(id_df, on="id", suffixes=(None, "_")).reset_index(drop=True)
-
-        # get all required vectors from the FF index
-        vectors, id_to_vec_idxs = self._get_vectors(id_df["id"].to_list())
+        # get all required vectors and corresponding IDs from the FF index
+        vectors, vec_ids = self._get_vectors(data["id"].to_list())
         if self.quantizer is not None:
             vectors = self.quantizer.decode(vectors)
 
-        # compute indices for query vectors and doc/passage vectors in current arrays
-        select_query_vectors = []
-        select_vectors = []
-        select_scores = []
-        c = 0
-        for id_no, q_no in zip(df["id_no"], df["q_no"]):
-            vec_idxs = id_to_vec_idxs[id_no]
-            select_vectors.extend(vec_idxs)
-            select_scores.append(list(range(c, c + len(vec_idxs))))
-            c += len(vec_idxs)
-            select_query_vectors.extend([q_no] * len(vec_idxs))
+        # merge data frames so "id_idx" can be used to index arrays
+        df_vec_ids = pd.DataFrame(vec_ids, columns=["id"])
+        df_vec_ids["id_idx"] = df_vec_ids.index
+        df_merged = df_vec_ids.merge(data[["id", "q_no"]], how="outer", on="id")
 
         # compute all dot products (scores)
-        q_reps = query_vectors[select_query_vectors]
-        d_reps = vectors[select_vectors]
-        scores = np.sum(q_reps * d_reps, axis=1)
+        q_reps = query_vectors[df_merged["q_no"].tolist()]
+        d_reps = vectors[df_merged["id_idx"].tolist()]
+        df_merged["ff_score"] = np.sum(q_reps * d_reps, axis=1)
 
         # select aggregation operation based on current mode
         if self.mode == Mode.MAXP:
-            op = np.max
+            op = "max"
         elif self.mode == Mode.AVEP:
-            op = np.average
+            op = "mean"
         else:
-            op = itemgetter(0)
+            op = "first"
 
-        def _mapfunc(i: int) -> float:
-            scores_i = select_scores[i]
-            if len(scores_i) == 0:
-                return np.nan
-            return op(scores[scores_i])
+        df_agg = df_merged.groupby(["id", "q_no"], as_index=False).aggregate(op)
 
-        # insert FF scores in the correct rows
-        df["ff_score"] = df.index.map(_mapfunc)
-        return df
+        return data.merge(df_agg, on=["id", "q_no"])
 
     def _early_stopping(
         self,

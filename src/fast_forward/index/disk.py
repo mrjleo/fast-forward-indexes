@@ -240,40 +240,38 @@ class OnDiskIndex(Index):
     def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[list[int]]]:
+    def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[str]]:
         idx_pairs = []
+        for id in ids:
+            if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
+                idxs = self._doc_id_to_idx[id]
+            elif self.mode == Mode.FIRSTP and id in self._doc_id_to_idx:
+                idxs = [self._doc_id_to_idx[id][0]]
+            elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
+                idxs = [self._psg_id_to_idx[id]]
+            else:
+                LOGGER.warning("no vectors for %s", id)
+                idxs = []
+
+            for idx in idxs:
+                idx_pairs.append((id, idx))
+
+        # h5py requires accessing the dataset with sorted indices
+        out_ids, vec_idxs = zip(*sorted(idx_pairs, key=lambda x: x[1]))
+        vec_idxs = list(vec_idxs)
+
         with h5py.File(self._index_file, "r") as fp:
-            for id in ids:
-                if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
-                    idxs = self._doc_id_to_idx[id]
-                elif self.mode == Mode.FIRSTP and id in self._doc_id_to_idx:
-                    idxs = [self._doc_id_to_idx[id][0]]
-                elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
-                    idxs = [self._psg_id_to_idx[id]]
-                else:
-                    LOGGER.warning("no vectors for %s", id)
-                    idxs = []
-
-                for idx in idxs:
-                    idx_pairs.append((id, idx))
-
-            # h5py requires accessing the dataset with sorted indices
-            idx_pairs.sort(key=lambda x: x[1])
-            id_to_idxs = defaultdict(list)
-            vec_idxs = []
-            for id_idx, (id, vec_idx) in enumerate(idx_pairs):
-                vec_idxs.append(vec_idx)
-                id_to_idxs[id].append(id_idx)
-
             # reading all vectors at once slows h5py down significantly, so we read them
             # in chunks and concatenate
             vectors = np.concatenate(  # pyright: ignore[reportCallIssue]
                 [
-                    fp["vectors"][vec_idxs[i : i + self._max_indexing_size]]  # pyright: ignore[reportIndexIssue, reportArgumentType]
+                    fp["vectors"][  # pyright: ignore[reportIndexIssue, reportArgumentType]
+                        vec_idxs[i : i + self._max_indexing_size]
+                    ]
                     for i in range(0, len(vec_idxs), self._max_indexing_size)
                 ]
             )
-            return vectors, [id_to_idxs[id] for id in ids]
+            return vectors, list(out_ids)
 
     def _batch_iter(
         self, batch_size: int
