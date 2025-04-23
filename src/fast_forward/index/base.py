@@ -403,6 +403,7 @@ class Index(abc.ABC):
         :param batch_size: How many queries to process at once.
         :raises ValueError: When the ranking has no queries attached.
         :raises ValueError: When early stopping is enabled but arguments are missing.
+        :raises IndexError: When an ID in the ranking is not found in the index.
         :return: Ranking with the computed scores.
         """
         if not ranking.has_queries:
