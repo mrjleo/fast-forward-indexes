@@ -8,7 +8,7 @@ from tqdm import tqdm
 from fast_forward.index.base import IDSequence, Index, Mode
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
 
     from fast_forward.encoder.base import Encoder
     from fast_forward.quantizer import Quantizer
@@ -131,54 +131,59 @@ class InMemoryIndex(Index):
     def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _index_shards(self, idx: int) -> tuple[int, int]:
-        """Given an index, compute the shard index and index within that shard.
+    def _index(self, idxs: "Sequence[int]") -> np.ndarray:
+        """Return vectors from the internal array(s).
 
-        The input index may be in `[0, N]`, where `N` is the total number of vectors.
+        This method retrieves vectors from the correct shards (if there are any).
 
-        :param idx: The input index.
-        :return: Shard index and index within that shard.
+        :param idxs: Indices to return vectors for.
+        :return: The vectors in the same order as the provided indices.
         """
-        # the first shard might be larger
-        if idx < self._shards[0].shape[0]:
-            shard_idx = 0
-            idx_in_shard = idx
-        else:
-            idx -= self._shards[0].shape[0]
-            shard_idx = int(idx / self._alloc_size) + 1
-            idx_in_shard = idx % self._alloc_size
-        return shard_idx, idx_in_shard
+        if len(idxs) == 0:
+            return np.array([])
 
-    def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[list[int]]]:
-        items_by_shard = defaultdict(list)
+        # if there is no sharding, simply use numpy indexing
+        if len(self._shards) == 1:
+            return self._shards[0][idxs]
+
+        # otherwise, group indexes by shard and index each shared individually
+        items_by_shard = defaultdict(lambda: ([], []))
+        for i, idx in enumerate(idxs):
+            # the first shard might be larger
+            if idx < self._shards[0].shape[0]:
+                shard_idx = 0
+                idx_in_shard = idx
+            else:
+                idx_ = idx - self._shards[0].shape[0]
+                shard_idx = int(idx_ / self._alloc_size) + 1
+                idx_in_shard = idx_ % self._alloc_size
+            items_by_shard[shard_idx][0].append(idx_in_shard)
+            items_by_shard[shard_idx][1].append(i)
+
+        result = []
+        ordering = []
+        for shard_idx, (idxs_in_shard, i_) in items_by_shard.items():
+            result.append(self._shards[shard_idx][idxs_in_shard])
+            ordering.extend(i_)
+
+        return np.concatenate(result)[np.argsort(ordering)]
+
+    def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[str]]:
+        idxs = []
+        ids_ = []
         for id in ids:
             if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
-                idxs = self._doc_id_to_idx[id]
+                idxs.extend(self._doc_id_to_idx[id])
+                ids_.extend([id] * len(self._doc_id_to_idx[id]))
             elif self.mode == Mode.FIRSTP and id in self._doc_id_to_idx:
-                idxs = [self._doc_id_to_idx[id][0]]
+                idxs.append(self._doc_id_to_idx[id][0])
+                ids_.append(id)
             elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
-                idxs = [self._psg_id_to_idx[id]]
+                idxs.append(self._psg_id_to_idx[id])
+                ids_.append(id)
             else:
                 LOGGER.warning("no vectors for %s", id)
-                idxs = []
-
-            for idx in idxs:
-                shard_idx, idx_in_shard = self._index_shards(idx)
-                items_by_shard[shard_idx].append((idx_in_shard, id))
-
-        result_vectors = []
-        result_ids = defaultdict(list)
-        items_so_far = 0
-        for shard_idx, items in items_by_shard.items():
-            idxs, ids_ = zip(*items)
-            result_vectors.append(self._shards[shard_idx][list(idxs)])
-            for i, id_in_shard in enumerate(ids_):
-                result_ids[id_in_shard].append(i + items_so_far)
-            items_so_far += len(items)
-
-        if len(result_vectors) == 0:
-            return np.array([]), []
-        return np.concatenate(result_vectors), [result_ids[id] for id in ids]
+        return self._index(idxs), ids_
 
     def _batch_iter(
         self, batch_size: int
@@ -195,27 +200,9 @@ class InMemoryIndex(Index):
 
         num_vectors = len(self)
         for i in range(0, num_vectors, batch_size):
-            j = min(i + batch_size, num_vectors)
-
-            # the current batch is between i (incl.) and j (excl.)
-            i_shard_idx, i_idx_in_shard = self._index_shards(i)
-            j_shard_idx, j_idx_in_shard = self._index_shards(j - 1)
-
-            arrays = []
-
-            # if the batch spans multiple shards, collect them in a list
-            while i_shard_idx < j_shard_idx:
-                arrays.append(self._shards[i_shard_idx][i_idx_in_shard:])
-                i_shard_idx += 1
-                i_idx_in_shard = 0
-
-            # now i_shard_idx == j_shard_idx
-            arrays.append(
-                self._shards[i_shard_idx][i_idx_in_shard : j_idx_in_shard + 1]
-            )
-
+            idxs = range(i, min(i + batch_size, num_vectors))
             yield (
-                np.concatenate(arrays),
-                list(map(idx_to_doc_id.get, range(i, j))),
-                list(map(idx_to_psg_id.get, range(i, j))),
+                self._index(idxs),
+                list(map(idx_to_doc_id.get, idxs)),
+                list(map(idx_to_psg_id.get, idxs)),
             )

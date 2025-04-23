@@ -199,6 +199,14 @@ class TestRanking(unittest.TestCase):
         )
         self.assertTrue(self.ranking_with_queries.rr_scores().has_queries)
 
+    def test_duplicate_error(self):
+        df = pd.DataFrame(
+            [["q1", "d1", 1.0], ["q1", "d1", 2.0], ["q1", "d2", 1.0]],
+            columns=["q_id", "id", "score"],
+        )
+        with self.assertRaises(ValueError):
+            Ranking(df)
+
 
 if __name__ == "__main__":
     unittest.main()
