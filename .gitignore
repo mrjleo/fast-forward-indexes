@@ -106,7 +106,4 @@ venv.bak/
 # VS Code
 .vscode/
 
-# uv
-uv.lock
-
 .DS_Store
