@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -107,7 +108,8 @@ class TestIndex(unittest.TestCase):
         doc_ids = [f"doc_{int(i / 2)}" for i in range(data.shape[0])]
         psg_ids = [f"psg_{i}" for i in range(data.shape[0])]
 
-        # successively add parts of the data and make sure we still get the correct vectors and indices back as the index grows
+        # successively add parts of the data and make sure we still get the correct
+        # vectors and indices back as the index grows
         for lower, upper in [(0, 8), (8, 24), (24, 80)]:
             self.index.add(
                 data[lower:upper],
@@ -117,20 +119,14 @@ class TestIndex(unittest.TestCase):
             self.assertEqual(upper, len(self.index))
 
             self.index.mode = Mode.PASSAGE
-            vecs, idxs = self.index._get_vectors(psg_ids[lower:upper])
-            _test_vectors(
-                vecs, idxs, data[lower:upper], [[idx] for idx in range(upper - lower)]
-            )
+            vecs, ids = self.index._get_vectors(psg_ids[lower:upper])
+            _test_vectors(vecs, ids, data[lower:upper], psg_ids[lower:upper])
 
             self.index.mode = Mode.MAXP
-            vecs, idxs = self.index._get_vectors(
+            vecs, ids = self.index._get_vectors(
                 [f"doc_{i}" for i in range(int(lower / 2), int(upper / 2))]
             )
-            np.testing.assert_almost_equal(vecs, data[lower:upper], decimal=6)
-            self.assertEqual(
-                [[2 * idx, 2 * idx + 1] for idx in range(int((upper - lower) / 2))],
-                idxs,
-            )
+            _test_vectors(vecs, ids, data[lower:upper], doc_ids[lower:upper])
 
     def test_queries(self):
         self.doc_psg_index.mode = Mode.MAXP
@@ -418,13 +414,13 @@ class TestInMemoryIndex(TestIndex):
 
         index.add(data[:14], psg_ids=psg_ids[:14])
         index.consolidate()
-        vecs, idxs = index._get_vectors(psg_ids[:14])
-        _test_vectors(vecs, idxs, data[:14], [[idx] for idx in range(14)])
+        vecs, ids = index._get_vectors(psg_ids[:14])
+        _test_vectors(vecs, ids, data[:14], psg_ids[:14])
 
         index.add(data[14:32], psg_ids=psg_ids[14:32])
         index.consolidate()
-        vecs, idxs = index._get_vectors(psg_ids)
-        _test_vectors(vecs, idxs, data, [[idx] for idx in range(32)])
+        vecs, ids = index._get_vectors(psg_ids)
+        _test_vectors(vecs, ids, data, psg_ids)
 
 
 class TestOnDiskIndex(TestIndex):
@@ -606,10 +602,8 @@ class TestOnDiskIndex(TestIndex):
         psg_reps = np.random.normal(size=(16, 16))
         psg_ids = [f"p{i}" for i in range(16)]
         index.add(psg_reps, psg_ids=psg_ids)
-        vecs, id_idxs = index._get_vectors(psg_ids)
-        np.testing.assert_almost_equal(
-            vecs[id_idxs], psg_reps.reshape((16, 1, 16)), decimal=6
-        )
+        vecs, ids = index._get_vectors(psg_ids)
+        _test_vectors(vecs, ids, psg_reps, psg_ids)
 
     @classmethod
     def tearDownClass(cls):
@@ -617,16 +611,26 @@ class TestOnDiskIndex(TestIndex):
 
 
 def _test_get_vectors(index_1, index_2, ids):
-    vecs_1, idxs_1 = index_1._get_vectors(ids)
-    vecs_2, idxs_2 = index_2._get_vectors(ids)
-    _test_vectors(vecs_1, idxs_1, vecs_2, idxs_2)
+    vecs_1, ids_1 = index_1._get_vectors(ids)
+    vecs_2, ids_2 = index_2._get_vectors(ids)
+    _test_vectors(vecs_1, ids_1, vecs_2, ids_2)
 
 
-def _test_vectors(vecs_1, idxs_1, vecs_2, idxs_2):
-    # this accounts for the fact that the indices returned by _get_vectors may be different,
+def _test_vectors(vecs_1, ids_1, vecs_2, ids_2):
+    # this accounts for the fact that the order returned by _get_vectors may be different,
     # but the overall result is still the same
-    for i, j in zip(idxs_1, idxs_2):
-        np.testing.assert_almost_equal(vecs_1[i], vecs_2[j], decimal=6)
+
+    ids_1_reverse = defaultdict(list)
+    for i_1, id in enumerate(ids_1):
+        ids_1_reverse[id].append(i_1)
+
+    ids_2_reverse = defaultdict(list)
+    for i_2, id in enumerate(ids_2):
+        ids_2_reverse[id].append(i_2)
+
+    for id in ids_1_reverse:
+        for i_1, i_2 in zip(ids_1_reverse[id], ids_2_reverse[id]):
+            np.testing.assert_almost_equal(vecs_1[i_1], vecs_2[i_2], decimal=6)
 
 
 if __name__ == "__main__":
