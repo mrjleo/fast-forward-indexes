@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Any
 
 import torch
-from transformers import AutoModel, AutoTokenizer
+from transformers.models.auto.modeling_auto import AutoModel
+from transformers.models.auto.tokenization_auto import AutoTokenizer
 
 from fast_forward.encoder.base import Encoder
 
@@ -10,8 +11,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     import numpy as np
-    from transformers import BatchEncoding
     from transformers.modeling_outputs import BaseModelOutput
+    from transformers.tokenization_utils_base import BatchEncoding
 
 
 class TransformerEncoder(Encoder):
@@ -71,6 +72,7 @@ class TransformerEncoder(Encoder):
         :param model_inputs: The Transformer inputs (unused).
         :return: The CLS token representations from the last hidden state.
         """
+        assert model_outputs.last_hidden_state is not None
         return model_outputs.last_hidden_state[:, 0]
 
     def _encode(self, texts: "Sequence[str]") -> "np.ndarray":
@@ -128,8 +130,8 @@ class TCTColBERTQueryEncoder(TransformerEncoder):
         model_outputs: "BaseModelOutput",
         model_inputs: "BatchEncoding",  # noqa: ARG002
     ) -> torch.Tensor:
-        embeddings = model_outputs.last_hidden_state[:, 4:, :]
-        return torch.mean(embeddings, dim=-2)
+        assert model_outputs.last_hidden_state is not None
+        return torch.mean(model_outputs.last_hidden_state[:, 4:, :], dim=-2)
 
 
 class TCTColBERTDocumentEncoder(TransformerEncoder):
@@ -173,6 +175,7 @@ class TCTColBERTDocumentEncoder(TransformerEncoder):
         model_outputs: "BaseModelOutput",
         model_inputs: "BatchEncoding",
     ) -> torch.Tensor:
+        assert model_outputs.last_hidden_state is not None
         token_embeddings = model_outputs.last_hidden_state[:, 4:, :]
         input_mask_expanded = (
             model_inputs.attention_mask[:, 4:]
