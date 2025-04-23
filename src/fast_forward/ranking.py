@@ -73,7 +73,12 @@ class Ranking:
         copy: bool = True,
         is_sorted: bool = False,
     ) -> None:
-        """Create a ranking from an existing data frame. Removes rows with NaN scores.
+        """Create a ranking from an existing data frame.
+
+        The data frame must have the columns "q_id", "id", "score",
+        and (optionally) "query".
+
+        Rows with NaN scores are removed.
 
         :param df: Data frame containing IDs and scores.
         :param name: Method name.
@@ -81,10 +86,16 @@ class Ranking:
         :param dtype: How the scores should be represented in the data frame.
         :param copy: Whether to copy the data frame.
         :param is_sorted: Whether the data frame is already sorted (by score).
+        :raises ValueError: When a query-document/passage pair appears more than once.
         :raises ValueError: When the queries are incomplete.
         """
         super().__init__()
         self.name = name
+
+        if df.duplicated(subset=["q_id", "id"]).any():
+            raise ValueError(
+                "Only one score per query-document/passage pair is allowed."
+            )
 
         cols = ["q_id", "id", "score"]
         if "query" in df.columns:
