@@ -619,6 +619,8 @@ def _test_get_vectors(index_1, index_2, ids):
 def _test_vectors(vecs_1, ids_1, vecs_2, ids_2):
     # this accounts for the fact that the order returned by _get_vectors may be different,
     # but the overall result is still the same
+    assert vecs_1.shape == vecs_2.shape
+    assert len(ids_1) == len(ids_2)
 
     ids_1_reverse = defaultdict(list)
     for i_1, id in enumerate(ids_1):
