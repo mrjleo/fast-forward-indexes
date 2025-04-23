@@ -412,7 +412,7 @@ class TestInMemoryIndex(TestIndex):
         super(TestInMemoryIndex, cls).setUpClass()
 
     def test_consolidate(self):
-        index = InMemoryIndex(init_size=8, alloc_size=4)
+        index = InMemoryIndex(init_size=8, alloc_size=4, mode=Mode.PASSAGE)
         data = data = np.random.normal(size=(32, 16))
         psg_ids = [f"psg_{i}" for i in range(32)]
 

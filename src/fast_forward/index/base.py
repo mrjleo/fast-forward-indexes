@@ -2,7 +2,6 @@ import abc
 import logging
 from collections.abc import Iterable, Iterator, Sequence
 from enum import Enum
-from operator import itemgetter
 from time import perf_counter
 
 import numpy as np
@@ -309,7 +308,6 @@ class Index(abc.ABC):
             op = "mean"
         else:
             op = "first"
-
         df_agg = df_merged.groupby(["id", "q_no"], as_index=False).aggregate(op)
 
         return data.merge(df_agg, on=["id", "q_no"])
