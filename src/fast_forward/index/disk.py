@@ -240,21 +240,35 @@ class OnDiskIndex(Index):
     def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
+    def _get_idxs(self, id: str) -> list[int]:
+        """Find the internal array indices for a document/passage ID.
+
+        Takes ranking mode into account.
+
+        :param id: The ID to return the indices for.
+        :raises IndexError: When the ID cannot be found in the index.
+        :return: The internal array indices.
+        """
+        if self.mode in (Mode.MAXP, Mode.AVEP):
+            return self._doc_id_to_idx.get(id, [])
+        if self.mode == Mode.FIRSTP:
+            return self._doc_id_to_idx.get(id, [])[:1]
+
+        psg_idx = self._psg_id_to_idx.get(id)
+        return [] if psg_idx is None else [psg_idx]
+
     def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[str]]:
         idx_pairs = []
         for id in ids:
-            if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
-                idxs = self._doc_id_to_idx[id]
-            elif self.mode == Mode.FIRSTP and id in self._doc_id_to_idx:
-                idxs = [self._doc_id_to_idx[id][0]]
-            elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
-                idxs = [self._psg_id_to_idx[id]]
-            else:
-                LOGGER.warning("no vectors for %s", id)
-                idxs = []
+            cur_idxs = self._get_idxs(id)
+            if len(cur_idxs) == 0:
+                raise IndexError(f"ID {id} not found in the index.")
 
-            for idx in idxs:
+            for idx in cur_idxs:
                 idx_pairs.append((id, idx))
+
+        if len(idx_pairs) == 0:
+            return np.array([]), []
 
         # h5py requires accessing the dataset with sorted indices
         out_ids, vec_idxs = zip(*sorted(idx_pairs, key=lambda x: x[1]))

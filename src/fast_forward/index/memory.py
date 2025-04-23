@@ -168,21 +168,32 @@ class InMemoryIndex(Index):
 
         return np.concatenate(result)[np.argsort(ordering)]
 
+    def _get_idxs(self, id: str) -> list[int]:
+        """Find the internal array indices for a document/passage ID.
+
+        Takes ranking mode into account.
+
+        :param id: The ID to return the indices for.
+        :raises IndexError: When the ID cannot be found in the index.
+        :return: The internal array indices.
+        """
+        if self.mode in (Mode.MAXP, Mode.AVEP):
+            return self._doc_id_to_idx.get(id, [])
+        if self.mode == Mode.FIRSTP:
+            return self._doc_id_to_idx.get(id, [])[:1]
+
+        psg_idx = self._psg_id_to_idx.get(id)
+        return [] if psg_idx is None else [psg_idx]
+
     def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[str]]:
         idxs = []
         ids_ = []
         for id in ids:
-            if self.mode in (Mode.MAXP, Mode.AVEP) and id in self._doc_id_to_idx:
-                idxs.extend(self._doc_id_to_idx[id])
-                ids_.extend([id] * len(self._doc_id_to_idx[id]))
-            elif self.mode == Mode.FIRSTP and id in self._doc_id_to_idx:
-                idxs.append(self._doc_id_to_idx[id][0])
-                ids_.append(id)
-            elif self.mode == Mode.PASSAGE and id in self._psg_id_to_idx:
-                idxs.append(self._psg_id_to_idx[id])
-                ids_.append(id)
-            else:
-                LOGGER.warning("no vectors for %s", id)
+            cur_idxs = self._get_idxs(id)
+            if len(cur_idxs) == 0:
+                raise IndexError(f"ID {id} not found in the index.")
+            idxs.extend(cur_idxs)
+            ids_.extend([id] * len(cur_idxs))
         return self._index(idxs), ids_
 
     def _batch_iter(

@@ -32,7 +32,7 @@ DUMMY_VECTORS = np.array(
 DUMMY_NUM, DUMMY_DIM = DUMMY_VECTORS.shape
 DUMMY_DOC_RUN = {
     "q1": {"d0": 100, "d1": 2, "d2": 3, "d3": 200},
-    "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800, "dx": 7},
+    "q2": {"d0": 400, "d1": 5, "d2": 6, "d3": 800},
 }
 DUMMY_DOC_RANKING = Ranking.from_run(DUMMY_DOC_RUN, queries=DUMMY_QUERIES)
 DUMMY_PSG_RUN = {
@@ -251,6 +251,13 @@ class TestIndex(unittest.TestCase):
         # adding a quantizer to an index that's not empty
         with self.assertRaises(RuntimeError):
             self.doc_psg_index.quantizer = DUMMY_QUANTIZER
+
+        # missing vector in index
+        ranking_missing_vector = Ranking.from_run(
+            {"q1": {"d0": 100, "dx": 2}}, queries=DUMMY_QUERIES
+        )
+        with self.assertRaises(IndexError):
+            self.doc_psg_index(ranking_missing_vector)
 
     def test_early_stopping(self):
         self.early_stopping_index.add(

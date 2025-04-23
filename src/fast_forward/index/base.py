@@ -271,6 +271,7 @@ class Index(abc.ABC):
         Specific to index implementation.
 
         :param ids: The document/passage IDs to get the representations for.
+        :raises IndexError: When a requested ID is not found in the index.
         :return: The vectors and corresponding indices.
         """
         pass
