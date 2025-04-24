@@ -36,8 +36,7 @@ class OnDiskIndex(Index):
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
         init_size: int = 2**14,
-        resize_min_val: int = 2**10,
-        hdf5_chunk_size: int | None = None,
+        chunk_size: int = 2**14,
         max_id_length: int = 8,
         overwrite: bool = False,
         max_indexing_size: int = 2**10,
@@ -50,8 +49,7 @@ class OnDiskIndex(Index):
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
         :param init_size: Initial size to allocate (number of vectors).
-        :param resize_min_val: Minimum number of vectors to increase index size by.
-        :param hdf5_chunk_size: Specify a chunk size used by HDF5.
+        :param chunk_size: Size of chunks (HDF5).
         :param max_id_length:
             Maximum length of document and passage IDs (number of characters).
         :param overwrite: Overwrite index file if it exists.
@@ -67,8 +65,7 @@ class OnDiskIndex(Index):
         self._psg_id_to_idx = {}
 
         self._init_size = init_size
-        self._resize_min_val = resize_min_val
-        self._hdf5_chunk_size = hdf5_chunk_size
+        self._chunk_size = chunk_size
         self._max_id_length = max_id_length
         self._max_indexing_size = max_indexing_size
 
@@ -111,9 +108,7 @@ class OnDiskIndex(Index):
             (self._init_size, dim),
             dtype,
             maxshape=(None, dim),
-            chunks=True
-            if self._hdf5_chunk_size is None
-            else (self._hdf5_chunk_size, dim),
+            chunks=(self._chunk_size, dim),
         )
         fp.create_dataset(
             "doc_ids",
@@ -201,13 +196,13 @@ class OnDiskIndex(Index):
             capacity = fp["vectors"].shape[0]  # pyright: ignore[reportAttributeAccessIssue]
 
             # check if we have enough space, resize if necessary
-            cur_num_vectors = cast("int", fp.attrs["num_vectors"])
-            space_left = capacity - cur_num_vectors
+            num_cur_vectors = cast("int", fp.attrs["num_vectors"])
+            space_left = capacity - num_cur_vectors
             if num_new_vecs > space_left:
-                new_size = max(
-                    cur_num_vectors + num_new_vecs,
-                    capacity + self._resize_min_val,
-                )
+                # resize based on chunk size
+                new_size = (
+                    int((num_cur_vectors + num_new_vecs) / self._chunk_size) + 1
+                ) * self._chunk_size
                 LOGGER.debug("resizing index from %s to %s", capacity, new_size)
                 for ds in ("vectors", "doc_ids", "psg_ids"):
                     fp[ds].resize(new_size, axis=0)  # pyright: ignore[reportAttributeAccessIssue]
@@ -216,8 +211,8 @@ class OnDiskIndex(Index):
             doc_id_idxs, non_null_doc_ids = [], []
             for i, doc_id in enumerate(doc_ids):
                 if doc_id is not None:
-                    self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
-                    doc_id_idxs.append(cur_num_vectors + i)
+                    self._doc_id_to_idx[doc_id].append(num_cur_vectors + i)
+                    doc_id_idxs.append(num_cur_vectors + i)
                     non_null_doc_ids.append(doc_id)
             fp["doc_ids"][doc_id_idxs] = non_null_doc_ids  # pyright: ignore[reportIndexIssue]
 
@@ -225,13 +220,13 @@ class OnDiskIndex(Index):
             psg_id_idxs, non_null_psg_ids = [], []
             for i, psg_id in enumerate(psg_ids):
                 if psg_id is not None:
-                    self._psg_id_to_idx[psg_id] = cur_num_vectors + i
-                    psg_id_idxs.append(cur_num_vectors + i)
+                    self._psg_id_to_idx[psg_id] = num_cur_vectors + i
+                    psg_id_idxs.append(num_cur_vectors + i)
                     non_null_psg_ids.append(psg_id)
             fp["psg_ids"][psg_id_idxs] = non_null_psg_ids  # pyright: ignore[reportIndexIssue]
 
             # add new vectors
-            fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors  # pyright: ignore[reportIndexIssue]
+            fp["vectors"][num_cur_vectors : num_cur_vectors + num_new_vecs] = vectors  # pyright: ignore[reportIndexIssue]
             fp.attrs["num_vectors"] += num_new_vecs  # pyright: ignore[reportOperatorIssue]
 
     def _get_doc_ids(self) -> set[str]:
@@ -311,7 +306,6 @@ class OnDiskIndex(Index):
         query_encoder: "Encoder | None" = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
-        resize_min_val: int = 2**10,
         max_indexing_size: int = 2**10,
     ) -> "OnDiskIndex":
         """Open an existing index on disk.
@@ -320,7 +314,6 @@ class OnDiskIndex(Index):
         :param query_encoder: The query encoder.
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
-        :param resize_min_val: Minimum value to increase index size by.
         :param max_indexing_size:
             Maximum number of vectors to retrieve from the HDF5 dataset at once.
         :return: The index.
@@ -335,7 +328,6 @@ class OnDiskIndex(Index):
             encoder_batch_size=encoder_batch_size,
         )
         index._index_file = index_file.absolute()
-        index._resize_min_val = resize_min_val
         index._max_indexing_size = max_indexing_size
 
         # deserialize quantizer if any

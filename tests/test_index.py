@@ -436,9 +436,7 @@ class TestOnDiskIndex(TestIndex):
     @classmethod
     def setUpClass(cls):
         cls.temp_dir = Path(tempfile.mkdtemp())
-        cls.index = OnDiskIndex(
-            cls.temp_dir / "index.h5", init_size=32, resize_min_val=32
-        )
+        cls.index = OnDiskIndex(cls.temp_dir / "index.h5", init_size=32, chunk_size=32)
         cls.doc_psg_index = OnDiskIndex(
             cls.temp_dir / "doc_psg_index.h5",
             DUMMY_ENCODER,
@@ -474,7 +472,7 @@ class TestOnDiskIndex(TestIndex):
             OnDiskIndex(
                 cls.temp_dir / "iter_index_1.h5",
                 init_size=2,
-                resize_min_val=2,
+                chunk_size=2,
             ),
             OnDiskIndex(cls.temp_dir / "iter_index_2.h5", init_size=5),
         ]
