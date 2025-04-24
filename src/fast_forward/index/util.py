@@ -10,27 +10,36 @@ if TYPE_CHECKING:
 
 
 def get_indices(
-    id: str,
+    ids: "Iterable[str]",
     mode: Mode,
     doc_id_to_idx: dict[str, list[int]],
     psg_id_to_idx: dict[str, int],
-) -> list[int]:
-    """Find the array indices for a document/passage ID.
+) -> tuple[list[int], list[str]]:
+    """Find the array indices for a list of document/passage IDs.
 
-    :param id: The ID to return the indices for.
+    :param ids: IDs to return vectors for.
     :param mode: The ranking mode.
     :param doc_id_to_idx: Document IDs mapped to non-chunked indices.
     :param psg_id_to_idx: Passage IDs mapped to non-chunked indices.
     :raises IndexError: When the ID cannot be found in the index.
-    :return: The internal array indices.
+    :return: The indices and corresponding IDs.
     """
-    if mode in (Mode.MAXP, Mode.AVEP):
-        return doc_id_to_idx.get(id, [])
-    if mode == Mode.FIRSTP:
-        return doc_id_to_idx.get(id, [])[:1]
+    indices = []
+    ids_ = []
+    for id in ids:
+        if mode in (Mode.MAXP, Mode.AVEP):
+            cur_indices = doc_id_to_idx.get(id, [])
+        elif mode == Mode.FIRSTP:
+            cur_indices = doc_id_to_idx.get(id, [])[:1]
+        else:
+            psg_idx = psg_id_to_idx.get(id)
+            cur_indices = [] if psg_idx is None else [psg_idx]
 
-    psg_idx = psg_id_to_idx.get(id)
-    return [] if psg_idx is None else [psg_idx]
+        if len(cur_indices) == 0:
+            raise IndexError(f"ID {id} not found in the index.")
+        indices.extend(cur_indices)
+        ids_.extend([id] * len(cur_indices))
+    return indices, ids_
 
 
 class ChunkIndexer:
@@ -81,16 +90,7 @@ class ChunkIndexer:
         :raises IndexError: When the ID cannot be found in the index.
         :return: The vectors and corresponding IDs.
         """
-        indices = []
-        ids_ = []
-        for id in ids:
-            cur_indices = get_indices(
-                id, mode, self._doc_id_to_idx, self._psg_id_to_idx
-            )
-            if len(cur_indices) == 0:
-                raise IndexError(f"ID {id} not found in the index.")
-            indices.extend(cur_indices)
-            ids_.extend([id] * len(cur_indices))
+        indices, ids_ = get_indices(ids, mode, self._doc_id_to_idx, self._psg_id_to_idx)
 
         if len(indices) == 0:
             return np.array([]), []

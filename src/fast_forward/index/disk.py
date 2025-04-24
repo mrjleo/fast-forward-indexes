@@ -277,23 +277,17 @@ class OnDiskIndex(Index):
         if self._use_mmap:
             return self._get_mmap_indexer()(ids, self.mode)
 
-        idx_pairs = []
-        for id in ids:
-            cur_idxs = get_indices(
-                id, self.mode, self._doc_id_to_idx, self._psg_id_to_idx
-            )
-            if len(cur_idxs) == 0:
-                raise IndexError(f"ID {id} not found in the index.")
-
-            for idx in cur_idxs:
-                idx_pairs.append((id, idx))
-
-        if len(idx_pairs) == 0:
+        # if there are no memory maps, retrieve the vectors using h5py
+        indices, ids_ = get_indices(
+            ids, self.mode, self._doc_id_to_idx, self._psg_id_to_idx
+        )
+        if len(ids_) == 0:
             return np.array([]), []
 
         # h5py requires accessing the dataset with sorted indices
-        out_ids, vec_idxs = zip(*sorted(idx_pairs, key=lambda x: x[1]))
-        vec_idxs = list(vec_idxs)
+        idx_pairs = zip(indices, ids_)
+        h5_indices, out_ids = zip(*sorted(idx_pairs, key=lambda x: x[0]))
+        h5_indices = list(h5_indices)
 
         with h5py.File(self._index_file, "r") as fp:
             # reading all vectors at once slows h5py down significantly, so we read them
@@ -301,9 +295,9 @@ class OnDiskIndex(Index):
             vectors = np.concatenate(  # pyright: ignore[reportCallIssue]
                 [
                     fp["vectors"][  # pyright: ignore[reportIndexIssue, reportArgumentType]
-                        vec_idxs[i : i + self._max_indexing_size]
+                        h5_indices[i : i + self._max_indexing_size]
                     ]
-                    for i in range(0, len(vec_idxs), self._max_indexing_size)
+                    for i in range(0, len(h5_indices), self._max_indexing_size)
                 ]
             )
             return vectors, list(out_ids)
