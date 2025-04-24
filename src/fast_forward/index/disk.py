@@ -9,6 +9,7 @@ from tqdm import tqdm
 import fast_forward
 from fast_forward.index.base import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
+from fast_forward.index.util import get_indices
 from fast_forward.quantizer import Quantizer
 
 if TYPE_CHECKING:
@@ -235,27 +236,12 @@ class OnDiskIndex(Index):
     def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _get_idxs(self, id: str) -> list[int]:
-        """Find the internal array indices for a document/passage ID.
-
-        Takes ranking mode into account.
-
-        :param id: The ID to return the indices for.
-        :raises IndexError: When the ID cannot be found in the index.
-        :return: The internal array indices.
-        """
-        if self.mode in (Mode.MAXP, Mode.AVEP):
-            return self._doc_id_to_idx.get(id, [])
-        if self.mode == Mode.FIRSTP:
-            return self._doc_id_to_idx.get(id, [])[:1]
-
-        psg_idx = self._psg_id_to_idx.get(id)
-        return [] if psg_idx is None else [psg_idx]
-
     def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[str]]:
         idx_pairs = []
         for id in ids:
-            cur_idxs = self._get_idxs(id)
+            cur_idxs = get_indices(
+                id, self.mode, self._doc_id_to_idx, self._psg_id_to_idx
+            )
             if len(cur_idxs) == 0:
                 raise IndexError(f"ID {id} not found in the index.")
 
