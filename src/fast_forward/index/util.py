@@ -38,7 +38,7 @@ class ChunkIndexer:
 
     def __init__(
         self,
-        chunks: list[np.ndarray],
+        chunks: list[np.ndarray] | list[np.memmap],
         doc_id_to_idx: dict[str, list[int]],
         psg_id_to_idx: dict[str, int],
     ) -> None:
