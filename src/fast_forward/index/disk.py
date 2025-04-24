@@ -94,6 +94,7 @@ class OnDiskIndex(Index):
     def _get_mmap_indexer(self) -> ChunkIndexer:
         """Create and return a chunk indexer using memory-mapped arrays.
 
+        :raises RuntimeError: When the dataset is not chunked in the required way.
         :return: The chunk indexer.
         """
         if self._mmap_indexer is None:
