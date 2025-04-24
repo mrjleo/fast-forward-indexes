@@ -23,10 +23,13 @@ LOGGER = logging.getLogger(__name__)
 
 # h5py does not play nice with pyright, so we add lots of ignores in this class
 class OnDiskIndex(Index):
-    """Fast-Forward index that is read on-demand from disk.
+    """Fast-Forward index that is read on-demand from disk (HDF5 format).
 
-    Uses HDF5 via h5py under the hood. The `max_indexing_size` argument works around an
+    The `max_indexing_size` argument works around an
     [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
+
+    If `use_mmap` is set to `True`, the vectors on disk are accessed using memory maps,
+    which is usually faster.
     """
 
     def __init__(
@@ -89,7 +92,7 @@ class OnDiskIndex(Index):
         )
 
     def _get_mmap_indexer(self) -> ChunkIndexer:
-        """Create or return a chunk indexer using memory-mapped arrays for the chunks.
+        """Create and return a chunk indexer using memory-mapped arrays.
 
         :return: The chunk indexer.
         """
@@ -291,7 +294,7 @@ class OnDiskIndex(Index):
 
         with h5py.File(self._index_file, "r") as fp:
             # reading all vectors at once slows h5py down significantly, so we read them
-            # in chunks and concatenate
+            # in batches and concatenate
             vectors = np.concatenate(  # pyright: ignore[reportCallIssue]
                 [
                     fp["vectors"][  # pyright: ignore[reportIndexIssue, reportArgumentType]
