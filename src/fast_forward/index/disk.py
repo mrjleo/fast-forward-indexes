@@ -42,8 +42,8 @@ class OnDiskIndex(Index):
         init_size: int = 2**16,
         chunk_size: int = 2**16,
         max_id_length: int = 8,
-        memory_mapped: bool = False,
         overwrite: bool = False,
+        memory_mapped: bool = False,
         max_indexing_size: int = 2**10,
     ) -> None:
         """Create an index on disk.
@@ -57,8 +57,8 @@ class OnDiskIndex(Index):
         :param chunk_size: Size of chunks (HDF5).
         :param max_id_length:
             Maximum length of document and passage IDs (number of characters).
-        :param memory_mapped: Use memory maps for retrieval of vectors.
         :param overwrite: Overwrite index file if it exists.
+        :param memory_mapped: Use memory maps for retrieval of vectors.
         :param max_indexing_size:
             Maximum number of vectors to retrieve from the HDF5 dataset at once.
         :raises ValueError: When the file exists and `overwrite=False`.
@@ -73,8 +73,8 @@ class OnDiskIndex(Index):
         self._init_size = init_size
         self._chunk_size = chunk_size
         self._max_id_length = max_id_length
-        self._max_indexing_size = max_indexing_size
         self._memory_mapped = memory_mapped
+        self._max_indexing_size = max_indexing_size
 
         # the memory maps are created on-demand in _get_vectors
         self._mmap_indexer = None
@@ -359,8 +359,8 @@ class OnDiskIndex(Index):
         query_encoder: "Encoder | None" = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
-        max_indexing_size: int = 2**10,
         memory_mapped: bool = False,
+        max_indexing_size: int = 2**10,
     ) -> "OnDiskIndex":
         """Open an existing index on disk.
 
@@ -368,9 +368,9 @@ class OnDiskIndex(Index):
         :param query_encoder: The query encoder.
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
+        :param memory_mapped: Use memory maps for retrieval of vectors if possible.
         :param max_indexing_size:
             Maximum number of vectors to retrieve from the HDF5 dataset at once.
-        :param memory_mapped: Use memory maps for retrieval of vectors if possible.
         :return: The index.
         """
         LOGGER.debug("reading file %s", index_file)
@@ -383,8 +383,9 @@ class OnDiskIndex(Index):
             encoder_batch_size=encoder_batch_size,
         )
         index._index_file = index_file.absolute()
-        index._max_indexing_size = max_indexing_size
         index._memory_mapped = memory_mapped
+        index._max_indexing_size = max_indexing_size
+
         index._mmap_indexer = None
 
         # deserialize quantizer if any
