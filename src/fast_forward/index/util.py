@@ -99,10 +99,10 @@ class ChunkIndexer:
 
         # group indexes by chunk and index each chunk individually
         items_by_chunk = defaultdict(lambda: ([], []))
-        for i, idx in enumerate(indices):
+        for idx, id in zip(indices, ids_):
             chunk_idx, idx_in_chunk = self._get_chunk_indices(idx)
             items_by_chunk[chunk_idx][0].append(idx_in_chunk)
-            items_by_chunk[chunk_idx][1].append(ids_[i])
+            items_by_chunk[chunk_idx][1].append(id)
 
         result = []
         out_ids = []
