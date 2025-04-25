@@ -437,44 +437,48 @@ class TestOnDiskIndex(TestIndex):
     def setUpClass(cls):
         cls.temp_dir = Path(tempfile.mkdtemp())
         cls.index = OnDiskIndex(
-            cls.temp_dir / "index.h5", init_size=32, chunk_size=32, use_mmap=False
+            cls.temp_dir / "index.h5", init_size=32, chunk_size=32, memory_mapped=False
         )
         cls.doc_psg_index = OnDiskIndex(
-            cls.temp_dir / "doc_psg_index.h5", DUMMY_ENCODER, use_mmap=False
+            cls.temp_dir / "doc_psg_index.h5", DUMMY_ENCODER, memory_mapped=False
         )
         cls.index_partial_ids = OnDiskIndex(
             cls.temp_dir / "index_partial_ids.h5",
             DUMMY_ENCODER,
-            use_mmap=False,
+            memory_mapped=False,
         )
         cls.doc_index = OnDiskIndex(
             cls.temp_dir / "doc_index.h5",
             DUMMY_ENCODER,
-            use_mmap=False,
+            memory_mapped=False,
         )
         cls.psg_index = OnDiskIndex(
             cls.temp_dir / "psg_index.h5",
             DUMMY_ENCODER,
-            use_mmap=False,
+            memory_mapped=False,
         )
         cls.index_no_enc = OnDiskIndex(
-            cls.temp_dir / "index_no_enc.h5", query_encoder=None, use_mmap=False
+            cls.temp_dir / "index_no_enc.h5", query_encoder=None, memory_mapped=False
         )
         cls.index_wrong_dim = OnDiskIndex(
-            cls.temp_dir / "index_wrong_dim.h5", query_encoder=None, use_mmap=False
+            cls.temp_dir / "index_wrong_dim.h5", query_encoder=None, memory_mapped=False
         )
         cls.early_stopping_index = OnDiskIndex(
             cls.temp_dir / "early_stopping_index.h5",
             LambdaEncoder(lambda q: np.array([10, 10])),
             mode=Mode.PASSAGE,
-            use_mmap=False,
+            memory_mapped=False,
         )
         cls.coalesced_indexes = [
             OnDiskIndex(
-                cls.temp_dir / "coalesced_index_1.h5", mode=Mode.MAXP, use_mmap=False
+                cls.temp_dir / "coalesced_index_1.h5",
+                mode=Mode.MAXP,
+                memory_mapped=False,
             ),
             OnDiskIndex(
-                cls.temp_dir / "coalesced_index_2.h5", mode=Mode.MAXP, use_mmap=False
+                cls.temp_dir / "coalesced_index_2.h5",
+                mode=Mode.MAXP,
+                memory_mapped=False,
             ),
         ]
         cls.iter_indexes = [
@@ -482,14 +486,16 @@ class TestOnDiskIndex(TestIndex):
                 cls.temp_dir / "iter_index_1.h5",
                 init_size=2,
                 chunk_size=2,
-                use_mmap=False,
+                memory_mapped=False,
             ),
-            OnDiskIndex(cls.temp_dir / "iter_index_2.h5", init_size=5, use_mmap=False),
+            OnDiskIndex(
+                cls.temp_dir / "iter_index_2.h5", init_size=5, memory_mapped=False
+            ),
         ]
         cls.quantized_index = OnDiskIndex(
             cls.temp_dir / "quantized_index.h5",
             quantizer=DUMMY_QUANTIZER,
-            use_mmap=False,
+            memory_mapped=False,
         )
         super(TestOnDiskIndex, cls).setUpClass()
 
@@ -622,13 +628,13 @@ class TestOnDiskIndex(TestIndex):
         vecs, ids = index._get_vectors(psg_ids)
         _test_vectors(vecs, ids, psg_reps, psg_ids)
 
-    def test_mmap(self):
+    def test_memory_mapped(self):
         index = OnDiskIndex(
             self.temp_dir / "mmap_index.h5",
             mode=Mode.PASSAGE,
             init_size=8,
             chunk_size=4,
-            use_mmap=True,
+            memory_mapped=True,
         )
         psg_reps = np.random.normal(size=(16, 16))
         psg_ids = [f"p{i}" for i in range(16)]
