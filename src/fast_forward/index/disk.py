@@ -204,6 +204,42 @@ class OnDiskIndex(Index):
                 index._add(vectors, doc_ids=doc_ids, psg_ids=psg_ids)  # pyright: ignore[reportArgumentType]
         return index
 
+    def _check_ids(
+        self,
+        doc_ids: IDSequence,
+        psg_ids: IDSequence,
+        max_doc_id_len: int,
+        max_psg_id_len: int,
+    ) -> None:
+        """Verify that IDs are valid.
+
+        :param doc_ids: Document IDs to add.
+        :param psg_ids: Passage IDs to add.
+        :param max_doc_id_len: Maximum length (in characters) of document IDs.
+        :param max_psg_id_len: Maximum length (in characters) of passage IDs.
+        :raises RuntimeError: When a document ID is longer than allowed.
+        :raises RuntimeError: When a passage ID is longer than allowed.
+        :raises RuntimeError: When a passage ID already exists.
+        """
+        for doc_id in doc_ids:
+            if doc_id is None:
+                continue
+            if len(doc_id) > max_doc_id_len:
+                raise RuntimeError(
+                    f"Document ID {doc_id} is longer than the maximum "
+                    f"({max_doc_id_len} characters)."
+                )
+        for psg_id in psg_ids:
+            if psg_id is None:
+                continue
+            if len(psg_id) > max_psg_id_len:
+                raise RuntimeError(
+                    f"Passage ID {psg_id} is longer than the maximum "
+                    f"({max_psg_id_len} characters)."
+                )
+            if psg_id in self._psg_id_to_idx:
+                raise RuntimeError(f"Passage ID {psg_id} already exists.")
+
     def _add(
         self,
         vectors: np.ndarray,
@@ -216,20 +252,12 @@ class OnDiskIndex(Index):
                 self._create_ds(fp, vectors.shape[-1], vectors.dtype)
 
             # check all IDs first before adding anything
-            doc_id_size = fp["doc_ids"].dtype.itemsize  # pyright: ignore[reportAttributeAccessIssue]
-            for doc_id in doc_ids:
-                if doc_id is not None and len(doc_id) > doc_id_size:
-                    raise RuntimeError(
-                        f"Document ID {doc_id} is longer than the maximum "
-                        f"({doc_id_size} characters)."
-                    )
-            psg_id_size = fp["psg_ids"].dtype.itemsize  # pyright: ignore[reportAttributeAccessIssue]
-            for psg_id in psg_ids:
-                if psg_id is not None and len(psg_id) > psg_id_size:
-                    raise RuntimeError(
-                        f"Passage ID {psg_id} is longer than the maximum "
-                        f"({psg_id_size} characters)."
-                    )
+            self._check_ids(
+                doc_ids,
+                psg_ids,
+                fp["doc_ids"].dtype.itemsize,  # pyright: ignore[reportAttributeAccessIssue]
+                fp["psg_ids"].dtype.itemsize,  # pyright: ignore[reportAttributeAccessIssue]
+            )
 
             num_new_vecs = vectors.shape[0]
             capacity = fp["vectors"].shape[0]  # pyright: ignore[reportAttributeAccessIssue]
