@@ -26,8 +26,8 @@ class InMemoryIndex(Index):
         quantizer: "Quantizer | None" = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
-        init_size: int = 2**14,
-        alloc_size: int = 2**14,
+        init_size: int = 2**16,
+        alloc_size: int = 2**16,
     ) -> None:
         """Create an index in memory.
 

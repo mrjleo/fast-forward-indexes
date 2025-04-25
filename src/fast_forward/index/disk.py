@@ -29,7 +29,7 @@ class OnDiskIndex(Index):
     [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
 
     If `use_mmap` is set to `True`, the vectors on disk are accessed using memory maps,
-    which is usually faster.
+    which is usually faster. In this case, `max_indexing_size` has no effect.
     """
 
     def __init__(
@@ -39,8 +39,8 @@ class OnDiskIndex(Index):
         quantizer: Quantizer | None = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
-        init_size: int = 2**14,
-        chunk_size: int = 2**14,
+        init_size: int = 2**16,
+        chunk_size: int = 2**16,
         max_id_length: int = 8,
         use_mmap: bool = False,
         overwrite: bool = False,
@@ -57,7 +57,7 @@ class OnDiskIndex(Index):
         :param chunk_size: Size of chunks (HDF5).
         :param max_id_length:
             Maximum length of document and passage IDs (number of characters).
-        :param use_mmap: Use memory maps for retrieval of vectors if possible.
+        :param use_mmap: Use memory maps for retrieval of vectors.
         :param overwrite: Overwrite index file if it exists.
         :param max_indexing_size:
             Maximum number of vectors to retrieve from the HDF5 dataset at once.
