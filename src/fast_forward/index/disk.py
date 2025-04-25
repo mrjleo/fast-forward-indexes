@@ -238,9 +238,10 @@ class OnDiskIndex(Index):
             num_cur_vectors = cast("int", fp.attrs["num_vectors"])
             space_left = capacity - num_cur_vectors
             if num_new_vecs > space_left:
-                # resize based on chunk size
+                # resize based on chunk size, i.e., allocate as many chunks as necessary
+                # for the new data
                 new_size = (
-                    int((num_cur_vectors + num_new_vecs) / self._chunk_size) + 1
+                    int((num_cur_vectors + num_new_vecs) / self._chunk_size + 0.5)
                 ) * self._chunk_size
                 LOGGER.debug("resizing index from %s to %s", capacity, new_size)
                 for ds in ("vectors", "doc_ids", "psg_ids"):
