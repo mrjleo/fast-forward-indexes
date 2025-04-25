@@ -222,6 +222,17 @@ class TestIndex(unittest.TestCase):
                 psg_ids=[None] + DUMMY_PSG_IDS[1:],
             )
 
+        # duplicate passage ID
+        with self.assertRaises(RuntimeError):
+            self.index_no_enc.add(
+                DUMMY_VECTORS[:1],
+                psg_ids=DUMMY_PSG_IDS[:1],
+            )
+            self.index_no_enc.add(
+                DUMMY_VECTORS[:1],
+                psg_ids=DUMMY_PSG_IDS[:1],
+            )
+
         # encoding without encoder
         with self.assertRaises(RuntimeError):
             self.index_no_enc.encode_queries(["test"])
