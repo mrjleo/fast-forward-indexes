@@ -94,7 +94,6 @@ class ChunkIndexer:
 
         if len(indices) == 0:
             return np.array([]), []
-
         if len(self._chunks) == 1:
             return self._chunks[0][indices], ids_
 
@@ -103,12 +102,12 @@ class ChunkIndexer:
         for i, idx in enumerate(indices):
             chunk_idx, idx_in_chunk = self._get_chunk_indices(idx)
             items_by_chunk[chunk_idx][0].append(idx_in_chunk)
-            items_by_chunk[chunk_idx][1].append(i)
+            items_by_chunk[chunk_idx][1].append(ids_[i])
 
         result = []
-        ordering = []
-        for chunk_idx, (idx_in_chunk, i_) in items_by_chunk.items():
+        out_ids = []
+        for chunk_idx, (idx_in_chunk, ids_in_chunk) in items_by_chunk.items():
             result.append(self._chunks[chunk_idx][idx_in_chunk])
-            ordering.extend(i_)
+            out_ids.extend(ids_in_chunk)
 
-        return np.concatenate(result)[np.argsort(ordering)], ids_
+        return np.concatenate(result), out_ids
