@@ -9,6 +9,7 @@ from tqdm import tqdm
 import fast_forward
 from fast_forward.index.base import IDSequence, Index, Mode
 from fast_forward.index.memory import InMemoryIndex
+from fast_forward.index.util import ChunkIndexer, get_indices
 from fast_forward.quantizer import Quantizer
 
 if TYPE_CHECKING:
@@ -22,10 +23,13 @@ LOGGER = logging.getLogger(__name__)
 
 # h5py does not play nice with pyright, so we add lots of ignores in this class
 class OnDiskIndex(Index):
-    """Fast-Forward index that is read on-demand from disk.
+    """Fast-Forward index that is read on-demand from disk (HDF5 format).
 
-    Uses HDF5 via h5py under the hood. The `max_indexing_size` argument works around an
+    The `max_indexing_size` argument works around an
     [h5py limitation](https://docs.h5py.org/en/latest/high/dataset.html#fancy-indexing).
+
+    If `memory_mapped` is set to `True`, the vectors are accessed using memory maps,
+    which is usually faster. In this case, `max_indexing_size` has no effect.
     """
 
     def __init__(
@@ -35,10 +39,10 @@ class OnDiskIndex(Index):
         quantizer: Quantizer | None = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
-        init_size: int = 2**14,
-        resize_min_val: int = 2**10,
-        hdf5_chunk_size: int | None = None,
+        init_size: int = 2**16,
+        chunk_size: int = 2**16,
         max_id_length: int = 8,
+        memory_mapped: bool = False,
         overwrite: bool = False,
         max_indexing_size: int = 2**10,
     ) -> None:
@@ -50,10 +54,10 @@ class OnDiskIndex(Index):
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
         :param init_size: Initial size to allocate (number of vectors).
-        :param resize_min_val: Minimum number of vectors to increase index size by.
-        :param hdf5_chunk_size: Specify a chunk size used by HDF5.
+        :param chunk_size: Size of chunks (HDF5).
         :param max_id_length:
             Maximum length of document and passage IDs (number of characters).
+        :param memory_mapped: Use memory maps for retrieval of vectors.
         :param overwrite: Overwrite index file if it exists.
         :param max_indexing_size:
             Maximum number of vectors to retrieve from the HDF5 dataset at once.
@@ -67,10 +71,13 @@ class OnDiskIndex(Index):
         self._psg_id_to_idx = {}
 
         self._init_size = init_size
-        self._resize_min_val = resize_min_val
-        self._hdf5_chunk_size = hdf5_chunk_size
+        self._chunk_size = chunk_size
         self._max_id_length = max_id_length
         self._max_indexing_size = max_indexing_size
+        self._memory_mapped = memory_mapped
+
+        # the memory maps are created on-demand in _get_vectors
+        self._mmap_indexer = None
 
         LOGGER.debug("creating file %s", self._index_file)
         with h5py.File(self._index_file, "w") as fp:
@@ -83,6 +90,35 @@ class OnDiskIndex(Index):
             mode=mode,
             encoder_batch_size=encoder_batch_size,
         )
+
+    def _get_mmap_indexer(self) -> ChunkIndexer:
+        """Create and return a chunk indexer using memory-mapped arrays.
+
+        :raises RuntimeError: When the dataset is not chunked in the required way.
+        :return: The chunk indexer.
+        """
+        if self._mmap_indexer is None:
+            with h5py.File(self._index_file, "r") as fp:
+                if (
+                    fp["vectors"].chunks is None  # pyright: ignore[reportAttributeAccessIssue]
+                    or fp["vectors"].chunks[1] != fp["vectors"].shape[1]  # pyright: ignore[reportAttributeAccessIssue]
+                ):
+                    raise RuntimeError("This index does not support memory maps.")
+                arrays = [
+                    np.memmap(
+                        self._index_file,
+                        mode="r",
+                        shape=fp["vectors"].chunks,  # pyright: ignore[reportAttributeAccessIssue]
+                        offset=fp["vectors"].id.get_chunk_info(i).byte_offset,
+                        dtype=fp["vectors"].dtype,  # pyright: ignore[reportAttributeAccessIssue]
+                    )
+                    for i in range(fp["vectors"].id.get_num_chunks())
+                ]
+            LOGGER.debug("created memory maps for %s chunks", len(arrays))
+            self._mmap_indexer = ChunkIndexer(
+                arrays, self._doc_id_to_idx, self._psg_id_to_idx
+            )
+        return self._mmap_indexer
 
     def _on_quantizer_set(self) -> None:
         assert self.quantizer is not None
@@ -111,9 +147,7 @@ class OnDiskIndex(Index):
             (self._init_size, dim),
             dtype,
             maxshape=(None, dim),
-            chunks=True
-            if self._hdf5_chunk_size is None
-            else (self._hdf5_chunk_size, dim),
+            chunks=(self._chunk_size, dim),
         )
         fp.create_dataset(
             "doc_ids",
@@ -201,23 +235,27 @@ class OnDiskIndex(Index):
             capacity = fp["vectors"].shape[0]  # pyright: ignore[reportAttributeAccessIssue]
 
             # check if we have enough space, resize if necessary
-            cur_num_vectors = cast("int", fp.attrs["num_vectors"])
-            space_left = capacity - cur_num_vectors
+            num_cur_vectors = cast("int", fp.attrs["num_vectors"])
+            space_left = capacity - num_cur_vectors
             if num_new_vecs > space_left:
-                new_size = max(
-                    cur_num_vectors + num_new_vecs,
-                    capacity + self._resize_min_val,
-                )
+                # resize based on chunk size, i.e., allocate as many chunks as necessary
+                # for the new data
+                new_size = (
+                    int((num_cur_vectors + num_new_vecs) / self._chunk_size + 0.5)
+                ) * self._chunk_size
                 LOGGER.debug("resizing index from %s to %s", capacity, new_size)
                 for ds in ("vectors", "doc_ids", "psg_ids"):
                     fp[ds].resize(new_size, axis=0)  # pyright: ignore[reportAttributeAccessIssue]
+
+                # memory maps need to be recreated after resizing
+                self._mmap_indexer = None
 
             # add new document IDs to index and in-memory mappings
             doc_id_idxs, non_null_doc_ids = [], []
             for i, doc_id in enumerate(doc_ids):
                 if doc_id is not None:
-                    self._doc_id_to_idx[doc_id].append(cur_num_vectors + i)
-                    doc_id_idxs.append(cur_num_vectors + i)
+                    self._doc_id_to_idx[doc_id].append(num_cur_vectors + i)
+                    doc_id_idxs.append(num_cur_vectors + i)
                     non_null_doc_ids.append(doc_id)
             fp["doc_ids"][doc_id_idxs] = non_null_doc_ids  # pyright: ignore[reportIndexIssue]
 
@@ -225,13 +263,13 @@ class OnDiskIndex(Index):
             psg_id_idxs, non_null_psg_ids = [], []
             for i, psg_id in enumerate(psg_ids):
                 if psg_id is not None:
-                    self._psg_id_to_idx[psg_id] = cur_num_vectors + i
-                    psg_id_idxs.append(cur_num_vectors + i)
+                    self._psg_id_to_idx[psg_id] = num_cur_vectors + i
+                    psg_id_idxs.append(num_cur_vectors + i)
                     non_null_psg_ids.append(psg_id)
             fp["psg_ids"][psg_id_idxs] = non_null_psg_ids  # pyright: ignore[reportIndexIssue]
 
             # add new vectors
-            fp["vectors"][cur_num_vectors : cur_num_vectors + num_new_vecs] = vectors  # pyright: ignore[reportIndexIssue]
+            fp["vectors"][num_cur_vectors : num_cur_vectors + num_new_vecs] = vectors  # pyright: ignore[reportIndexIssue]
             fp.attrs["num_vectors"] += num_new_vecs  # pyright: ignore[reportOperatorIssue]
 
     def _get_doc_ids(self) -> set[str]:
@@ -240,49 +278,31 @@ class OnDiskIndex(Index):
     def _get_psg_ids(self) -> set[str]:
         return set(self._psg_id_to_idx.keys())
 
-    def _get_idxs(self, id: str) -> list[int]:
-        """Find the internal array indices for a document/passage ID.
-
-        Takes ranking mode into account.
-
-        :param id: The ID to return the indices for.
-        :raises IndexError: When the ID cannot be found in the index.
-        :return: The internal array indices.
-        """
-        if self.mode in (Mode.MAXP, Mode.AVEP):
-            return self._doc_id_to_idx.get(id, [])
-        if self.mode == Mode.FIRSTP:
-            return self._doc_id_to_idx.get(id, [])[:1]
-
-        psg_idx = self._psg_id_to_idx.get(id)
-        return [] if psg_idx is None else [psg_idx]
-
     def _get_vectors(self, ids: "Iterable[str]") -> tuple[np.ndarray, list[str]]:
-        idx_pairs = []
-        for id in ids:
-            cur_idxs = self._get_idxs(id)
-            if len(cur_idxs) == 0:
-                raise IndexError(f"ID {id} not found in the index.")
+        if self._memory_mapped:
+            return self._get_mmap_indexer()(ids, self.mode)
 
-            for idx in cur_idxs:
-                idx_pairs.append((id, idx))
-
-        if len(idx_pairs) == 0:
+        # if there are no memory maps, retrieve the vectors using h5py
+        indices, ids_ = get_indices(
+            ids, self.mode, self._doc_id_to_idx, self._psg_id_to_idx
+        )
+        if len(ids_) == 0:
             return np.array([]), []
 
         # h5py requires accessing the dataset with sorted indices
-        out_ids, vec_idxs = zip(*sorted(idx_pairs, key=lambda x: x[1]))
-        vec_idxs = list(vec_idxs)
+        idx_pairs = zip(indices, ids_)
+        h5_indices, out_ids = zip(*sorted(idx_pairs, key=lambda x: x[0]))
+        h5_indices = list(h5_indices)
 
         with h5py.File(self._index_file, "r") as fp:
             # reading all vectors at once slows h5py down significantly, so we read them
-            # in chunks and concatenate
+            # in batches and concatenate
             vectors = np.concatenate(  # pyright: ignore[reportCallIssue]
                 [
                     fp["vectors"][  # pyright: ignore[reportIndexIssue, reportArgumentType]
-                        vec_idxs[i : i + self._max_indexing_size]
+                        h5_indices[i : i + self._max_indexing_size]
                     ]
-                    for i in range(0, len(vec_idxs), self._max_indexing_size)
+                    for i in range(0, len(h5_indices), self._max_indexing_size)
                 ]
             )
             return vectors, list(out_ids)
@@ -311,8 +331,8 @@ class OnDiskIndex(Index):
         query_encoder: "Encoder | None" = None,
         mode: Mode = Mode.MAXP,
         encoder_batch_size: int = 32,
-        resize_min_val: int = 2**10,
         max_indexing_size: int = 2**10,
+        memory_mapped: bool = False,
     ) -> "OnDiskIndex":
         """Open an existing index on disk.
 
@@ -320,9 +340,9 @@ class OnDiskIndex(Index):
         :param query_encoder: The query encoder.
         :param mode: The ranking mode.
         :param encoder_batch_size: Batch size for the query encoder.
-        :param resize_min_val: Minimum value to increase index size by.
         :param max_indexing_size:
             Maximum number of vectors to retrieve from the HDF5 dataset at once.
+        :param memory_mapped: Use memory maps for retrieval of vectors if possible.
         :return: The index.
         """
         LOGGER.debug("reading file %s", index_file)
@@ -335,8 +355,9 @@ class OnDiskIndex(Index):
             encoder_batch_size=encoder_batch_size,
         )
         index._index_file = index_file.absolute()
-        index._resize_min_val = resize_min_val
         index._max_indexing_size = max_indexing_size
+        index._memory_mapped = memory_mapped
+        index._mmap_indexer = None
 
         # deserialize quantizer if any
         with h5py.File(index_file, "r") as fp:
