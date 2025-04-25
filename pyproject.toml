@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "fast-forward-indexes"
 description = "Efficient interpolation-based ranking on CPUs"
 authors = [{ name = "Jurek Leonhardt" }]
-version = "0.7.1"
+version = "0.8.0"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["information retrieval", "ranking", "search"]
